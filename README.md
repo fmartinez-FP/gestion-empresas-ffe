@@ -13,6 +13,15 @@ Plataforma web para gestión de empresas colaboradoras en la **Fase de Formació
 - Notificaciones automáticas (convenios por caducar, resúmenes mensuales)
 - Autenticación LDAP
 
+## Capturas de pantalla
+
+![Dashboard](docs/screenshots/Dashboard.png)
+![Listado de Empresas](docs/screenshots/Empresas_Listado.png)
+![Mapa de Empresas](docs/screenshots/Empresas_Mapa.png)
+![Histórico de envío de alumnos](docs/screenshots/Historico.png)
+![Informes 1/2](docs/screenshots/Informes_1.png)
+![Informes 2/2](docs/screenshots/Informes_2.png)
+
 ## Stack técnico
 
 - **Framework**: Laravel 11, PHP 8.2
