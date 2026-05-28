@@ -35,7 +35,7 @@
                 </div>
                 <div class="stat-box stat-green">
                     <div class="stat-number">{{ $stats['alumnos_colocados'] }}</div>
-                    <div class="stat-label">Alumnos colocados</div>
+                    <div class="stat-label">Alumnos enviados a empresas</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">{{ number_format($stats['horas_totales']) }}</div>

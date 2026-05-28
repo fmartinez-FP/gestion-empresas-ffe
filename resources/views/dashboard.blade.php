@@ -179,7 +179,7 @@
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
-                <p class="text-primary-200 text-sm">Alumnos colocados</p>
+                <p class="text-primary-200 text-sm">Alumnos enviados a empresas</p>
                 <p class="text-3xl font-bold">{{ number_format($colocacionesCurso->total_alumnos ?? 0) }}</p>
             </div>
             <div>
