@@ -4,12 +4,12 @@ RUN apk add --no-cache \
     git curl zip unzip \
     libpng-dev libxml2-dev oniguruma-dev \
     icu-dev freetype-dev libjpeg-turbo-dev \
-    openldap-dev
+    openldap-dev libzip-dev
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         pdo_mysql mbstring exif pcntl bcmath \
-        gd xml intl ldap
+        gd xml intl ldap zip
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
