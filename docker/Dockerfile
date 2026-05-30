@@ -14,9 +14,15 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
+
 COPY . .
 
-RUN composer install --optimize-autoloader --no-dev --no-interaction \
+RUN mkdir -p storage/framework/views \
+             storage/framework/cache \
+             storage/framework/sessions \
+             storage/logs \
+             bootstrap/cache \
+    && composer install --optimize-autoloader --no-dev --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
