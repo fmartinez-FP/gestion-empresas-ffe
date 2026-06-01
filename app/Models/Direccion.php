@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Direccion extends Model
 {
@@ -44,5 +45,10 @@ class Direccion extends Model
     public function isGeocodificada(): bool
     {
         return $this->latitud !== null && $this->longitud !== null;
+    }
+
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(AsignacionFct::class, 'sede_id');
     }
 }

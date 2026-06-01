@@ -58,6 +58,12 @@ class Empresa extends Model
     }
 
 
+
+    public function asignacionesFct(): HasMany
+    {
+        return $this->hasMany(AsignacionFct::class, 'empresa_id');
+    }
+
     public function contactos(): HasMany
     {
         return $this->hasMany(Contacto::class)->orderBy('fecha_contacto', 'desc');
