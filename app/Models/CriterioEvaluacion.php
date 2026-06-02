@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CriterioEvaluacion extends Model
 {
@@ -32,5 +33,10 @@ class CriterioEvaluacion extends Model
             'criterio_evaluacion_id',
             'asignacion_id'
         )->withTimestamps();
+    }
+
+    public function elegibles(): HasMany
+    {
+        return $this->hasMany(ElegibleFfeCe::class, 'criterio_evaluacion_id');
     }
 }

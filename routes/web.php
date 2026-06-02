@@ -138,6 +138,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/elegibles', [\App\Http\Controllers\ElegibleFfeController::class, 'index'])->name('elegibles.index');
         Route::post('/elegibles/toggle', [\App\Http\Controllers\ElegibleFfeController::class, 'toggle'])->name('elegibles.toggle');
+        Route::post('/elegibles/toggle-ce', [\App\Http\Controllers\ElegibleFfeController::class, 'toggleCe'])->name('elegibles.toggle-ce');
     });
 
     // =========================================================================
