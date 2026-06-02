@@ -11,12 +11,20 @@ return new class extends Migration
         Schema::table('asignaciones_fct', function (Blueprint $table) {
             $table->softDeletes();
         });
+
+        Schema::table('documentos_fct', function (Blueprint $table) {
+            $table->date('purgar_after')->nullable()->after('firmado_at');
+        });
     }
 
     public function down(): void
     {
         Schema::table('asignaciones_fct', function (Blueprint $table) {
             $table->dropSoftDeletes();
+        });
+
+        Schema::table('documentos_fct', function (Blueprint $table) {
+            $table->dropColumn('purgar_after');
         });
     }
 };

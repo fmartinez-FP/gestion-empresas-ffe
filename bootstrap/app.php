@@ -12,12 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            Route::middleware('web')
+                ->group(base_path('routes/portal.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
         $middleware->alias([
-            'auth' => \App\Http\Middleware\Authenticate::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'auth'         => \App\Http\Middleware\Authenticate::class,
+            'guest'        => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'auth.externo' => \App\Http\Middleware\AuthWebExterno::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

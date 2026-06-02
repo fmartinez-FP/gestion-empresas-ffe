@@ -47,6 +47,14 @@ class Alumno extends Model
         return $this->hasMany(AsignacionFct::class, 'alumno_id');
     }
 
+    public function asignacionActiva()
+    {
+        return $this->hasOne(AsignacionFct::class, 'alumno_id')
+            ->where('estado', 'activa')
+            ->whereNull('deleted_at')
+            ->latest();
+    }
+
     // =========================================================================
     // ACCESSORS
     // =========================================================================

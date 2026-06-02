@@ -14,6 +14,10 @@ return [
             'driver'   => 'session',
             'provider' => 'users',
         ],
+        'web_externo' => [
+            'driver'   => 'session',
+            'provider' => 'usuarios_externos',
+        ],
     ],
 
     'providers' => [
@@ -33,6 +37,10 @@ return [
                     'email'    => 'mail',
                 ],
             ],
+        ],
+        'usuarios_externos' => [
+            'driver' => 'eloquent',
+            'model'  => User::class,
         ],
     ],
 

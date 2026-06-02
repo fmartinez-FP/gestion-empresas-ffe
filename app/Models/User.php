@@ -81,7 +81,14 @@ class User extends Authenticatable implements CanResetPassword, LdapAuthenticata
     // MÉTODOS DE ROL
     // =========================================================================
 
+    public function alumno(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Alumno::class, 'user_id');
+    }
+
     public function esAdmin(): bool           { return $this->rol === 'admin'; }
+    public function esAlumno(): bool          { return $this->rol === 'alumno'; }
+    public function esTutorEmpresa(): bool    { return $this->rol === 'tutor_empresa'; }
     public function esResponsableFFE(): bool  { return $this->rol === 'responsable_ffe'; }
     public function esResponsableCiclo(): bool{ return $this->rol === 'responsable_ciclo'; }
     public function esProfesor(): bool        { return $this->rol === 'profesor'; }
