@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 use App\Models\Notificacion;
+use App\Policies\AlumnoPolicy;
+use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
@@ -17,6 +19,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Carbon::setLocale('es');
+
+        // Gates para Alumno (abilities sin modelo, delegadas a AlumnoPolicy)
+        Gate::define('crearAlumno',    [AlumnoPolicy::class, 'crearAlumno']);
+        Gate::define('editarAlumno',   [AlumnoPolicy::class, 'editarAlumno']);
+        Gate::define('eliminarAlumno', [AlumnoPolicy::class, 'eliminarAlumno']);
+        Gate::define('verArchivo',     [AlumnoPolicy::class, 'verArchivo']);
+        Gate::define('importarAlumnos',[AlumnoPolicy::class, 'importarAlumnos']);
 
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

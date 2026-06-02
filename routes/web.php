@@ -113,5 +113,15 @@ Route::middleware('auth')->group(function () {
         Route::post('configuracion/curso', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'cambiarCurso'])->name('configuracion.cambiar-curso');
         Route::post('configuracion/avanzar-curso', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'avanzarCurso'])->name('configuracion.avanzar-curso');
     });
+
+    // =========================================================================
+    // ALUMNOS
+    // =========================================================================
+    Route::get('alumnos/archivo', [\App\Http\Controllers\AlumnoController::class, 'archivo'])->name('alumnos.archivo');
+    Route::get('alumnos/import', [\App\Http\Controllers\AlumnoController::class, 'importForm'])->name('alumnos.import');
+    Route::post('alumnos/import', [\App\Http\Controllers\AlumnoController::class, 'import'])->name('alumnos.import.submit');
+    Route::get('alumnos/plantilla', [\App\Http\Controllers\AlumnoController::class, 'descargarPlantilla'])->name('alumnos.plantilla');
+    Route::resource('alumnos', \App\Http\Controllers\AlumnoController::class)->except(['destroy']);
+    Route::delete('alumnos/{alumno}', [\App\Http\Controllers\AlumnoController::class, 'destroy'])->name('alumnos.destroy');
     
 });
