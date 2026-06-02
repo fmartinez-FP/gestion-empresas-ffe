@@ -8,15 +8,19 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 use App\Models\Notificacion;
+use App\Contracts\PdfGeneratorInterface;
+use App\Services\DompdfAdapter;
 use App\Policies\AlumnoPolicy;
 use App\Policies\AsignacionPolicy;
 use App\Policies\CurriculumPolicy;
+use App\Policies\DocumentoFctPolicy;
 use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Binding interfaz PDF → adaptador DomPDF (swappable en tests)
+        $this->app->bind(PdfGeneratorInterface::class, DompdfAdapter::class);
     }
     public function boot(): void
     {
@@ -40,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('gestionarCurriculum',[CurriculumPolicy::class, 'gestionarCurriculum']);
         Gate::define('gestionarElegibles', [CurriculumPolicy::class, 'gestionarElegibles']);
 
+        // Gates para Documentos FCT
+        Gate::define('gestionarDocumento', [DocumentoFctPolicy::class, 'gestionarDocumento']);
+        Gate::define('eliminarDocumento',  [DocumentoFctPolicy::class, 'eliminarDocumento']);
+
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
@@ -56,7 +64,6 @@ class AppServiceProvider extends ServiceProvider
                         ]);
                 });
         });
-
 
         // Inyectar notificaciones no leídas en el layout
         View::composer('layouts.app', function ($view) {

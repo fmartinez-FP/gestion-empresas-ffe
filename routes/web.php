@@ -166,4 +166,12 @@ Route::middleware('auth')->group(function () {
     Route::get('interna/empresas/{empresa}/contactos', [\App\Http\Controllers\AsignacionFctController::class, 'contactos'])->name('interna.empresa.contactos');
 
 
+
+    // =========================================================================
+    // DOCUMENTOS FCT
+    // =========================================================================
+    Route::post("asignaciones/{asignacion}/documentos/{tipo}/generar",  [\App\Http\Controllers\DocumentoFctController::class, "generar"])->name("documentos.generar");
+    Route::get("documentos/{documento}/descargar",                      [\App\Http\Controllers\DocumentoFctController::class, "descargar"])->name("documentos.descargar");
+    Route::post("asignaciones/{asignacion}/documentos/subir-firmado",   [\App\Http\Controllers\DocumentoFctController::class, "subirFirmado"])->name("documentos.subir-firmado");
+    Route::delete("documentos/{documento}",                             [\App\Http\Controllers\DocumentoFctController::class, "destroy"])->name("documentos.destroy");
 });
