@@ -114,6 +114,32 @@ Route::middleware('auth')->group(function () {
         Route::post('configuracion/avanzar-curso', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'avanzarCurso'])->name('configuracion.avanzar-curso');
     });
 
+
+    // =========================================================================
+    // CURRICULUM: Modulos / RA / CE / Elegibles FFE
+    // =========================================================================
+    Route::prefix('admin/curriculum')->name('admin.curriculum.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\CurriculumController::class, 'index'])->name('index');
+
+        Route::get('/{ciclo}/modulos', [\App\Http\Controllers\ModuloProfesionalController::class, 'index'])->name('modulos.index');
+        Route::post('/{ciclo}/modulos', [\App\Http\Controllers\ModuloProfesionalController::class, 'store'])->name('modulos.store');
+        Route::get('/{ciclo}/modulos/{modulo}/edit', [\App\Http\Controllers\ModuloProfesionalController::class, 'edit'])->name('modulos.edit');
+        Route::put('/{ciclo}/modulos/{modulo}', [\App\Http\Controllers\ModuloProfesionalController::class, 'update'])->name('modulos.update');
+        Route::delete('/{ciclo}/modulos/{modulo}', [\App\Http\Controllers\ModuloProfesionalController::class, 'destroy'])->name('modulos.destroy');
+
+        Route::get('/modulos/{modulo}/ra', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'index'])->name('ra.index');
+        Route::post('/modulos/{modulo}/ra', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'store'])->name('ra.store');
+        Route::put('/ra/{ra}', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'update'])->name('ra.update');
+        Route::delete('/ra/{ra}', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'destroy'])->name('ra.destroy');
+
+        Route::post('/ra/{ra}/criterios', [\App\Http\Controllers\CriterioEvaluacionController::class, 'store'])->name('ce.store');
+        Route::put('/criterios/{ce}', [\App\Http\Controllers\CriterioEvaluacionController::class, 'update'])->name('ce.update');
+        Route::delete('/criterios/{ce}', [\App\Http\Controllers\CriterioEvaluacionController::class, 'destroy'])->name('ce.destroy');
+
+        Route::get('/elegibles', [\App\Http\Controllers\ElegibleFfeController::class, 'index'])->name('elegibles.index');
+        Route::post('/elegibles/toggle', [\App\Http\Controllers\ElegibleFfeController::class, 'toggle'])->name('elegibles.toggle');
+    });
+
     // =========================================================================
     // ALUMNOS
     // =========================================================================

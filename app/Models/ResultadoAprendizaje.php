@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class ResultadoAprendizaje extends Model
 {
@@ -44,5 +45,22 @@ class ResultadoAprendizaje extends Model
             'resultado_aprendizaje_id',
             'asignacion_id'
         )->withTimestamps();
+    }
+
+    public function elegibles(): HasMany
+    {
+        return $this->hasMany(ElegibleFfe::class, 'resultado_aprendizaje_id');
+    }
+
+    public function scopeElegiblesParaCurso(Builder $query, string $cursoAcademico): Builder
+    {
+        return $query->whereHas('elegibles', function (Builder $q) use ($cursoAcademico) {
+            $q->where('curso_academico', $cursoAcademico);
+        });
+    }
+
+    public function esElegibleParaCurso(string $cursoAcademico): bool
+    {
+        return $this->elegibles()->where('curso_academico', $cursoAcademico)->exists();
     }
 }

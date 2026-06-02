@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 use App\Models\Notificacion;
 use App\Policies\AlumnoPolicy;
+use App\Policies\CurriculumPolicy;
 use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('eliminarAlumno', [AlumnoPolicy::class, 'eliminarAlumno']);
         Gate::define('verArchivo',     [AlumnoPolicy::class, 'verArchivo']);
         Gate::define('importarAlumnos',[AlumnoPolicy::class, 'importarAlumnos']);
+
+        // Gates para Currículum (módulos, RA, CE, elegibles)
+        Gate::define('verCurriculum',      [CurriculumPolicy::class, 'verCurriculum']);
+        Gate::define('gestionarCurriculum',[CurriculumPolicy::class, 'gestionarCurriculum']);
+        Gate::define('gestionarElegibles', [CurriculumPolicy::class, 'gestionarElegibles']);
 
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

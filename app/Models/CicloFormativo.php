@@ -57,6 +57,14 @@ class CicloFormativo extends Model
     }
 
     /**
+     * Módulos profesionales de este ciclo
+     */
+    public function modulos(): HasMany
+    {
+        return $this->hasMany(ModuloProfesional::class, 'ciclo_id');
+    }
+
+    /**
      * Colocaciones de este ciclo
      */
     public function colocaciones(): HasMany
