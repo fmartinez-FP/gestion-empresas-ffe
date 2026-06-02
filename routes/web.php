@@ -151,4 +151,19 @@ Route::middleware('auth')->group(function () {
     Route::resource('alumnos', \App\Http\Controllers\AlumnoController::class)->except(['destroy']);
     Route::delete('alumnos/{alumno}', [\App\Http\Controllers\AlumnoController::class, 'destroy'])->name('alumnos.destroy');
     
+    // =========================================================================
+    // ASIGNACIONES FFE
+    // =========================================================================
+    Route::get('alumnos/{alumno}/asignaciones/create', [\App\Http\Controllers\AsignacionFctController::class, 'create'])->name('asignaciones.create');
+    Route::post('alumnos/{alumno}/asignaciones', [\App\Http\Controllers\AsignacionFctController::class, 'store'])->name('asignaciones.store');
+    Route::get('asignaciones/{asignacion}', [\App\Http\Controllers\AsignacionFctController::class, 'show'])->name('asignaciones.show');
+    Route::get('asignaciones/{asignacion}/edit', [\App\Http\Controllers\AsignacionFctController::class, 'edit'])->name('asignaciones.edit');
+    Route::put('asignaciones/{asignacion}', [\App\Http\Controllers\AsignacionFctController::class, 'update'])->name('asignaciones.update');
+    Route::post('asignaciones/{asignacion}/cancelar', [\App\Http\Controllers\AsignacionFctController::class, 'cancelar'])->name('asignaciones.cancelar');
+
+    // Endpoints JSON auxiliares para selects dinámicos (Alpine.js)
+    Route::get('interna/empresas/{empresa}/sedes', [\App\Http\Controllers\AsignacionFctController::class, 'sedes'])->name('interna.empresa.sedes');
+    Route::get('interna/empresas/{empresa}/contactos', [\App\Http\Controllers\AsignacionFctController::class, 'contactos'])->name('interna.empresa.contactos');
+
+
 });

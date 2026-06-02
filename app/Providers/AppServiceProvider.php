@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 use App\Models\Notificacion;
 use App\Policies\AlumnoPolicy;
+use App\Policies\AsignacionPolicy;
 use App\Policies\CurriculumPolicy;
 use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +28,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('eliminarAlumno', [AlumnoPolicy::class, 'eliminarAlumno']);
         Gate::define('verArchivo',     [AlumnoPolicy::class, 'verArchivo']);
         Gate::define('importarAlumnos',[AlumnoPolicy::class, 'importarAlumnos']);
+
+        // Gates para Asignaciones FFE
+        Gate::define('crearAsignacion',   [AsignacionPolicy::class, 'crearAsignacion']);
+        Gate::define('verAsignacion',     [AsignacionPolicy::class, 'verAsignacion']);
+        Gate::define('editarAsignacion',  [AsignacionPolicy::class, 'editarAsignacion']);
+        Gate::define('cancelarAsignacion',[AsignacionPolicy::class, 'cancelarAsignacion']);
 
         // Gates para Currículum (módulos, RA, CE, elegibles)
         Gate::define('verCurriculum',      [CurriculumPolicy::class, 'verCurriculum']);
