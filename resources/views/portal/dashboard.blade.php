@@ -11,6 +11,53 @@
 </div>
 
 @if($alumno && $alumno->asignacionActiva)
+    {{-- Tarjeta cuaderno de prácticas --}}
+    @if(Route::has('portal.cuaderno.index'))
+    @php
+        $asignacionActiva = $alumno->asignacionActiva;
+        $entradasSemana = $asignacionActiva->seguimientos()
+            ->where('fecha', '>=', now()->subDays(7)->toDateString())
+            ->count();
+    @endphp
+    <div class="bg-white rounded-lg shadow p-5 mb-6 border-l-4 border-primary-500">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-primary-50 rounded-lg">
+                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-800">Mi cuaderno de prácticas</p>
+                    <p class="text-sm text-gray-500">
+                        @if($entradasSemana > 0)
+                            {{ $entradasSemana }} entrada{{ $entradasSemana !== 1 ? 's' : '' }} esta semana
+                        @else
+                            Sin entradas esta semana
+                        @endif
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('portal.cuaderno.index') }}"
+               class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                Ver cuaderno
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+        @if($entradasSemana === 0)
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            <a href="{{ route('portal.cuaderno.create') }}"
+               class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                + Registrar entrada de hoy
+            </a>
+        </div>
+        @endif
+    </div>
+    @endif
+@endif
+@if($alumno && $alumno->asignacionActiva)
     @php $asignacion = $alumno->asignacionActiva; @endphp
     <div class="bg-white rounded-lg shadow p-6 mb-6">
         <h3 class="font-semibold text-gray-700 mb-4">Tu asignación activa</h3>

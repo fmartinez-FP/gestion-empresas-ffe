@@ -3,6 +3,9 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+    @include('partials.nav-alumnos')
+
+
     {{-- Breadcrumb --}}
     <div class="mb-1 text-sm text-gray-500">
         <a href="{{ route('alumnos.index') }}" class="hover:text-gray-700">Alumnos</a>

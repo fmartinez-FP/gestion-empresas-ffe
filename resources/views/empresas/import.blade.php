@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto space-y-6">
+
+    @include('partials.nav-empresas')
+
     <div class="flex items-center gap-4">
         <a href="{{ route('empresas.index') }}" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>

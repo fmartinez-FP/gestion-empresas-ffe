@@ -5,6 +5,9 @@
 @section('content')
 <div class="max-w-5xl mx-auto">
 
+    @include('partials.nav-alumnos')
+
+
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Cuaderno de seguimiento</h1>

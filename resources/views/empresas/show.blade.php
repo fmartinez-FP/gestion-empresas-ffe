@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="space-y-6">
+
+    @include('partials.nav-empresas')
+
     
     <!-- Cabecera -->
     <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">

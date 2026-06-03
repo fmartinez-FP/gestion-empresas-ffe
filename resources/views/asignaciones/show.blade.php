@@ -3,6 +3,9 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+    @include('partials.nav-alumnos')
+
+
     {{-- Breadcrumb --}}
     <div class="mb-1 text-sm text-gray-500">
         <a href="{{ route('alumnos.index') }}" class="hover:text-gray-700">Alumnos</a>
@@ -196,4 +199,84 @@
     </div>
 </div>
 @endif
+
+{{-- ============================================================
+     Sección Cuaderno Digital — acciones Fase 7
+     ============================================================ --}}
+@if(Route::has('asignaciones.seguimientos.index'))
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Cuaderno Digital</h2>
+        @php
+            $pendientesConfirmar = $asignacion->seguimientos()
+                ->where('confirmado_tutor', false)
+                ->count();
+        @endphp
+        @if($pendientesConfirmar > 0)
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            {{ $pendientesConfirmar }} pendiente{{ $pendientesConfirmar !== 1 ? 's' : '' }} de confirmar
+        </span>
+        @endif
+    </div>
+
+    <div class="flex flex-wrap gap-2 mb-5">
+        <a href="{{ route('asignaciones.seguimientos.index', $asignacion) }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            Ver cuaderno
+        </a>
+        @if(Route::has('asignaciones.calendario.index'))
+        <a href="{{ route('asignaciones.calendario.index', $asignacion) }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Calendario
+        </a>
+        @endif
+    </div>
+
+    {{-- Enlace tutor empresa --}}
+    @if(Route::has('asignaciones.token-tutor.generar'))
+    <div class="border-t border-gray-100 pt-4">
+        <p class="text-sm font-medium text-gray-700 mb-3">Enlace para tutor empresa</p>
+        @if(session('token_generado'))
+        <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-xs text-green-700 font-medium mb-1">Enlace generado — compártelo con el tutor de empresa:</p>
+            <div class="flex items-center gap-2">
+                <input type="text" readonly value="{{ session('token_generado') }}"
+                       class="flex-1 text-xs font-mono bg-white border border-green-300 rounded px-2 py-1.5 text-green-800"
+                       onclick="this.select()">
+                <button type="button"
+                        onclick="navigator.clipboard.writeText(this.previousElementSibling.value).then(() => this.textContent = 'Copiado')"
+                        class="px-3 py-1.5 text-xs bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap">
+                    Copiar
+                </button>
+            </div>
+        </div>
+        @endif
+        <form method="POST" action="{{ route('asignaciones.token-tutor.generar', $asignacion) }}">
+            @csrf
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+                Generar enlace tutor empresa
+            </button>
+        </form>
+    </div>
+    @endif
+</div>
+</div>
+@endif
+
+@include('asignaciones._documentos')
+
 @endsection
