@@ -32,6 +32,11 @@ class TokenTutorEmpresa extends Model
 
     public function estaVigente(): bool
     {
-        return $this->usado_at === null && $this->expires_at->isFuture();
+        return $this->expires_at->isFuture();
+    }
+
+    public function fueUsado(): bool
+    {
+        return $this->usado_at !== null;
     }
 }

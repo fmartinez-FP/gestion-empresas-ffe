@@ -3,6 +3,7 @@
 use App\Http\Controllers\Portal\LoginController;
 use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\PasswordChangeController;
+use App\Http\Controllers\Portal\SeguimientoDiarioController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas del portal (sin autenticación)
@@ -20,5 +21,11 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('password/change', [PasswordChangeController::class, 'show'])->name('password.change');
         Route::post('password/change', [PasswordChangeController::class, 'update'])->name('password.update');
 
+        // Cuaderno digital
+        Route::get('cuaderno', [SeguimientoDiarioController::class, 'index'])->name('cuaderno.index');
+        Route::get('cuaderno/registrar', [SeguimientoDiarioController::class, 'create'])->name('cuaderno.create');
+        Route::post('cuaderno/registrar', [SeguimientoDiarioController::class, 'store'])->name('cuaderno.store');
+        Route::get('cuaderno/{seguimiento}/edit', [SeguimientoDiarioController::class, 'edit'])->name('cuaderno.edit');
+        Route::put('cuaderno/{seguimiento}', [SeguimientoDiarioController::class, 'update'])->name('cuaderno.update');
     });
 });

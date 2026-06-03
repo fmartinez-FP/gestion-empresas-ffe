@@ -43,4 +43,13 @@ class CalendarioAsignacionFactory extends Factory
             'motivo' => $motivo,
         ]);
     }
+
+
+    public function noLectivo(string $motivo = 'Día no lectivo'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tipo'   => 'no_lectivo',
+            'motivo' => $motivo,
+        ]);
+    }
 }

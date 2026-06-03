@@ -14,6 +14,7 @@ use App\Policies\AlumnoPolicy;
 use App\Policies\AsignacionPolicy;
 use App\Policies\CurriculumPolicy;
 use App\Policies\DocumentoFctPolicy;
+use App\Policies\SeguimientoDiarioPolicy;
 use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,6 +48,11 @@ class AppServiceProvider extends ServiceProvider
         // Gates para Documentos FCT
         Gate::define('gestionarDocumento', [DocumentoFctPolicy::class, 'gestionarDocumento']);
         Gate::define('eliminarDocumento',  [DocumentoFctPolicy::class, 'eliminarDocumento']);
+
+        // SeguimientoDiarioPolicy
+        Gate::define('crearSeguimiento',    [SeguimientoDiarioPolicy::class, 'crear']);
+        Gate::define('editarSeguimiento',   [SeguimientoDiarioPolicy::class, 'editar']);
+        Gate::define('confirmarSeguimiento',[SeguimientoDiarioPolicy::class, 'confirmar']);
 
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

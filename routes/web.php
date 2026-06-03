@@ -174,4 +174,24 @@ Route::middleware('auth')->group(function () {
     Route::get("documentos/{documento}/descargar",                      [\App\Http\Controllers\DocumentoFctController::class, "descargar"])->name("documentos.descargar");
     Route::post("asignaciones/{asignacion}/documentos/subir-firmado",   [\App\Http\Controllers\DocumentoFctController::class, "subirFirmado"])->name("documentos.subir-firmado");
     Route::delete("documentos/{documento}",                             [\App\Http\Controllers\DocumentoFctController::class, "destroy"])->name("documentos.destroy");
+
+    // =========================================================================
+    // CUADERNO DIGITAL — seguimientos IES
+    // =========================================================================
+    Route::get("asignaciones/{asignacion}/seguimientos",                              [\App\Http\Controllers\SeguimientoIesController::class, "index"])->name("asignaciones.seguimientos.index");
+    Route::post("asignaciones/{asignacion}/seguimientos/{seguimiento}/confirmar",     [\App\Http\Controllers\SeguimientoIesController::class, "confirmar"])->name("asignaciones.seguimientos.confirmar");
+
+    // Calendario asignacion
+    Route::get("asignaciones/{asignacion}/calendario",                               [\App\Http\Controllers\CalendarioAsignacionController::class, "index"])->name("asignaciones.calendario.index");
+    Route::post("asignaciones/{asignacion}/calendario",                              [\App\Http\Controllers\CalendarioAsignacionController::class, "store"])->name("asignaciones.calendario.store");
+    Route::delete("asignaciones/{asignacion}/calendario/{calendario}",               [\App\Http\Controllers\CalendarioAsignacionController::class, "destroy"])->name("asignaciones.calendario.destroy");
+
+    // Token tutor empresa
+    Route::post("asignaciones/{asignacion}/token-tutor",                             [\App\Http\Controllers\TokenTutorEmpresaController::class, "generar"])->name("asignaciones.token-tutor.generar");
 });
+
+// =========================================================================
+// ACCESO PUBLICO TUTOR EMPRESA (sin guard)
+// =========================================================================
+Route::get("tutor/{token}",                                    [\App\Http\Controllers\TutorEmpresaController::class, "acceso"])->name("tutor.acceso");
+Route::post("tutor/{token}/comentar/{seguimiento}",            [\App\Http\Controllers\TutorEmpresaController::class, "comentar"])->name("tutor.comentar");
