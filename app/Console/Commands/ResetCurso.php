@@ -6,6 +6,7 @@ use App\Models\AsignacionFct;
 use App\Models\SeguimientoDiario;
 use App\Models\TokenTutorEmpresa;
 use App\Models\DocumentoFct;
+use App\Services\HistorialAsignacionService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,7 @@ class ResetCurso extends Command
     protected $signature   = 'ffe:reset-curso {curso_academico : Curso a resetear, formato YYYY-YYYY}';
     protected $description = 'Purga datos FFE de un curso: finaliza asignaciones, elimina seguimientos, tokens y documentos generados. Conserva firmados, alumnos y empresas.';
 
-    public function handle(): int
+    public function handle(HistorialAsignacionService $historialService): int
     {
         $curso = $this->argument('curso_academico');
 
@@ -25,7 +26,8 @@ class ResetCurso extends Command
         }
 
         // --- Recuento previo para resumen ---
-        $asignaciones = AsignacionFct::where('curso_academico', $curso)
+        $asignaciones = AsignacionFct::with('ciclo')
+            ->where('curso_academico', $curso)
             ->where('estado', 'activa')
             ->get();
 
@@ -69,7 +71,7 @@ class ResetCurso extends Command
         $this->info('Iniciando reset...');
 
         // 1. Eliminar evidencias de seguimiento del disco
-        $this->line('  [1/5] Eliminando evidencias de seguimiento...');
+        $this->line('  [1/6] Eliminando evidencias de seguimiento...');
         $seguimientos = SeguimientoDiario::whereIn('asignacion_id', $asignacionIds)
             ->whereNotNull('evidencia_path')
             ->get();
@@ -81,17 +83,17 @@ class ResetCurso extends Command
         Log::info("ffe:reset-curso [{$curso}] Evidencias eliminadas: {$seguimientos->count()}");
 
         // 2. Eliminar seguimientos
-        $this->line('  [2/5] Eliminando seguimientos diarios...');
+        $this->line('  [2/6] Eliminando seguimientos diarios...');
         $deleted = SeguimientoDiario::whereIn('asignacion_id', $asignacionIds)->delete();
         Log::info("ffe:reset-curso [{$curso}] Seguimientos eliminados: {$deleted}");
 
         // 3. Eliminar tokens tutor empresa
-        $this->line('  [3/5] Eliminando tokens tutor empresa...');
+        $this->line('  [3/6] Eliminando tokens tutor empresa...');
         $deleted = TokenTutorEmpresa::whereIn('asignacion_id', $asignacionIds)->delete();
         Log::info("ffe:reset-curso [{$curso}] Tokens eliminados: {$deleted}");
 
         // 4. Eliminar archivos y registros de documentos generados (no firmados)
-        $this->line('  [4/5] Eliminando documentos generados...');
+        $this->line('  [4/6] Eliminando documentos generados...');
         foreach ($docsGenerados as $doc) {
             if (Storage::disk($doc->disco ?? 'private')->exists($doc->ruta_disco)) {
                 Storage::disk($doc->disco ?? 'private')->delete($doc->ruta_disco);
@@ -101,11 +103,19 @@ class ResetCurso extends Command
         Log::info("ffe:reset-curso [{$curso}] Documentos generados eliminados: {$docsGenerados->count()}");
 
         // 5. Finalizar asignaciones
-        $this->line('  [5/5] Finalizando asignaciones...');
+        $this->line('  [5/6] Finalizando asignaciones...');
         $updated = AsignacionFct::where('curso_academico', $curso)
             ->where('estado', 'activa')
             ->update(['estado' => 'finalizada']);
         Log::info("ffe:reset-curso [{$curso}] Asignaciones finalizadas: {$updated}");
+
+        // 6. Generar histórico de colocaciones (a partir de las mismas asignaciones ya cargadas)
+        $this->line('  [6/6] Generando histórico de colocaciones...');
+        foreach ($asignaciones as $asignacion) {
+            $asignacion->estado = 'finalizada';
+        }
+        $historialService->registrarLote($asignaciones);
+        Log::info("ffe:reset-curso [{$curso}] Histórico de colocaciones generado.");
 
         $this->newLine();
         $this->line('<fg=green>Reset completado correctamente.</>');

@@ -239,7 +239,7 @@
     <td class="py-3 text-center text-slate-600 dark:text-slate-400">{{ $colocacion->numero_curso }}º</td>
     <td class="py-3 text-right font-medium text-slate-800 dark:text-white">{{ $colocacion->num_alumnos }}</td>
     <td class="py-3 text-right text-slate-600 dark:text-slate-400">{{ number_format($colocacion->num_horas) }}h</td>
-    @if(auth()->user()->esAdmin() || $colocacion->registrado_por_id === auth()->id())
+    @if($colocacion->origen === 'manual' && (auth()->user()->esAdmin() || $colocacion->registrado_por_id === auth()->id()))
     <td class="py-3 text-right">
         <div class="flex items-center justify-end gap-1">
             <a href="{{ route('colocaciones.edit', $colocacion) }}" class="p-1 text-slate-400 hover:text-blue-600 transition-colors" title="Editar">

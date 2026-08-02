@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Colocacion extends Model
 {
@@ -21,6 +22,7 @@ class Colocacion extends Model
         'num_alumnos',
         'num_horas',
         'observaciones',
+        'origen',
     ];
 
     protected $casts = [
@@ -46,6 +48,16 @@ class Colocacion extends Model
     public function registradoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'registrado_por_id');
+    }
+
+    public function asignaciones(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            AsignacionFct::class,
+            'colocacion_asignacion_fct',
+            'colocacion_id',
+            'asignacion_id'
+        )->withTimestamps();
     }
 
     // =========================================================================
@@ -85,7 +97,7 @@ class Colocacion extends Model
     {
         $cursoActual = Configuracion::cursoActivo();
         $anoInicio = (int) substr($cursoActual, 0, 4) - $anos + 1;
-        
+
         return $query->where('curso_academico', '>=', $anoInicio . '-' . ($anoInicio + 1));
     }
 
@@ -93,10 +105,6 @@ class Colocacion extends Model
     // MÉTODOS ESTÁTICOS
     // =========================================================================
 
-
-    /**
-     * Calcula el curso académico actual basándose en la fecha (sep-jun).
-     */
     public static function obtenerCursoActual(): string
     {
         $now = \Carbon\Carbon::now();
@@ -104,10 +112,6 @@ class Colocacion extends Model
         return $year . '-' . ($year + 1);
     }
 
-    /**
-     * Genera lista de cursos académicos (actual + $anos anteriores).
-     * $numeroCurso es opcional para compatibilidad futura.
-     */
     public static function generarListaCursos(int $anos = 3, int $numeroCurso = null): array
     {
         $actual = self::obtenerCursoActual();
@@ -123,38 +127,25 @@ class Colocacion extends Model
         return $cursos;
     }
 
-    /**
-     * Obtiene el curso activo (desde configuración)
-     */
     public static function cursoActivo(): string
     {
         return Configuracion::cursoActivo();
     }
 
-    /**
-     * Genera lista de cursos para el histórico (todos los que tienen datos + activo)
-     */
     public static function cursosConDatos(): array
     {
-        $cursos = self::distinct()
-            ->pluck('curso_academico')
-            ->toArray();
-        
-        // Añadir el curso activo si no está
+        $cursos = self::distinct()->pluck('curso_academico')->toArray();
+
         $activo = self::cursoActivo();
         if (!in_array($activo, $cursos)) {
             $cursos[] = $activo;
         }
-        
-        // Ordenar descendente
+
         rsort($cursos);
-        
+
         return $cursos;
     }
 
-    /**
-     * Estadísticas por ciclo y curso académico
-     */
     public static function estadisticasPorCiclo(string $cursoAcademico = null): array
     {
         $query = self::query()
