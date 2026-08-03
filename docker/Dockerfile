@@ -4,7 +4,8 @@ RUN apk add --no-cache \
     git curl zip unzip \
     libpng-dev libxml2-dev oniguruma-dev \
     icu-dev freetype-dev libjpeg-turbo-dev \
-    openldap-dev libzip-dev
+    openldap-dev libzip-dev \
+    mariadb-client mariadb-connector-c
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
@@ -22,7 +23,7 @@ RUN mkdir -p storage/framework/views \
              storage/framework/sessions \
              storage/logs \
              bootstrap/cache \
-    && composer install --optimize-autoloader --no-dev --no-interaction \
+    && composer install --optimize-autoloader --no-interaction \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
