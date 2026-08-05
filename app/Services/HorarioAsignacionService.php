@@ -260,7 +260,7 @@ class HorarioAsignacionService
         $asignacion->unsetRelation('horarios');
 
         $asignacion->update([
-            'num_horas' => $this->horasPrevistas($asignacion),
+            'num_horas' => (int) round($this->horasPrevistas($asignacion)),
             'horario'   => $this->generarTextoHorario($asignacion),
         ]);
     }

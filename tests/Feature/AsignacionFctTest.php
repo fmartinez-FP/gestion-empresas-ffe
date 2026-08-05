@@ -43,6 +43,22 @@ class AsignacionFctTest extends TestCase
         ]);
     }
 
+    /**
+     * Payload de horario mínimo válido para Fase D: 2026-10-05 es lunes y
+     * 2026-10-09 es viernes. Un único día configurado (lunes, 6h) permite
+     * verificar num_horas calculado sin depender de un rango largo.
+     */
+    private function horarioMinimoValido(): array
+    {
+        return [
+            'fecha_inicio' => '2026-10-05',
+            'fecha_fin'    => '2026-10-09',
+            'horarios'     => [
+                ['dia' => 'lunes', 'entrada_manana' => '09:00', 'salida_manana' => '15:00'],
+            ],
+        ];
+    }
+
     // =========================================================================
     // AUTORIZACIÓN — create
     // =========================================================================
@@ -79,22 +95,30 @@ class AsignacionFctTest extends TestCase
             $mock->shouldReceive('crearCuentaAlumno')->once()->andReturn(User::factory()->create(['rol' => 'alumno']));
         }));
 
-        $resp = $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), [
+        $resp = $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), array_merge([
             'empresa_id'   => $this->empresa->id,
             'tutor_ies_id' => $this->admin->id,
-            'fecha_inicio' => '2025-10-01',
-            'fecha_fin'    => '2026-03-31',
-            'num_horas'    => 370,
-            'horario'      => 'L-V 8:00-14:00',
-        ]);
+        ], [
+            'fecha_inicio' => '2026-10-05',
+            'fecha_fin'    => '2026-10-09',
+            'horarios'     => [
+                ['dia' => 'lunes', 'entrada_manana' => '08:00', 'salida_manana' => '15:00'],
+                ['dia' => 'martes', 'entrada_manana' => '08:00', 'salida_manana' => '15:00'],
+                ['dia' => 'miercoles', 'entrada_manana' => '08:00', 'salida_manana' => '15:00'],
+                ['dia' => 'jueves', 'entrada_manana' => '08:00', 'salida_manana' => '15:00'],
+                ['dia' => 'viernes', 'entrada_manana' => '08:00', 'salida_manana' => '15:00'],
+            ],
+        ]));
 
         $resp->assertRedirect();
         $this->assertDatabaseHas('asignaciones_fct', [
-            'alumno_id'   => $this->alumno->id,
-            'empresa_id'  => $this->empresa->id,
-            'estado'      => 'activa',
-            'num_horas'   => 370,
+            'alumno_id'  => $this->alumno->id,
+            'empresa_id' => $this->empresa->id,
+            'estado'     => 'activa',
+            'num_horas'  => 35, // 5 días x 7h
+            'horario'    => 'Lunes a Viernes 08:00-15:00',
         ]);
+        $this->assertDatabaseCount('horario_asignacion', 5);
     }
 
     #[Test]
@@ -113,6 +137,18 @@ class AsignacionFctTest extends TestCase
             'empresa_id' => $this->empresa->id,
         ]);
         $resp->assertSessionHasErrors('tutor_ies_id');
+    }
+
+    #[Test]
+    public function crear_asignacion_sin_horarios_falla_validacion(): void
+    {
+        $resp = $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), [
+            'empresa_id'   => $this->empresa->id,
+            'tutor_ies_id' => $this->admin->id,
+            'fecha_inicio' => '2026-10-05',
+            'fecha_fin'    => '2026-10-09',
+        ]);
+        $resp->assertSessionHasErrors('horarios');
     }
 
     #[Test]
@@ -135,20 +171,20 @@ class AsignacionFctTest extends TestCase
         $mock->shouldReceive('crearCuentaAlumno')->once()->andReturn(User::factory()->create(['rol' => 'alumno']));
         $this->instance(OnboardingAlumnoService::class, $mock);
 
-        $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), [
+        $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), array_merge([
             'empresa_id'   => $this->empresa->id,
             'tutor_ies_id' => $this->admin->id,
-        ]);
+        ], $this->horarioMinimoValido()));
 
         // Segunda asignación: NO debe llamar al servicio
         $mock2 = Mockery::mock(OnboardingAlumnoService::class);
         $mock2->shouldReceive('crearCuentaAlumno')->never();
         $this->instance(OnboardingAlumnoService::class, $mock2);
 
-        $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), [
+        $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), array_merge([
             'empresa_id'   => $this->empresa->id,
             'tutor_ies_id' => $this->admin->id,
-        ]);
+        ], $this->horarioMinimoValido()));
     }
 
     #[Test]
@@ -162,12 +198,12 @@ class AsignacionFctTest extends TestCase
         $ra     = ResultadoAprendizaje::factory()->create(['modulo_id' => $modulo->id]);
         $ce     = CriterioEvaluacion::factory()->create(['resultado_aprendizaje_id' => $ra->id]);
 
-        $resp = $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), [
+        $resp = $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), array_merge([
             'empresa_id'   => $this->empresa->id,
             'tutor_ies_id' => $this->admin->id,
             'ra_ids'       => [$ra->id],
             'ce_ids'       => [$ce->id],
-        ]);
+        ], $this->horarioMinimoValido()));
 
         $resp->assertRedirect();
         $asignacion = AsignacionFct::where('alumno_id', $this->alumno->id)->first();
@@ -266,20 +302,18 @@ class AsignacionFctTest extends TestCase
 
         $otraEmpresa = Empresa::factory()->create();
 
-        $resp = $this->actingAs($this->admin)->put(route('asignaciones.update', $asignacion), [
+        $resp = $this->actingAs($this->admin)->put(route('asignaciones.update', $asignacion), array_merge([
             'empresa_id'   => $otraEmpresa->id,
             'tutor_ies_id' => $this->admin->id,
-            'num_horas'    => 400,
-            'horario'      => 'L-V 9:00-15:00',
             'estado'       => 'finalizada',
-        ]);
+        ], $this->horarioMinimoValido()));
 
         $resp->assertRedirect(route('asignaciones.show', $asignacion));
         $this->assertDatabaseHas('asignaciones_fct', [
-            'id'        => $asignacion->id,
+            'id'         => $asignacion->id,
             'empresa_id' => $otraEmpresa->id,
-            'num_horas' => 400,
-            'estado'    => 'finalizada',
+            'num_horas'  => 6, // lunes 09:00-15:00
+            'estado'     => 'finalizada',
         ]);
     }
 
@@ -294,11 +328,11 @@ class AsignacionFctTest extends TestCase
             'estado'       => 'activa',
         ]);
 
-        $this->actingAs($this->profesor)->put(route('asignaciones.update', $asignacion), [
+        $this->actingAs($this->profesor)->put(route('asignaciones.update', $asignacion), array_merge([
             'empresa_id'   => $this->empresa->id,
             'tutor_ies_id' => $this->profesor->id,
             'estado'       => 'finalizada',
-        ]);
+        ], $this->horarioMinimoValido()));
 
         $this->assertDatabaseHas('asignaciones_fct', ['id' => $asignacion->id, 'estado' => 'activa']);
     }

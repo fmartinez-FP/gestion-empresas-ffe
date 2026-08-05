@@ -48,8 +48,12 @@ class AsignacionFctController extends Controller
         ));
     }
 
-    public function store(StoreAsignacionRequest $request, Alumno $alumno, OnboardingAlumnoService $onboarding)
-    {
+    public function store(
+        StoreAsignacionRequest $request,
+        Alumno $alumno,
+        OnboardingAlumnoService $onboarding,
+        \App\Services\HorarioAsignacionService $horarioService
+    ) {
         $data = $request->validated();
 
         $asignacion = AsignacionFct::create([
@@ -61,12 +65,12 @@ class AsignacionFctController extends Controller
             'ciclo_id'         => $alumno->ciclo_id,
             'curso_academico'  => Configuracion::cursoActivo(),
             'numero_curso'     => $alumno->numero_curso,
-            'fecha_inicio'     => $data['fecha_inicio'] ?? null,
-            'fecha_fin'        => $data['fecha_fin'] ?? null,
-            'num_horas'        => $data['num_horas'] ?? null,
-            'horario'          => $data['horario'] ?? null,
+            'fecha_inicio'     => $data['fecha_inicio'],
+            'fecha_fin'        => $data['fecha_fin'],
             'estado'           => 'activa',
         ]);
+
+        $horarioService->guardar($asignacion, $data['horarios']);
 
         if (!empty($data['ra_ids'])) {
             $asignacion->resultadosAprendizaje()->sync($data['ra_ids']);
@@ -153,8 +157,11 @@ class AsignacionFctController extends Controller
         ));
     }
 
-    public function update(UpdateAsignacionRequest $request, AsignacionFct $asignacion)
-    {
+    public function update(
+        UpdateAsignacionRequest $request,
+        AsignacionFct $asignacion,
+        \App\Services\HorarioAsignacionService $horarioService
+    ) {
         $data = $request->validated();
 
         $campos = [
@@ -162,10 +169,8 @@ class AsignacionFctController extends Controller
             'sede_id'          => $data['sede_id'] ?? null,
             'tutor_empresa_id' => $data['tutor_empresa_id'] ?? null,
             'tutor_ies_id'     => $data['tutor_ies_id'],
-            'fecha_inicio'     => $data['fecha_inicio'] ?? null,
-            'fecha_fin'        => $data['fecha_fin'] ?? null,
-            'num_horas'        => $data['num_horas'] ?? null,
-            'horario'          => $data['horario'] ?? null,
+            'fecha_inicio'     => $data['fecha_inicio'],
+            'fecha_fin'        => $data['fecha_fin'],
         ];
 
         if (isset($data['estado'])) {
@@ -173,6 +178,8 @@ class AsignacionFctController extends Controller
         }
 
         $asignacion->update($campos);
+
+        $horarioService->guardar($asignacion, $data['horarios']);
 
         $asignacion->resultadosAprendizaje()->sync($data['ra_ids'] ?? []);
         $asignacion->criteriosEvaluacion()->sync($data['ce_ids'] ?? []);
