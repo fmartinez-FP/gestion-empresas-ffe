@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -113,9 +114,25 @@ class AsignacionFct extends Model
         return $this->hasMany(SeguimientoDiario::class, 'asignacion_id')->orderBy('fecha');
     }
 
+    public function planFormativoDatos(): HasOne
+    {
+        return $this->hasOne(\App\Models\PlanFormativoDatos::class, 'asignacion_id');
+    }
+
     public function tokenstutor(): HasMany
     {
         return $this->hasMany(TokenTutorEmpresa::class, 'asignacion_id');
+    }
+
+    public function horarios(): HasMany
+    {
+        return $this->hasMany(HorarioAsignacion::class, 'asignacion_id')
+            ->orderByRaw("FIELD(dia, 'lunes','martes','miercoles','jueves','viernes','sabado','domingo')");
+    }
+
+    public function ajustesHoras(): HasMany
+    {
+        return $this->hasMany(AjusteHorasSemana::class, 'asignacion_id')->orderBy('semana');
     }
 
     // =========================================================================
