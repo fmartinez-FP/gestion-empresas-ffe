@@ -16,6 +16,14 @@
     </div>
     <h1 class="text-2xl font-bold text-gray-900 mt-2 mb-6">Nueva asignación FFE</h1>
 
+    <div class="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p class="font-medium mb-1">⚠️ Formulario temporalmente no disponible</p>
+        <p>El backend de horarios (Fase D) ya exige un horario semanal estructurado y fecha de
+        inicio/fin obligatorias que este formulario todavía no envía. Guardar devolverá un error
+        de validación. El constructor visual de horario está pendiente para la próxima sesión —
+        mientras tanto, el botón de guardado está desactivado.</p>
+    </div>
+
     @if($errors->any())
     <div class="mb-4 rounded-lg bg-red-50 border border-red-300 px-4 py-3 text-sm text-red-700">
         <p class="font-medium mb-1">Corrige los siguientes errores:</p>
@@ -178,7 +186,8 @@
         @endif
 
         <div class="flex gap-3">
-            <button type="submit" class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+            <button type="submit" disabled title="Formulario temporalmente deshabilitado — ver aviso arriba"
+                    class="px-5 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
                 Crear asignación
             </button>
             <a href="{{ route('alumnos.show', $alumno) }}" class="px-5 py-2 bg-white border border-gray-300 text-sm text-gray-600 rounded-lg hover:bg-gray-50">
