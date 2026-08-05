@@ -174,21 +174,33 @@ class AlumnoController extends Controller
         return view('alumnos.import', compact('ciclos', 'cursoActivo'));
     }
 
-    /**
-     * PENDIENTE — Fase C del Plan de Reconstrucción: ImportAlumnosService no
-     * existe. Placeholder no destructivo: no rompe la ruta con un 500, informa
-     * con claridad. Reemplazar cuando se resuelva Fase C.
-     */
     public function import(Request $request)
     {
         abort_unless(auth()->user()->can('importarAlumnos'), 403);
 
+        $data = $request->validate([
+            'archivo'         => ['required', 'file', 'max:5120', 'mimes:csv,txt,xlsx,xls'],
+            'ciclo_id'        => ['required', 'integer', 'exists:ciclos_formativos,id'],
+            'curso_academico' => ['required', 'regex:/^\\d{4}-\\d{4}$/'],
+            'numero_curso'    => ['required', 'integer', 'in:1,2'],
+        ]);
+
+        $resultado = (new \App\Services\ImportAlumnosService())->importar(
+            $request->file('archivo')->getRealPath(),
+            (int) $data['ciclo_id'],
+            $data['curso_academico'],
+            (int) $data['numero_curso'],
+        );
+
+        if (! $resultado['success']) {
+            return redirect()
+                ->route('alumnos.import')
+                ->with('import_errores', [$resultado['mensaje']]);
+        }
+
         return redirect()
-            ->route('alumnos.import')
-            ->with('import_errores', [
-                'La importación todavía no está implementada — pendiente de Fase C '
-                . '(ImportAlumnosService, ver Plan de Reconstrucción). No se ha procesado ningún archivo.',
-            ]);
+            ->route('alumnos.index')
+            ->with('status', $resultado['mensaje']);
     }
 
     public function descargarPlantilla()
