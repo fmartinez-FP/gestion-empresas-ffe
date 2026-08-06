@@ -20,15 +20,16 @@ class User extends Authenticatable implements CanResetPassword, LdapAuthenticata
     protected $fillable = [
         'username', 'nombre', 'email', 'password',
         'rol', 'ciclo_id', 'activo', 'preferencias',
-        'guid', 'domain',
+        'guid', 'domain', 'password_change_required',
     ];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
-        'password'     => 'hashed',
-        'activo'       => 'boolean',
-        'preferencias' => 'array',
+        'password'                 => 'hashed',
+        'activo'                   => 'boolean',
+        'preferencias'             => 'array',
+        'password_change_required' => 'boolean',
     ];
 
     /**
