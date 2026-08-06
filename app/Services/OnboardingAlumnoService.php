@@ -66,6 +66,29 @@ class OnboardingAlumnoService
         }
     }
 
+    /**
+     * Resetea la contraseña de un alumno con cuenta de portal ya creada:
+     * genera una nueva temporal, fuerza cambio en el próximo login y
+     * reenvía BienvenidaAlumnoMail con la nueva contraseña.
+     *
+     * @throws \RuntimeException si el alumno no tiene cuenta de portal.
+     */
+    public function resetearPassword(Alumno $alumno): void
+    {
+        if (! $alumno->user) {
+            throw new \RuntimeException('El alumno no tiene cuenta de portal creada.');
+        }
+
+        $passwordTemporal = Str::password(10, symbols: false);
+
+        $alumno->user->update([
+            'password'                 => bcrypt($passwordTemporal),
+            'password_change_required' => true,
+        ]);
+
+        Mail::to($alumno->email)->send(new BienvenidaAlumnoMail($alumno, $passwordTemporal));
+    }
+
     private function generarUsername(Alumno $alumno): string
     {
         $base = Str::slug($alumno->nombre . '.' . $alumno->apellidos, '.');

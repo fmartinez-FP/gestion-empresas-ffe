@@ -127,6 +127,27 @@ class AlumnoController extends Controller
     }
 
     // =========================================================================
+    // RESETEO DE CONTRASEÑA
+    // =========================================================================
+
+    public function resetearPassword(Alumno $alumno)
+    {
+        abort_unless(auth()->user()->can('resetearPasswordAlumno', $alumno), 403);
+
+        if (! $alumno->user) {
+            return redirect()
+                ->route('alumnos.show', $alumno)
+                ->with('error', 'Este alumno no tiene cuenta de portal creada.');
+        }
+
+        (new \App\Services\OnboardingAlumnoService())->resetearPassword($alumno);
+
+        return redirect()
+            ->route('alumnos.show', $alumno)
+            ->with('success', 'Contraseña reseteada. Se ha reenviado el email de bienvenida a ' . $alumno->email . '.');
+    }
+
+    // =========================================================================
     // ARCHIVO (alumnos con soft delete)
     // =========================================================================
 

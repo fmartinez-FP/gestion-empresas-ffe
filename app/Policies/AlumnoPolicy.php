@@ -35,6 +35,10 @@ class AlumnoPolicy
     {
         return $this->esGestorAlumnos($user);
     }
+    public function resetearPasswordAlumno(User $user, ?Alumno $alumno = null): bool
+    {
+        return $this->esGestorAlumnos($user);
+    }
 
     public function eliminarAlumno(User $user): bool
     {

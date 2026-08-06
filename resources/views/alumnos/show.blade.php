@@ -3,6 +3,12 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+    @if(session('error'))
+        <div class="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @include('partials.nav-alumnos')
 
 
@@ -48,6 +54,18 @@
                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
                     Editar
                 </a>
+                @endcan
+                @can('resetearPasswordAlumno', $alumno)
+                    @if($alumno->user)
+                    <form method="POST" action="{{ route('alumnos.resetear-password', $alumno) }}"
+                          onsubmit="return confirm('¿Resetear la contraseña de {{ addslashes($alumno->nombre_completo) }}? Se generará una contraseña temporal y se reenviará el email de bienvenida a {{ $alumno->email }}.')">
+                        @csrf
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
+                            Resetear contraseña
+                        </button>
+                    </form>
+                    @endif
                 @endcan
                 @can('eliminarAlumno')
                 <form method="POST" action="{{ route('alumnos.destroy', $alumno) }}"

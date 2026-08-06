@@ -150,6 +150,7 @@ Route::middleware('auth')->group(function () {
     Route::get('alumnos/plantilla', [\App\Http\Controllers\AlumnoController::class, 'descargarPlantilla'])->name('alumnos.plantilla');
     Route::resource('alumnos', \App\Http\Controllers\AlumnoController::class)->except(['destroy']);
     Route::delete('alumnos/{alumno}', [\App\Http\Controllers\AlumnoController::class, 'destroy'])->name('alumnos.destroy');
+    Route::post('alumnos/{alumno}/resetear-password', [\App\Http\Controllers\AlumnoController::class, 'resetearPassword'])->name('alumnos.resetear-password');
     
     // =========================================================================
     // ASIGNACIONES FFE
