@@ -20,6 +20,13 @@ class OnboardingAlumnoService
             return $alumno->user;
         }
 
+                // Si ya existe un usuario con ese email, vincularlo y no crear otro
+        $existente = User::where('email', $alumno->email)->first();
+        if ($existente) {
+            $alumno->update(['user_id' => $existente->id]);
+            return $existente;
+        }
+
         $passwordTemporal = Str::password(10, symbols: false);
 
         $user = User::create([

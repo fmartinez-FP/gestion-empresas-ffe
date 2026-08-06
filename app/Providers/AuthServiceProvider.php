@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\AsignacionFct;
 use App\Models\Empresa;
 use App\Models\User;
+use App\Policies\AsignacionPolicy;
 use App\Policies\EmpresaPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -18,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Empresa::class => EmpresaPolicy::class,
+        AsignacionFct::class => AsignacionPolicy::class,
     ];
 
     /**

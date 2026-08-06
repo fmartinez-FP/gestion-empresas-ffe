@@ -138,35 +138,42 @@
     <table>
         <tr>
             <td style="width:70%;">Requiere medidas/adaptaciones extraordinarias por discapacidad:</td>
-            <td style="width:15%; text-align:center;">SÍ <span class="checkbox"></span></td>
-            <td style="width:15%; text-align:center;">NO <span class="checkbox check-marcado"></span></td>
+            <td style="width:15%; text-align:center;">SÍ <span class="checkbox {{ $medidas_discapacidad ?? false ? 'check-marcado' : '' }}"></span></td>
+            <td style="width:15%; text-align:center;">NO <span class="checkbox {{ !($medidas_discapacidad ?? false) ? 'check-marcado' : '' }}"></span></td>
         </tr>
         <tr>
-            <td colspan="3" style="height:12mm; font-size:8pt; color:#555;">
+            <td colspan="3" style="min-height:12mm; font-size:8pt; padding:4px 5px;">
                 &nbsp;&nbsp;En caso afirmativo, especificar medidas/adaptaciones:
+                @if(!empty($medidas_discapacidad_detalle))
+                <br>&nbsp;&nbsp;{{ $medidas_discapacidad_detalle }}
+                @endif
             </td>
         </tr>
         <tr>
             <td style="width:70%;">Requiere autorización extraordinaria:</td>
-            <td style="text-align:center;">SÍ <span class="checkbox"></span></td>
-            <td style="text-align:center;">NO <span class="checkbox check-marcado"></span></td>
+            <td style="text-align:center;">SÍ <span class="checkbox {{ $autorizacion_extraordinaria ?? false ? 'check-marcado' : '' }}"></span></td>
+            <td style="text-align:center;">NO <span class="checkbox {{ !($autorizacion_extraordinaria ?? false) ? 'check-marcado' : '' }}"></span></td>
         </tr>
         <tr>
-            <td colspan="3" style="height:12mm; font-size:8pt; color:#555;">
+            <td colspan="3" style="min-height:12mm; font-size:8pt; padding:4px 5px;">
                 &nbsp;&nbsp;Indicar causa/s:
+                @if(!empty($autorizacion_extraordinaria_detalle))
+                <br>&nbsp;&nbsp;{{ $autorizacion_extraordinaria_detalle }}
+                @endif
             </td>
         </tr>
     </table>
 
     {{-- INTERVALO --}}
+    @php $intervaloVal = $intervalo ?? 'diario'; @endphp
     <table>
         <tr>
             <td>Intervalo de formación:</td>
-            <td style="text-align:center;">Diario <span class="checkbox"></span></td>
-            <td style="text-align:center;">Semanal <span class="checkbox"></span></td>
-            <td style="text-align:center;">Mensual <span class="checkbox"></span></td>
-            <td style="text-align:center;">Otros <span class="checkbox"></span></td>
-            <td style="text-align:center;">Varias empresas <span class="checkbox"></span></td>
+            <td style="text-align:center;">Diario <span class="checkbox {{ $intervaloVal === 'diario' ? 'check-marcado' : '' }}"></span></td>
+            <td style="text-align:center;">Semanal <span class="checkbox {{ $intervaloVal === 'semanal' ? 'check-marcado' : '' }}"></span></td>
+            <td style="text-align:center;">Mensual <span class="checkbox {{ $intervaloVal === 'mensual' ? 'check-marcado' : '' }}"></span></td>
+            <td style="text-align:center;">Otros <span class="checkbox {{ $intervaloVal === 'otros' ? 'check-marcado' : '' }}"></span></td>
+            <td style="text-align:center;">Varias empresas <span class="checkbox {{ $intervaloVal === 'varias_empresas' ? 'check-marcado' : '' }}"></span></td>
         </tr>
     </table>
 
@@ -200,7 +207,9 @@
     {{-- OBSERVACIONES --}}
     <table>
         <tr>
-            <td style="height:14mm; vertical-align:top;">Observaciones:&nbsp;</td>
+            <td style="min-height:14mm; vertical-align:top; padding:4px 5px;">
+                Observaciones:&nbsp;{{ $observaciones ?? '' }}
+            </td>
         </tr>
     </table>
 
@@ -226,8 +235,11 @@
                     <td rowspan="{{ $ras->count() }}" style="text-align:center;">{{ $modulo->codigo ?? '' }}</td>
                     @endif
                     <td>RA{{ $ra->numero ?? ($i+1) }}: {{ $ra->descripcion ?? $ra->nombre ?? '' }}</td>
-                    <td style="text-align:center;">&nbsp;</td>
-                    <td style="text-align:center;">X</td>
+                    @php
+                        $tipo = collect($imparticion_modulos ?? [])->firstWhere('ra_id', $ra->id)['tipo'] ?? 'compartida';
+                    @endphp
+                    <td style="text-align:center;">{{ $tipo === 'integra' ? 'X' : '&nbsp;' }}</td>
+                    <td style="text-align:center;">{{ $tipo === 'compartida' ? 'X' : '&nbsp;' }}</td>
                 </tr>
                 @endforeach
             @endforeach
@@ -250,8 +262,9 @@
 
         <table style="margin-top:8px;">
             <tr>
-                <td style="height:12mm; vertical-align:top;">
-                    Formaciones específicas y no vinculadas al currículo:
+                <td style="min-height:12mm; vertical-align:top; padding:4px 5px;">
+                    Formaciones específicas y no vinculadas al currículo:<br>
+                    {{ $formaciones_especificas ?? '' }}
                 </td>
             </tr>
         </table>

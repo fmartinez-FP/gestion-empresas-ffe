@@ -170,6 +170,8 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     // DOCUMENTOS FCT
     // =========================================================================
+    Route::get("asignaciones/{asignacion}/documentos/plan-formativo/configurar", [\App\Http\Controllers\PlanFormativoController::class, "form"])->name("documentos.plan-formativo.form");
+    Route::post("asignaciones/{asignacion}/documentos/plan-formativo/generar", [\App\Http\Controllers\PlanFormativoController::class, "generar"])->name("documentos.plan-formativo.generar");
     Route::post("asignaciones/{asignacion}/documentos/{tipo}/generar",  [\App\Http\Controllers\DocumentoFctController::class, "generar"])->name("documentos.generar");
     Route::get("documentos/{documento}/descargar",                      [\App\Http\Controllers\DocumentoFctController::class, "descargar"])->name("documentos.descargar");
     Route::post("asignaciones/{asignacion}/documentos/subir-firmado",   [\App\Http\Controllers\DocumentoFctController::class, "subirFirmado"])->name("documentos.subir-firmado");

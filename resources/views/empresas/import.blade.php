@@ -5,7 +5,6 @@
 @section('content')
 <div class="max-w-2xl mx-auto space-y-6">
 
-    @include('partials.nav-empresas')
 
     <div class="flex items-center gap-4">
         <a href="{{ route('empresas.index') }}" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">

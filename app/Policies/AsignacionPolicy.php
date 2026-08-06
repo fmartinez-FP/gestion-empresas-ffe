@@ -15,7 +15,7 @@ class AsignacionPolicy
     /** Cualquier personal del IES puede crear asignaciones */
     public function crearAsignacion(User $user): bool
     {
-        return $this->esPersonalIes($user);
+        return $user->esAdmin() || $user->esResponsableFFE() || $user->esResponsableCiclo() || $user->esProfesor();
     }
 
     /** Admin y responsable_ffe pueden cancelar; otros no */

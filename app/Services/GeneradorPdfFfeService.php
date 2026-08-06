@@ -17,9 +17,9 @@ class GeneradorPdfFfeService
     // API PÚBLICA
     // =========================================================================
 
-    public function generarPlanFormativo(AsignacionFct $asignacion): DocumentoFct
+    public function generarPlanFormativo(AsignacionFct $asignacion, array $datosPlan = []): DocumentoFct
     {
-        return $this->generar($asignacion, DocumentoFct::TIPO_PLAN_FORMATIVO, 'pdf.plan_formativo');
+        return $this->generar($asignacion, DocumentoFct::TIPO_PLAN_FORMATIVO, 'pdf.plan_formativo', $datosPlan);
     }
 
     public function generarFichaSeguimiento(AsignacionFct $asignacion): DocumentoFct
@@ -83,7 +83,7 @@ class GeneradorPdfFfeService
     // PRIVADOS
     // =========================================================================
 
-    private function generar(AsignacionFct $asignacion, string $tipo, string $vista): DocumentoFct
+    private function generar(AsignacionFct $asignacion, string $tipo, string $vista, array $extraData = []): DocumentoFct
     {
         // Cargar relaciones necesarias para las plantillas
         $asignacion->loadMissing([
@@ -118,7 +118,7 @@ class GeneradorPdfFfeService
         // Generar PDF via interfaz (swappable en tests)
         $this->pdf->generar(
             $vista,
-            ['asignacion' => $asignacion, 'centro' => config('centro')],
+            array_merge(['asignacion' => $asignacion, 'centro' => config('centro')], $extraData),
             $rutaDisco,
             $disco
         );

@@ -13,7 +13,9 @@ return new class extends Migration
         });
 
         Schema::table('documentos_fct', function (Blueprint $table) {
-            $table->date('purgar_after')->nullable()->after('firmado_at');
+            if (!Schema::hasColumn('documentos_fct', 'purgar_after')) {
+                $table->date('purgar_after')->nullable()->after('firmado_at');
+            }
         });
     }
 
@@ -24,7 +26,9 @@ return new class extends Migration
         });
 
         Schema::table('documentos_fct', function (Blueprint $table) {
-            $table->dropColumn('purgar_after');
+            if (Schema::hasColumn('documentos_fct', 'purgar_after')) {
+                $table->dropColumn('purgar_after');
+            }
         });
     }
 };

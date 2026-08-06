@@ -43,8 +43,14 @@ class AsignacionFctController extends Controller
             ->orderBy('curso')->orderBy('codigo')
             ->get();
 
+        // Fase D-UI: prellenado del constructor de horario si venimos de un 422
+        $horariosPrefill = collect(old('horarios', []))
+            ->filter(fn($fila) => !empty($fila['dia']))
+            ->keyBy('dia')
+            ->toArray();
+
         return view('asignaciones.create', compact(
-            'alumno', 'cursoActivo', 'empresas', 'tutoresIes', 'modulos'
+            'alumno', 'cursoActivo', 'empresas', 'tutoresIes', 'modulos', 'horariosPrefill'
         ));
     }
 
@@ -122,7 +128,7 @@ class AsignacionFctController extends Controller
     {
         abort_unless(auth()->user()->can('editarAsignacion', $asignacion), 403);
 
-        $asignacion->load(['alumno.ciclo', 'resultadosAprendizaje', 'criteriosEvaluacion']);
+        $asignacion->load(['alumno.ciclo', 'resultadosAprendizaje', 'criteriosEvaluacion', 'horarios']);
 
         $cursoActivo = Configuracion::cursoActivo();
         $empresas    = Empresa::orderBy('nombre')->get(['id', 'nombre']);
@@ -150,10 +156,27 @@ class AsignacionFctController extends Controller
 
         $puedeEditarEstado = in_array(auth()->user()->rol, ['admin', 'responsable_ffe']);
 
+        // Fase D-UI: si venimos de un 422 el old() tiene prioridad sobre lo guardado en BD
+        $oldHorarios = old('horarios');
+        if (is_array($oldHorarios)) {
+            $horariosPrefill = collect($oldHorarios)
+                ->filter(fn($fila) => !empty($fila['dia']))
+                ->keyBy('dia')
+                ->toArray();
+        } else {
+            $horariosPrefill = $asignacion->horarios->keyBy('dia')->map(fn($h) => [
+                'dia'            => $h->dia,
+                'entrada_manana' => substr($h->entrada_manana, 0, 5),
+                'salida_manana'  => substr($h->salida_manana, 0, 5),
+                'entrada_tarde'  => $h->entrada_tarde ? substr($h->entrada_tarde, 0, 5) : null,
+                'salida_tarde'   => $h->salida_tarde ? substr($h->salida_tarde, 0, 5) : null,
+            ])->toArray();
+        }
+
         return view('asignaciones.edit', compact(
             'asignacion', 'cursoActivo', 'empresas', 'tutoresIes',
             'sedesEmpresa', 'contactosEmpresa', 'modulos',
-            'raSeleccionados', 'ceSeleccionados', 'puedeEditarEstado'
+            'raSeleccionados', 'ceSeleccionados', 'puedeEditarEstado', 'horariosPrefill'
         ));
     }
 

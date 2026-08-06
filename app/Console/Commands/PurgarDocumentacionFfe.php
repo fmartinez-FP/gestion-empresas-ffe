@@ -27,6 +27,12 @@ class PurgarDocumentacionFfe extends Command
         $this->info("  → {$temporales} documento(s) temporal(es) eliminado(s).");
         $this->newLine();
 
+        // --- Plan formativo datos caducados ---
+        $this->line('Buscando datos de plan formativo con purgar_after <= hoy...');
+        $planDatos = \App\Models\PlanFormativoDatos::whereDate('purgar_after', '<=', today())->delete();
+        $this->info("  → {$planDatos} registro(s) de datos de plan formativo eliminado(s).");
+        $this->newLine();
+
         // --- Firmados caducados ---
         $this->line('Buscando documentos firmados con purgar_after <= hoy...');
 

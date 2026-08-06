@@ -13,7 +13,7 @@ class UsuarioController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = User::with('ciclos');
+        $query = User::with('ciclos')->whereNotIn('rol', ['alumno', 'tutor_empresa']);
 
         if ($request->filled('buscar')) {
             $termino = "%{$request->buscar}%";

@@ -5,7 +5,6 @@
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
 
-    @include('partials.nav-empresas')
 
     
     <!-- Cabecera -->

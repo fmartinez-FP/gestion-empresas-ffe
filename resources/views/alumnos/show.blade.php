@@ -67,9 +67,9 @@
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 class="text-base font-semibold text-gray-900">Asignaciones FFE</h2>
-            @can('crearAlumno')
-            @if(Route::has('alumnos.asignaciones.create'))
-            <a href="{{ route('alumnos.asignaciones.create', $alumno) }}"
+            @can('crearAsignacion')
+            @if(Route::has('asignaciones.create'))
+            <a href="{{ route('asignaciones.create', $alumno) }}"
                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
                 + Nueva asignación
             </a>
@@ -108,7 +108,7 @@
                                 <span class="text-gray-300">Sin fechas</span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-gray-500">{{ $asignacion->tutorIes->name ?? '—' }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ $asignacion->tutorIes->nombre ?? '—' }}</td>
                         <td class="px-4 py-3">
                             @php
                                 $colores = ['activa' => 'bg-green-100 text-green-800', 'finalizada' => 'bg-gray-100 text-gray-600', 'cancelada' => 'bg-red-100 text-red-700'];

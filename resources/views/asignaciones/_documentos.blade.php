@@ -14,7 +14,12 @@
                 'ficha_seguimiento' => 'Ficha de Seguimiento (Anexo 8)',
                 'informe_final'     => 'Informe de Valoración Final (Anexo 9)',
             ] as $tipo => $etiqueta)
-            @if(Route::has('documentos.generar'))
+            @if($tipo === 'plan_formativo' && Route::has('documentos.plan-formativo.form'))
+            <a href="{{ route('documentos.plan-formativo.form', $asignacion) }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white rounded-lg transition-colors bg-primary-600 hover:bg-primary-700">
+                {{ $etiqueta }}
+            </a>
+            @elseif(Route::has('documentos.generar'))
             <form method="POST" action="{{ route('documentos.generar', [$asignacion, $tipo]) }}">
                 @csrf
                 <button type="submit"
