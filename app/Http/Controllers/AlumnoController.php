@@ -24,7 +24,18 @@ class AlumnoController extends Controller
             ->orderByDesc('curso_academico')
             ->pluck('curso_academico');
 
+        $grupoIdsTutor = collect();
+        $sinGruposTutor = false;
+        if ($request->user()->esProfesor()) {
+            $grupoIdsTutor = $request->user()->gruposTutor()->pluck('grupos.id');
+            $sinGruposTutor = $grupoIdsTutor->isEmpty();
+        }
+
         $alumnos = Alumno::with(['ciclo', 'asignacionActiva.empresa'])
+            ->when($request->user()->esProfesor(), function ($q) use ($grupoIdsTutor) {
+                $q->whereIn('grupo_id', $grupoIdsTutor)
+                  ->where('curso_academico', Configuracion::cursoActivo());
+            })
             ->when($request->filled('q'), function ($q) use ($request) {
                 $termino = '%' . $request->string('q') . '%';
                 $q->where(function ($sub) use ($termino) {
@@ -41,7 +52,7 @@ class AlumnoController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('alumnos.index', compact('alumnos', 'ciclos', 'cursosAcademicos'));
+        return view('alumnos.index', compact('alumnos', 'ciclos', 'cursosAcademicos', 'sinGruposTutor'));
     }
 
     // =========================================================================

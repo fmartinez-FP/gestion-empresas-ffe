@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Alumno;
 use App\Models\CicloFormativo;
+use App\Models\Grupo;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -370,5 +371,64 @@ class AlumnoManagementTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Torres');
         $response->assertSee('Eva');
+    }
+
+    // =========================================================================
+    // SCOPE POR PROFESOR (Fase L)
+    // =========================================================================
+
+    /** @test */
+    public function profesor_con_grupo_tutor_asignado_solo_ve_alumnos_de_su_grupo_y_curso_activo()
+    {
+        $profesor = $this->profesor();
+        $cicloAsignado = CicloFormativo::factory()->create(['codigo' => 'DAM']);
+        $cicloAjeno    = CicloFormativo::factory()->create(['codigo' => 'DAW']);
+        $grupoAsignado = Grupo::factory()->create(['ciclo_id' => $cicloAsignado->id]);
+        $grupoAjeno    = Grupo::factory()->create(['ciclo_id' => $cicloAjeno->id]);
+
+        $profesor->sincronizarGruposTutor([$grupoAsignado->id]);
+
+        Alumno::factory()->create(['ciclo_id' => $cicloAsignado->id, 'grupo_id' => $grupoAsignado->id, 'apellidos' => 'DeSuGrupo', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+        Alumno::factory()->create(['ciclo_id' => $cicloAjeno->id, 'grupo_id' => $grupoAjeno->id, 'apellidos' => 'DeOtroGrupo', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+        Alumno::factory()->create(['ciclo_id' => $cicloAsignado->id, 'grupo_id' => $grupoAsignado->id, 'apellidos' => 'CursoAnterior', 'curso_academico' => '2023-2024', 'numero_curso' => 2]);
+
+        Auth::loginUsingId($profesor->id);
+
+        $response = $this->get(route('alumnos.index'));
+        $response->assertStatus(200);
+        $response->assertSee('DeSuGrupo');
+        $response->assertDontSee('DeOtroGrupo');
+        $response->assertDontSee('CursoAnterior');
+    }
+
+    /** @test */
+    public function profesor_sin_grupos_tutor_asignados_ve_listado_vacio_y_aviso()
+    {
+        $profesor = $this->profesor();
+        $ciclo = $this->ciclo();
+
+        Alumno::factory()->create(['ciclo_id' => $ciclo->id, 'apellidos' => 'NoDeberiaVerse', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+
+        Auth::loginUsingId($profesor->id);
+
+        $response = $this->get(route('alumnos.index'));
+        $response->assertStatus(200);
+        $response->assertDontSee('NoDeberiaVerse');
+        $response->assertSee('Todavía no tienes grupos asignados');
+    }
+
+    /** @test */
+    public function admin_ve_alumnos_de_todos_los_ciclos_sin_depender_de_ciclos_tutor()
+    {
+        $admin = $this->admin();
+        $ciclo = $this->ciclo();
+
+        Alumno::factory()->create(['ciclo_id' => $ciclo->id, 'apellidos' => 'VisibleParaAdmin', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+
+        Auth::loginUsingId($admin->id);
+
+        $response = $this->get(route('alumnos.index'));
+        $response->assertStatus(200);
+        $response->assertSee('VisibleParaAdmin');
     }
 }

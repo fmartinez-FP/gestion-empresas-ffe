@@ -72,6 +72,14 @@ class CicloFormativo extends Model
         return $this->hasMany(Colocacion::class, 'ciclo_id');
     }
 
+    /**
+     * Grupos formativos (1ºA, 1ºB, 2º...) de este ciclo
+     */
+    public function grupos(): HasMany
+    {
+        return $this->hasMany(Grupo::class, 'ciclo_id');
+    }
+
     // =========================================================================
     // SCOPES
     // =========================================================================

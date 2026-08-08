@@ -68,6 +68,22 @@ class User extends Authenticatable implements CanResetPassword, LdapAuthenticata
             ->withTimestamps();
     }
 
+    /**
+     * Grupos que este profesor tutoriza en el curso academico ACTIVO (no
+     * historico). wherePivot() restringe tanto la lectura como lo que sync()
+     * considera "actualmente vinculado" - sync() solo desvincula filas que
+     * matchean las restricciones wherePivot de la relacion, asi que asignar
+     * grupos para el curso vigente nunca toca (ni borra) filas de cursos
+     * anteriores. Verificado en GrupoTutorTest::sync_preserva_historico().
+     */
+    public function gruposTutor(): BelongsToMany
+    {
+        return $this->belongsToMany(Grupo::class, 'profesor_tutor', 'user_id', 'grupo_id')
+            ->wherePivot('curso_academico', Configuracion::cursoActivo())
+            ->withPivot('curso_academico')
+            ->withTimestamps();
+    }
+
     public function empresasCreadas(): HasMany
     {
         return $this->hasMany(Empresa::class, 'creador_id');
@@ -98,6 +114,19 @@ class User extends Authenticatable implements CanResetPassword, LdapAuthenticata
     {
         $this->ciclos()->sync($cicloIds);
         $this->update(['ciclo_id' => !empty($cicloIds) ? $cicloIds[0] : null]);
+    }
+
+    /**
+     * Sincroniza los grupos que este profesor tutoriza en el curso activo.
+     * No toca ciclo_id/ciclo_user (son de responsable_ciclo, tabla distinta).
+     */
+    public function sincronizarGruposTutor(array $grupoIds): void
+    {
+        $this->gruposTutor()->sync(
+            collect($grupoIds)->mapWithKeys(fn ($id) => [
+                $id => ['curso_academico' => Configuracion::cursoActivo()],
+            ])
+        );
     }
 
     // =========================================================================

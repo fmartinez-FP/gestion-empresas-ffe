@@ -19,6 +19,7 @@ class Alumno extends Model
         'email',
         'telefono',
         'ciclo_id',
+        'grupo_id',
         'curso_academico',
         'numero_curso',
         'importado_via',
@@ -40,6 +41,11 @@ class Alumno extends Model
     public function ciclo(): BelongsTo
     {
         return $this->belongsTo(CicloFormativo::class, 'ciclo_id');
+    }
+
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 
     public function asignaciones(): HasMany
