@@ -61,5 +61,55 @@
             <button type="submit" class="px-6 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 shadow-lg shadow-primary-500/20">Guardar Cambios</button>
         </div>
     </form>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 space-y-6">
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white">Grupos</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Grupos formativos de este ciclo (1º A, 1º B, 2º...). Un profesor tutoriza un grupo concreto, no el ciclo entero.</p>
+        </div>
+
+        @if($grupos->isEmpty())
+        <p class="text-sm text-slate-400 italic">Todavía no hay grupos creados para este ciclo.</p>
+        @else
+        <div class="divide-y divide-slate-100 dark:divide-slate-700">
+            @foreach($grupos as $grupo)
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center gap-3">
+                    <span class="font-medium text-slate-800 dark:text-white">{{ $grupo->etiqueta_completa }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $grupo->activo ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400' }}">
+                        {{ $grupo->activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                    <span class="text-xs text-slate-400">{{ $grupo->alumnos_count }} alumno{{ $grupo->alumnos_count !== 1 ? 's' : '' }}</span>
+                </div>
+                <form method="POST" action="{{ route('admin.ciclos.grupos.toggle', [$ciclo, $grupo]) }}">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="text-xs font-medium text-primary-600 hover:text-primary-800">
+                        {{ $grupo->activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                </form>
+            </div>
+            @endforeach
+        </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.ciclos.grupos.store', $ciclo) }}" class="flex items-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+            @csrf
+            <div>
+                <label for="numero_curso" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Curso</label>
+                <select id="numero_curso" name="numero_curso" required
+                        class="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-sm px-3 py-2 focus:ring-2 focus:ring-primary-500">
+                    <option value="1">1º</option>
+                    <option value="2">2º</option>
+                </select>
+            </div>
+            <div>
+                <label for="etiqueta" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Etiqueta (opcional)</label>
+                <input type="text" id="etiqueta" name="etiqueta" maxlength="10" placeholder="A, B..."
+                       class="w-24 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-sm px-3 py-2 focus:ring-2 focus:ring-primary-500 @error('etiqueta') border-red-300 @enderror">
+            </div>
+            <button type="submit" class="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg font-medium hover:bg-primary-700">Añadir grupo</button>
+        </form>
+        @error('etiqueta')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
+    </div>
 </div>
 @endsection

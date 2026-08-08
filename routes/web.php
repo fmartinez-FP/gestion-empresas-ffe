@@ -12,6 +12,7 @@ use App\Http\Controllers\PreferenciasController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\CicloFormativoController;
 use App\Http\Controllers\Admin\AuditoriaController;
+use App\Http\Controllers\Admin\GrupoController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\NotificacionController;
 use Illuminate\Support\Facades\Route;
@@ -104,6 +105,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('can:admin')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->only(['index', 'show', 'edit', 'update']);
         Route::resource('ciclos', CicloFormativoController::class);
+        Route::post('ciclos/{ciclo}/grupos', [GrupoController::class, 'store'])->name('ciclos.grupos.store');
+        Route::patch('ciclos/{ciclo}/grupos/{grupo}/toggle', [GrupoController::class, 'toggleActivo'])->name('ciclos.grupos.toggle');
         Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
         Route::get('auditoria/export/excel', [AuditoriaController::class, 'exportExcel'])->name('auditoria.export.excel');
         Route::get('auditoria/export/pdf', [AuditoriaController::class, 'exportPdf'])->name('auditoria.export.pdf');

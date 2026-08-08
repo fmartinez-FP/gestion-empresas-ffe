@@ -43,7 +43,9 @@ class CicloFormativoController extends Controller
     public function edit(CicloFormativo $ciclo): View
     {
         $ciclo->loadCount(['empresas', 'colocaciones']);
-        return view('admin.ciclos.edit', compact('ciclo'));
+        $grupos = $ciclo->grupos()->withCount('alumnos')
+            ->orderBy('numero_curso')->orderBy('etiqueta')->get();
+        return view('admin.ciclos.edit', compact('ciclo', 'grupos'));
     }
 
     public function update(UpdateCicloFormativoRequest $request, CicloFormativo $ciclo): RedirectResponse
