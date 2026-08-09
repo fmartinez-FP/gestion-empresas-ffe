@@ -75,6 +75,18 @@ class UsuarioController extends Controller
             $usuario->update(['ciclo_id' => null]);
         }
 
+        if ($validated['rol'] === 'profesor') {
+            // Hotfix temporal (sesion 2026-08-09, punto 6): neutralizado hasta que el
+            // formulario envie IDs de grupo reales en vez de IDs de ciclo. sincronizarGruposTutor()
+            // hace sync() directo sin validar contra la tabla origen: pasarle IDs de
+            // ciclos_formativos violaria la FK de profesor_tutor.grupo_id, o peor, colaria datos
+            // incorrectos si algun ID coincidiera numericamente. Sin este guard, CUALQUIER
+            // guardado de rol (no solo profesor) lanzaba "Call to undefined method
+            // sincronizarCiclosTutor()".
+        } else {
+            $usuario->gruposTutor()->detach();
+        }
+
         return redirect()
             ->route('admin.usuarios.index')
             ->with('success', 'Rol actualizado correctamente.');
