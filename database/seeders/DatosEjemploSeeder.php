@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Empresa;
 use App\Models\Colocacion;
 use App\Models\CicloFormativo;
+use App\Models\Direccion;
+use App\Models\PersonaContacto;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
@@ -43,8 +45,30 @@ class DatosEjemploSeeder extends Seeder
         
         foreach ($empresasData as $data) {
             $empresa = Empresa::create([
-                ...$data,
-                'creador_id' => $admin->id,
+                'nombre'       => $data['nombre'],
+                'cif'          => $data['cif'],
+                'num_convenio' => $data['num_convenio'],
+                'fecha_firma'  => $data['fecha_firma'],
+                'creador_id'   => $admin->id,
+            ]);
+
+            PersonaContacto::create([
+                'empresa_id' => $empresa->id,
+                'nombre'     => $data['persona_contacto'],
+                'telefono'   => $data['telefono'],
+                'email'      => $data['email'],
+                'principal'  => true,
+            ]);
+
+            // Direccion de ejemplo: string plano original guardado en nombre_via
+            // (no se parsea tipo de via/numero/CP porque los datos son ficticios
+            // y no siguen un formato consistente para descomponer con fiabilidad).
+            $partesDireccion = explode(',', $data['direccion']);
+            Direccion::create([
+                'empresa_id' => $empresa->id,
+                'nombre_via' => trim($partesDireccion[0]),
+                'municipio'  => trim($partesDireccion[1] ?? ''),
+                'principal'  => true,
             ]);
 
             // Asignar ciclos aleatorios (2-4 ciclos por empresa)
