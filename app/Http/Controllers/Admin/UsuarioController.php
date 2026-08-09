@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\CicloFormativo;
+use App\Models\Grupo;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -41,9 +42,10 @@ class UsuarioController extends Controller
 
     public function edit(User $usuario): View
     {
-        $usuario->load('ciclos');
+        $usuario->load(['ciclos', 'gruposTutor']);
         $ciclos = CicloFormativo::activos()->orderBy('nivel')->orderBy('nombre')->get();
-        return view('admin.usuarios.edit', compact('usuario', 'ciclos'));
+        $grupos = Grupo::with('ciclo')->activos()->orderBy('ciclo_id')->orderBy('numero_curso')->orderBy('etiqueta')->get();
+        return view('admin.usuarios.edit', compact('usuario', 'ciclos', 'grupos'));
     }
 
     public function update(Request $request, User $usuario): RedirectResponse
@@ -56,6 +58,8 @@ class UsuarioController extends Controller
             'rol'      => 'required|in:admin,responsable_ffe,responsable_ciclo,profesor',
             'ciclos'   => 'nullable|array',
             'ciclos.*' => 'exists:ciclos_formativos,id',
+            'grupos'   => 'nullable|array',
+            'grupos.*' => 'exists:grupos,id',
         ], [
             'rol.required' => 'El rol es obligatorio.',
         ]);
@@ -76,13 +80,7 @@ class UsuarioController extends Controller
         }
 
         if ($validated['rol'] === 'profesor') {
-            // Hotfix temporal (sesion 2026-08-09, punto 6): neutralizado hasta que el
-            // formulario envie IDs de grupo reales en vez de IDs de ciclo. sincronizarGruposTutor()
-            // hace sync() directo sin validar contra la tabla origen: pasarle IDs de
-            // ciclos_formativos violaria la FK de profesor_tutor.grupo_id, o peor, colaria datos
-            // incorrectos si algun ID coincidiera numericamente. Sin este guard, CUALQUIER
-            // guardado de rol (no solo profesor) lanzaba "Call to undefined method
-            // sincronizarCiclosTutor()".
+            $usuario->sincronizarGruposTutor($request->grupos ?? []);
         } else {
             $usuario->gruposTutor()->detach();
         }

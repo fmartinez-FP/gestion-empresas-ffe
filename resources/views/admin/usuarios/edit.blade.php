@@ -125,6 +125,25 @@
                 </div>
                 @error('ciclos')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
+
+            <div id="grupo-container" class="{{ old('rol', $usuario->rol) === 'profesor' ? '' : 'hidden' }}">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Grupos que tutoriza
+                </label>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Grupos que este profesor tutorizará en el curso académico activo ({{ \App\Models\Configuracion::cursoActivo() }}). Puede dejarse vacío por ahora; se podrá completar más adelante.</p>
+                @php $gruposUsuario = $usuario->gruposTutor->pluck('id')->toArray(); @endphp
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @foreach($grupos as $grupo)
+                    <label class="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-colors">
+                        <input type="checkbox" name="grupos[]" value="{{ $grupo->id }}"
+                               {{ in_array($grupo->id, old('grupos', $gruposUsuario)) ? 'checked' : '' }}
+                               class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ $grupo->etiquetaConCiclo }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                @error('grupos')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
         </div>
 
         <div class="flex gap-3 justify-end">
@@ -143,6 +162,7 @@
 function toggleCicloSelect() {
     const rol = document.querySelector('input[name="rol"]:checked')?.value;
     document.getElementById('ciclo-container').classList.toggle('hidden', rol !== 'responsable_ciclo');
+    document.getElementById('grupo-container').classList.toggle('hidden', rol !== 'profesor');
 }
 document.addEventListener('DOMContentLoaded', toggleCicloSelect);
 </script>
