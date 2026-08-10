@@ -1,4 +1,4 @@
-@extends('portal.layouts.app')
+@extends('layouts.portal')
 
 @section('title', 'Cuaderno de prácticas')
 

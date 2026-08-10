@@ -7,11 +7,19 @@
     <title>@yield('title', 'Portal FFE') — {{ config('centro.nombre_corto', 'FFE') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Escala completa de 'primary', igual que layouts/app.blade.php (sesion 2026-08-10):
+        // antes 'primary' era un solo valor, que en Tailwind solo genera la clase base
+        // bg-primary/text-primary, no bg-primary-600 ni hover:bg-primary-700 -- de ahi que
+        // varios botones del portal (ej. "Ver cuaderno") quedaran sin fondo, invisibles.
+        // Se mantiene DEFAULT con el mismo valor de antes para que bg-primary (navbar) no cambie.
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1d4ed8',
+                        primary: {
+                            DEFAULT: '#1d4ed8',
+                            50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a',950:'#172554'
+                        },
                     }
                 }
             }
