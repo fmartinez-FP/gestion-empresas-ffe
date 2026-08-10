@@ -51,7 +51,8 @@
             <div class="flex gap-2 mt-1">
                 @can('editarAlumno')
                 <a href="{{ route('alumnos.edit', $alumno) }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 text-sm font-medium text-blue-700 rounded-lg hover:bg-blue-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     Editar
                 </a>
                 @endcan
@@ -61,7 +62,8 @@
                           onsubmit="return confirm('¿Resetear la contraseña de {{ addslashes($alumno->nombre_completo) }}? Se generará una contraseña temporal y se reenviará el email de bienvenida a {{ $alumno->email }}.')">
                         @csrf
                         <button type="submit"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-sm font-medium text-amber-700 rounded-lg hover:bg-amber-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
                             Resetear contraseña
                         </button>
                     </form>

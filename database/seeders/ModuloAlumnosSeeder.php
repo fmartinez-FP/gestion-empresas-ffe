@@ -354,6 +354,14 @@ class ModuloAlumnosSeeder extends Seeder
             // '2024-2025', así que asignarRaCe no encontrará RA elegibles aquí y no
             // sincronizará nada — es el comportamiento correcto y esperado.
             $this->asignarRaCe($asignacion, $curriculum);
+
+            // Genera el histórico de colocaciones para esta asignación ya finalizada
+            // (sesion 2026-08-10): en el flujo real esto lo dispara el comando
+            // ffe:reset-curso, pero el seeder crea la asignación ya finalizada
+            // directamente sin pasar por el comando, así que sin esta llamada nunca
+            // se generaría historial para estos datos ficticios de curso pasado.
+            app(\App\Services\HistorialAsignacionService::class)->registrar($asignacion);
+
             $contador++;
         }
 

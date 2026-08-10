@@ -50,7 +50,18 @@
     @endif
 
     {{-- Filtros --}}
+    {{-- Un profesor solo filtra por nombre/apellidos/email: ciclo/curso academico/numero
+         de curso no tienen sentido para su vista, que ya esta acotada a su(s) grupo(s)
+         tutor y al curso academico activo (sesion 2026-08-10). --}}
     <form method="GET" action="{{ route('alumnos.index') }}" class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+        @if(auth()->user()->esProfesor())
+        <div class="grid grid-cols-1 gap-3">
+            <div>
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre, apellidos o email…"
+                       class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+        </div>
+        @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div class="lg:col-span-2">
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre, apellidos o email…"
@@ -82,6 +93,7 @@
                 </select>
             </div>
         </div>
+        @endif
         <div class="flex gap-2 mt-3">
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">Filtrar</button>
             @if(request()->hasAny(['q','ciclo_id','curso_academico','numero_curso']))

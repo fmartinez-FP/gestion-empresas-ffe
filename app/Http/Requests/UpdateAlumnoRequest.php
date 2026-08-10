@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Alumno;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAlumnoRequest extends FormRequest
@@ -11,19 +12,38 @@ class UpdateAlumnoRequest extends FormRequest
         return auth()->user()->can('editarAlumno', $this->route('alumno'));
     }
 
+    /**
+     * Reglas condicionadas por rol (sesion 2026-08-10): profesor y
+     * responsable_ciclo solo editan contacto (email/telefono); nombre y
+     * apellidos requieren editarIdentidadAlumno; grupo_id/curso_academico
+     * requieren editarGrupoAlumno. Los campos que el rol no puede tocar no
+     * se validan porque la vista no los envia (inputs disabled), evitando
+     * que un profesor reciba un error de "campo obligatorio" por un campo
+     * que ni siquiera deberia ver como editable.
+     */
     public function rules(): array
     {
-        // grupo_id ya cubre ciclo/curso de forma indirecta (ver Alumno::getCicloAttribute()/
-        // getNumeroCursoAttribute()): no hay campo ciclo_id independiente en el formulario,
-        // por lo que no hace falta -ni es posible- validar coherencia cruzada aqui.
-        return [
-            'nombre'          => ['required', 'string', 'max:100'],
-            'apellidos'       => ['required', 'string', 'max:150'],
-            'email'           => ['nullable', 'email', 'max:255'],
-            'telefono'        => ['nullable', 'string', 'max:20'],
-            'grupo_id'        => ['required', 'integer', 'exists:grupos,id'],
-            'curso_academico' => ['required', 'string', 'regex:/^\d{4}-\d{4}$/'],
+        $user = $this->user();
+
+        $rules = [
+            'email'    => ['nullable', 'email', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:20'],
         ];
+
+        if ($user->can('editarIdentidadAlumno', Alumno::class)) {
+            $rules['nombre']    = ['required', 'string', 'max:100'];
+            $rules['apellidos'] = ['required', 'string', 'max:150'];
+        }
+
+        if ($user->can('editarGrupoAlumno', Alumno::class)) {
+            // grupo_id ya cubre ciclo/curso de forma indirecta (ver Alumno::getCicloAttribute()/
+            // getNumeroCursoAttribute()): no hay campo ciclo_id independiente en el formulario,
+            // por lo que no hace falta -ni es posible- validar coherencia cruzada aqui.
+            $rules['grupo_id']        = ['required', 'integer', 'exists:grupos,id'];
+            $rules['curso_academico'] = ['required', 'string', 'regex:/^\d{4}-\d{4}$/'];
+        }
+
+        return $rules;
     }
 
     public function messages(): array

@@ -28,13 +28,33 @@ class AlumnoPolicy
 
     public function crearAlumno(User $user): bool
     {
-        return $this->esGestorAlumnos($user);
+        return $this->esResponsableSuperior($user);
     }
 
     public function editarAlumno(User $user, ?Alumno $alumno = null): bool
     {
         return $this->esGestorAlumnos($user);
     }
+
+    /**
+     * Nombre y apellidos: admin, responsable_ffe y responsable_ciclo pueden
+     * editarlos. Profesor (tutor) no -- solo email/telefono (sesion 2026-08-10).
+     */
+    public function editarIdentidadAlumno(User $user): bool
+    {
+        return in_array($user->rol, ['admin', 'responsable_ffe', 'responsable_ciclo']);
+    }
+
+    /**
+     * grupo_id (y curso_academico, ligado al mismo cambio de matricula):
+     * solo admin y responsable_ffe. Ni profesor ni responsable_ciclo pueden
+     * reasignar el grupo/ciclo de un alumno (sesion 2026-08-10).
+     */
+    public function editarGrupoAlumno(User $user): bool
+    {
+        return $this->esResponsableSuperior($user);
+    }
+
     public function resetearPasswordAlumno(User $user, ?Alumno $alumno = null): bool
     {
         return $this->esGestorAlumnos($user);
