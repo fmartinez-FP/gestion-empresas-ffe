@@ -11,6 +11,7 @@ use App\Models\Direccion;
 use App\Models\ElegibleFfe;
 use App\Models\ElegibleFfeCe;
 use App\Models\Empresa;
+use App\Models\Grupo;
 use App\Models\ModuloProfesional;
 use App\Models\PersonaContacto;
 use App\Models\ResultadoAprendizaje;
@@ -92,9 +93,8 @@ class ModuloAlumnosSeeder extends Seeder
                     'apellidos'       => fake()->lastName() . ' ' . fake()->lastName(),
                     'email'           => fake()->unique()->safeEmail(),
                     'telefono'        => fake()->numerify('6########'),
-                    'ciclo_id'        => $ciclo->id,
+                    'grupo_id'        => $this->resolverGrupo($ciclo->id, $combo['curso'])->id,
                     'curso_academico' => $cursoActivo,
-                    'numero_curso'    => $combo['curso'],
                     'importado_via'   => 'manual',
                 ]);
                 $totalAlumnos++;
@@ -153,6 +153,20 @@ class ModuloAlumnosSeeder extends Seeder
         }
 
         return User::whereIn('rol', ['profesor', 'responsable_ciclo', 'responsable_ffe', 'admin'])->get();
+    }
+
+    /**
+     * Reutiliza un grupo existente para ese ciclo+curso si ya lo hay (p.ej.
+     * uno de los grupos reales creados en el punto 6 de la Fase L), o crea
+     * uno nuevo sobre la marcha si no existe -- igual que crearProfesores()
+     * reutiliza usuarios ya sembrados en vez de duplicar.
+     */
+    private function resolverGrupo(int $cicloId, int $numeroCurso): Grupo
+    {
+        return Grupo::firstOrCreate(
+            ['ciclo_id' => $cicloId, 'numero_curso' => $numeroCurso],
+            ['etiqueta' => 'A', 'activo' => true]
+        );
     }
 
     private function crearEmpresas(User $creador)
@@ -296,11 +310,12 @@ class ModuloAlumnosSeeder extends Seeder
         $contador = 0;
 
         for ($i = 0; $i < 2; $i++) {
+            $numeroCurso = fake()->randomElement([1, 2]);
             $alumno = Alumno::create([
                 'nombre' => fake()->firstName(), 'apellidos' => fake()->lastName() . ' ' . fake()->lastName(),
                 'email' => fake()->unique()->safeEmail(), 'telefono' => fake()->numerify('6########'),
-                'ciclo_id' => $ciclo->id, 'curso_academico' => $cursoActivo,
-                'numero_curso' => fake()->randomElement([1, 2]), 'importado_via' => 'manual',
+                'grupo_id' => $this->resolverGrupo($ciclo->id, $numeroCurso)->id, 'curso_academico' => $cursoActivo,
+                'importado_via' => 'manual',
             ]);
             $empresa = $empresas->random();
             $asignacion = AsignacionFct::create([
@@ -321,8 +336,8 @@ class ModuloAlumnosSeeder extends Seeder
             $alumno = Alumno::create([
                 'nombre' => fake()->firstName(), 'apellidos' => fake()->lastName() . ' ' . fake()->lastName(),
                 'email' => fake()->unique()->safeEmail(), 'telefono' => fake()->numerify('6########'),
-                'ciclo_id' => $ciclo->id, 'curso_academico' => '2024-2025',
-                'numero_curso' => 2, 'importado_via' => 'manual',
+                'grupo_id' => $this->resolverGrupo($ciclo->id, 2)->id, 'curso_academico' => '2024-2025',
+                'importado_via' => 'manual',
             ]);
             $empresa = $empresas->random();
             $asignacion = AsignacionFct::create([
@@ -350,11 +365,12 @@ class ModuloAlumnosSeeder extends Seeder
         $ciclo = CicloFormativo::inRandomOrder()->first();
 
         for ($i = 0; $i < 2; $i++) {
+            $numeroCurso = fake()->randomElement([1, 2]);
             Alumno::create([
                 'nombre' => fake()->firstName(), 'apellidos' => fake()->lastName() . ' ' . fake()->lastName(),
                 'email' => fake()->unique()->safeEmail(), 'telefono' => fake()->numerify('6########'),
-                'ciclo_id' => $ciclo->id, 'curso_academico' => $cursoActivo,
-                'numero_curso' => fake()->randomElement([1, 2]), 'importado_via' => 'manual',
+                'grupo_id' => $this->resolverGrupo($ciclo->id, $numeroCurso)->id, 'curso_academico' => $cursoActivo,
+                'importado_via' => 'manual',
             ]);
         }
 
@@ -385,9 +401,8 @@ class ModuloAlumnosSeeder extends Seeder
             'apellidos'       => 'Portal Testing',
             'email'           => 'fmartinezmarti@gmail.com',
             'telefono'        => fake()->numerify('6########'),
-            'ciclo_id'        => $ciclo->id,
+            'grupo_id'        => $this->resolverGrupo($ciclo->id, 2)->id,
             'curso_academico' => $cursoActivo,
-            'numero_curso'    => 2,
             'importado_via'   => 'manual',
         ]);
 

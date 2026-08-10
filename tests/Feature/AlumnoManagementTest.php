@@ -43,10 +43,10 @@ class AlumnoManagementTest extends TestCase
     private function alumno(array $attrs = []): Alumno
     {
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
         return Alumno::factory()->create(array_merge([
-            'ciclo_id'        => $ciclo->id,
+            'grupo_id'        => $grupo->id,
             'curso_academico' => '2025-2026',
-            'numero_curso'    => 2,
         ], $attrs));
     }
 
@@ -83,8 +83,10 @@ class AlumnoManagementTest extends TestCase
         $ciclo1 = CicloFormativo::factory()->create(['codigo' => 'DAM']);
         $ciclo2 = CicloFormativo::factory()->create(['codigo' => 'DAW']);
 
-        Alumno::factory()->create(['ciclo_id' => $ciclo1->id, 'apellidos' => 'García', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
-        Alumno::factory()->create(['ciclo_id' => $ciclo2->id, 'apellidos' => 'López',  'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+        $grupo1 = Grupo::factory()->create(['ciclo_id' => $ciclo1->id, 'numero_curso' => 2]);
+        $grupo2 = Grupo::factory()->create(['ciclo_id' => $ciclo2->id, 'numero_curso' => 2]);
+        Alumno::factory()->create(['grupo_id' => $grupo1->id, 'apellidos' => 'García', 'curso_academico' => '2025-2026']);
+        Alumno::factory()->create(['grupo_id' => $grupo2->id, 'apellidos' => 'López',  'curso_academico' => '2025-2026']);
 
         Auth::loginUsingId($admin->id);
 
@@ -100,8 +102,9 @@ class AlumnoManagementTest extends TestCase
         $admin = $this->admin();
         $ciclo = $this->ciclo();
 
-        Alumno::factory()->create(['ciclo_id' => $ciclo->id, 'nombre' => 'María',  'apellidos' => 'Fernández', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
-        Alumno::factory()->create(['ciclo_id' => $ciclo->id, 'nombre' => 'Carlos', 'apellidos' => 'Ruiz',      'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
+        Alumno::factory()->create(['grupo_id' => $grupo->id, 'nombre' => 'María',  'apellidos' => 'Fernández', 'curso_academico' => '2025-2026']);
+        Alumno::factory()->create(['grupo_id' => $grupo->id, 'nombre' => 'Carlos', 'apellidos' => 'Ruiz',      'curso_academico' => '2025-2026']);
 
         Auth::loginUsingId($admin->id);
 
@@ -119,6 +122,7 @@ class AlumnoManagementTest extends TestCase
     {
         $admin = $this->admin();
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
         Auth::loginUsingId($admin->id);
 
         $response = $this->post(route('alumnos.store'), [
@@ -126,16 +130,15 @@ class AlumnoManagementTest extends TestCase
             'apellidos'       => 'Martínez López',
             'email'           => 'ana@educa.madrid.org',
             'telefono'        => '600111222',
-            'ciclo_id'        => $ciclo->id,
+            'grupo_id'        => $grupo->id,
             'curso_academico' => '2025-2026',
-            'numero_curso'    => 2,
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('alumnos', [
             'nombre'    => 'Ana',
             'apellidos' => 'Martínez López',
-            'ciclo_id'  => $ciclo->id,
+            'grupo_id'  => $grupo->id,
         ]);
     }
 
@@ -144,14 +147,14 @@ class AlumnoManagementTest extends TestCase
     {
         $admin = $this->admin();
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
         Auth::loginUsingId($admin->id);
 
         $response = $this->post(route('alumnos.store'), [
             'nombre'          => '',
             'apellidos'       => '',
-            'ciclo_id'        => $ciclo->id,
+            'grupo_id'        => $grupo->id,
             'curso_academico' => '2025-2026',
-            'numero_curso'    => 2,
         ]);
 
         $response->assertSessionHasErrors(['nombre', 'apellidos']);
@@ -163,14 +166,14 @@ class AlumnoManagementTest extends TestCase
     {
         $admin = $this->admin();
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
         Auth::loginUsingId($admin->id);
 
         $response = $this->post(route('alumnos.store'), [
             'nombre'          => 'Ana',
             'apellidos'       => 'García',
-            'ciclo_id'        => $ciclo->id,
+            'grupo_id'        => $grupo->id,
             'curso_academico' => '2025/2026',  // formato incorrecto
-            'numero_curso'    => 2,
         ]);
 
         $response->assertSessionHasErrors(['curso_academico']);
@@ -190,9 +193,8 @@ class AlumnoManagementTest extends TestCase
         $response = $this->put(route('alumnos.update', $alumno), [
             'nombre'          => 'Pedro',
             'apellidos'       => 'Sánchez Ruiz',
-            'ciclo_id'        => $alumno->ciclo_id,
+            'grupo_id'        => $alumno->grupo_id,
             'curso_academico' => $alumno->curso_academico,
-            'numero_curso'    => $alumno->numero_curso,
         ]);
 
         $response->assertRedirect(route('alumnos.show', $alumno));
@@ -313,14 +315,14 @@ class AlumnoManagementTest extends TestCase
     public function importar_deduplica_por_nombre_apellidos_ciclo_curso()
     {
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
 
         // Alumno ya existente
         Alumno::factory()->create([
             'nombre'          => 'María',
             'apellidos'       => 'García López',
-            'ciclo_id'        => $ciclo->id,
+            'grupo_id'        => $grupo->id,
             'curso_academico' => '2025-2026',
-            'numero_curso'    => 2,
         ]);
 
         $service = new \App\Services\ImportAlumnosService();
@@ -330,7 +332,7 @@ class AlumnoManagementTest extends TestCase
         $tmpFile = tempnam(sys_get_temp_dir(), 'test_') . '.csv';
         file_put_contents($tmpFile, $csv);
 
-        $resultado = $service->importar($tmpFile, $ciclo->id, '2025-2026', 2);
+        $resultado = $service->importar($tmpFile, $grupo->id, '2025-2026');
         @unlink($tmpFile);
 
         $this->assertTrue($resultado['success']);
@@ -343,13 +345,14 @@ class AlumnoManagementTest extends TestCase
     public function importar_falla_si_faltan_columnas_obligatorias()
     {
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
         $service = new \App\Services\ImportAlumnosService();
 
         $csv = "Email,Teléfono\nana@educa.madrid.org,600111222";
         $tmpFile = tempnam(sys_get_temp_dir(), 'test_') . '.csv';
         file_put_contents($tmpFile, $csv);
 
-        $resultado = $service->importar($tmpFile, $ciclo->id, '2025-2026', 2);
+        $resultado = $service->importar($tmpFile, $grupo->id, '2025-2026');
         @unlink($tmpFile);
 
         $this->assertFalse($resultado['success']);
@@ -388,9 +391,9 @@ class AlumnoManagementTest extends TestCase
 
         $profesor->sincronizarGruposTutor([$grupoAsignado->id]);
 
-        Alumno::factory()->create(['ciclo_id' => $cicloAsignado->id, 'grupo_id' => $grupoAsignado->id, 'apellidos' => 'DeSuGrupo', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
-        Alumno::factory()->create(['ciclo_id' => $cicloAjeno->id, 'grupo_id' => $grupoAjeno->id, 'apellidos' => 'DeOtroGrupo', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
-        Alumno::factory()->create(['ciclo_id' => $cicloAsignado->id, 'grupo_id' => $grupoAsignado->id, 'apellidos' => 'CursoAnterior', 'curso_academico' => '2023-2024', 'numero_curso' => 2]);
+        Alumno::factory()->create(['grupo_id' => $grupoAsignado->id, 'apellidos' => 'DeSuGrupo', 'curso_academico' => '2025-2026']);
+        Alumno::factory()->create(['grupo_id' => $grupoAjeno->id, 'apellidos' => 'DeOtroGrupo', 'curso_academico' => '2025-2026']);
+        Alumno::factory()->create(['grupo_id' => $grupoAsignado->id, 'apellidos' => 'CursoAnterior', 'curso_academico' => '2023-2024']);
 
         Auth::loginUsingId($profesor->id);
 
@@ -406,8 +409,9 @@ class AlumnoManagementTest extends TestCase
     {
         $profesor = $this->profesor();
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
 
-        Alumno::factory()->create(['ciclo_id' => $ciclo->id, 'apellidos' => 'NoDeberiaVerse', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+        Alumno::factory()->create(['grupo_id' => $grupo->id, 'apellidos' => 'NoDeberiaVerse', 'curso_academico' => '2025-2026']);
 
         Auth::loginUsingId($profesor->id);
 
@@ -422,8 +426,9 @@ class AlumnoManagementTest extends TestCase
     {
         $admin = $this->admin();
         $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
 
-        Alumno::factory()->create(['ciclo_id' => $ciclo->id, 'apellidos' => 'VisibleParaAdmin', 'curso_academico' => '2025-2026', 'numero_curso' => 2]);
+        Alumno::factory()->create(['grupo_id' => $grupo->id, 'apellidos' => 'VisibleParaAdmin', 'curso_academico' => '2025-2026']);
 
         Auth::loginUsingId($admin->id);
 

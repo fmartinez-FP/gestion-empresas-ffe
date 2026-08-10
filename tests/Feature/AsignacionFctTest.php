@@ -7,6 +7,7 @@ use App\Models\AsignacionFct;
 use App\Models\CicloFormativo;
 use App\Models\CriterioEvaluacion;
 use App\Models\Empresa;
+use App\Models\Grupo;
 use App\Models\ModuloProfesional;
 use App\Models\ResultadoAprendizaje;
 use App\Models\User;
@@ -37,9 +38,8 @@ class AsignacionFctTest extends TestCase
         $this->profesor   = User::factory()->create(['rol' => 'profesor', 'activo' => true]);
         $this->empresa    = Empresa::factory()->create();
         $this->alumno     = Alumno::factory()->create([
-            'ciclo_id'        => $this->ciclo->id,
+            'grupo_id'        => Grupo::factory()->create(['ciclo_id' => $this->ciclo->id, 'numero_curso' => 2])->id,
             'curso_academico' => '2025-2026',
-            'numero_curso'    => 2,
         ]);
     }
 

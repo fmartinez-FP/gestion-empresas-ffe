@@ -14,13 +14,14 @@ class ImportAlumnosService
 
     /**
      * Importa alumnos desde un archivo CSV o Excel (.xlsx/.xls), deduplicando
-     * por nombre + apellidos + ciclo + curso académico. ciclo_id, curso_academico
-     * y numero_curso son constantes para todo el lote (vienen del formulario,
-     * no de columnas del archivo).
+     * por nombre + apellidos + grupo + curso académico. grupo_id y curso_academico
+     * son constantes para todo el lote (vienen del formulario, no de columnas del
+     * archivo). ciclo_id/numero_curso ya no se escriben aqui -- se derivan siempre
+     * de grupo_id via Alumno::getCicloAttribute()/getNumeroCursoAttribute().
      *
      * @return array{success: bool, importados: int, omitidos: int, mensaje: string}
      */
-    public function importar(string $rutaArchivo, int $cicloId, string $cursoAcademico, int $numeroCurso): array
+    public function importar(string $rutaArchivo, int $grupoId, string $cursoAcademico): array
     {
         $filas = $this->leerFilas($rutaArchivo);
 
@@ -61,7 +62,7 @@ class ImportAlumnosService
             $existe = Alumno::query()
                 ->where('nombre', $nombre)
                 ->where('apellidos', $apellidos)
-                ->where('ciclo_id', $cicloId)
+                ->where('grupo_id', $grupoId)
                 ->where('curso_academico', $cursoAcademico)
                 ->exists();
 
@@ -75,9 +76,8 @@ class ImportAlumnosService
                 'apellidos'       => $apellidos,
                 'email'           => $this->valorColumna($fila, $indices, 'Email'),
                 'telefono'        => $this->valorColumna($fila, $indices, 'Teléfono'),
-                'ciclo_id'        => $cicloId,
+                'grupo_id'        => $grupoId,
                 'curso_academico' => $cursoAcademico,
-                'numero_curso'    => $numeroCurso,
                 'importado_via'   => 'excel',
             ]);
 

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateAlumnoRequest;
 use App\Models\Alumno;
 use App\Models\CicloFormativo;
 use App\Models\Configuracion;
+use App\Models\Grupo;
 use Illuminate\Http\Request;
 
 class AlumnoController extends Controller
@@ -31,7 +32,7 @@ class AlumnoController extends Controller
             $sinGruposTutor = $grupoIdsTutor->isEmpty();
         }
 
-        $alumnos = Alumno::with(['ciclo', 'asignacionActiva.empresa'])
+        $alumnos = Alumno::with(['grupo.ciclo', 'asignacionActiva.empresa'])
             ->when($request->user()->esProfesor(), function ($q) use ($grupoIdsTutor) {
                 $q->whereIn('grupo_id', $grupoIdsTutor)
                   ->where('curso_academico', Configuracion::cursoActivo());
@@ -44,9 +45,9 @@ class AlumnoController extends Controller
                         ->orWhere('email', 'like', $termino);
                 });
             })
-            ->when($request->filled('ciclo_id'), fn($q) => $q->where('ciclo_id', $request->integer('ciclo_id')))
+            ->when($request->filled('ciclo_id'), fn($q) => $q->whereHas('grupo', fn($sub) => $sub->where('ciclo_id', $request->integer('ciclo_id'))))
             ->when($request->filled('curso_academico'), fn($q) => $q->where('curso_academico', $request->string('curso_academico')))
-            ->when($request->filled('numero_curso'), fn($q) => $q->where('numero_curso', $request->integer('numero_curso')))
+            ->when($request->filled('numero_curso'), fn($q) => $q->whereHas('grupo', fn($sub) => $sub->where('numero_curso', $request->integer('numero_curso'))))
             ->orderBy('apellidos')
             ->orderBy('nombre')
             ->paginate(15)
@@ -64,9 +65,10 @@ class AlumnoController extends Controller
         abort_unless(auth()->user()->can('crearAlumno'), 403);
 
         $ciclos      = CicloFormativo::orderBy('codigo')->get(['id', 'codigo', 'nombre']);
+        $grupos      = Grupo::activos()->with('ciclo')->orderBy('numero_curso')->orderBy('etiqueta')->get();
         $cursoActivo = Configuracion::cursoActivo();
 
-        return view('alumnos.create', compact('ciclos', 'cursoActivo'));
+        return view('alumnos.create', compact('ciclos', 'grupos', 'cursoActivo'));
     }
 
     public function store(StoreAlumnoRequest $request)
@@ -85,7 +87,7 @@ class AlumnoController extends Controller
     public function show(Alumno $alumno)
     {
         $alumno->load([
-            'ciclo',
+            'grupo.ciclo',
             'user',
             'asignaciones.empresa',
             'asignaciones.tutorIes',
@@ -103,8 +105,9 @@ class AlumnoController extends Controller
         abort_unless(auth()->user()->can('editarAlumno', $alumno), 403);
 
         $ciclos = CicloFormativo::orderBy('codigo')->get(['id', 'codigo', 'nombre']);
+        $grupos = Grupo::activos()->with('ciclo')->orderBy('numero_curso')->orderBy('etiqueta')->get();
 
-        return view('alumnos.edit', compact('alumno', 'ciclos'));
+        return view('alumnos.edit', compact('alumno', 'ciclos', 'grupos'));
     }
 
     public function update(UpdateAlumnoRequest $request, Alumno $alumno)
@@ -174,7 +177,7 @@ class AlumnoController extends Controller
             ->pluck('curso_academico');
 
         $alumnos = Alumno::onlyTrashed()
-            ->with(['ciclo', 'asignaciones'])
+            ->with(['grupo.ciclo', 'asignaciones'])
             ->when($request->filled('q'), function ($q) use ($request) {
                 $termino = '%' . $request->string('q') . '%';
                 $q->where(function ($sub) use ($termino) {
@@ -182,9 +185,9 @@ class AlumnoController extends Controller
                         ->orWhere('apellidos', 'like', $termino);
                 });
             })
-            ->when($request->filled('ciclo_id'), fn($q) => $q->where('ciclo_id', $request->integer('ciclo_id')))
+            ->when($request->filled('ciclo_id'), fn($q) => $q->whereHas('grupo', fn($sub) => $sub->where('ciclo_id', $request->integer('ciclo_id'))))
             ->when($request->filled('curso_academico'), fn($q) => $q->where('curso_academico', $request->string('curso_academico')))
-            ->when($request->filled('numero_curso'), fn($q) => $q->where('numero_curso', $request->integer('numero_curso')))
+            ->when($request->filled('numero_curso'), fn($q) => $q->whereHas('grupo', fn($sub) => $sub->where('numero_curso', $request->integer('numero_curso'))))
             ->orderByDesc('deleted_at')
             ->paginate(15)
             ->withQueryString();
@@ -201,9 +204,10 @@ class AlumnoController extends Controller
         abort_unless(auth()->user()->can('importarAlumnos'), 403);
 
         $ciclos      = CicloFormativo::orderBy('codigo')->get(['id', 'codigo', 'nombre']);
+        $grupos      = Grupo::activos()->with('ciclo')->orderBy('numero_curso')->orderBy('etiqueta')->get();
         $cursoActivo = Configuracion::cursoActivo();
 
-        return view('alumnos.import', compact('ciclos', 'cursoActivo'));
+        return view('alumnos.import', compact('ciclos', 'grupos', 'cursoActivo'));
     }
 
     public function import(Request $request)
@@ -212,16 +216,14 @@ class AlumnoController extends Controller
 
         $data = $request->validate([
             'archivo'         => ['required', 'file', 'max:5120', 'mimes:csv,txt,xlsx,xls'],
-            'ciclo_id'        => ['required', 'integer', 'exists:ciclos_formativos,id'],
+            'grupo_id'        => ['required', 'integer', 'exists:grupos,id'],
             'curso_academico' => ['required', 'regex:/^\\d{4}-\\d{4}$/'],
-            'numero_curso'    => ['required', 'integer', 'in:1,2'],
         ]);
 
         $resultado = (new \App\Services\ImportAlumnosService())->importar(
             $request->file('archivo')->getRealPath(),
-            (int) $data['ciclo_id'],
+            (int) $data['grupo_id'],
             $data['curso_academico'],
-            (int) $data['numero_curso'],
         );
 
         if (! $resultado['success']) {

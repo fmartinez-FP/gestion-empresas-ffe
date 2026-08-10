@@ -128,7 +128,10 @@ class AsignacionFctController extends Controller
     {
         abort_unless(auth()->user()->can('editarAsignacion', $asignacion), 403);
 
-        $asignacion->load(['alumno.ciclo', 'resultadosAprendizaje', 'criteriosEvaluacion', 'horarios']);
+        // alumno.ciclo ya no es una relacion Eloquent real (ver Alumno::getCicloAttribute()):
+        // se deriva de grupo_id -> grupos.ciclo_id, por lo que el eager load correcto es
+        // alumno.grupo.ciclo.
+        $asignacion->load(['alumno.grupo.ciclo', 'resultadosAprendizaje', 'criteriosEvaluacion', 'horarios']);
 
         $cursoActivo = Configuracion::cursoActivo();
         $empresas    = Empresa::orderBy('nombre')->get(['id', 'nombre']);

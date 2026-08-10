@@ -18,15 +18,9 @@ class Alumno extends Model
         'apellidos',
         'email',
         'telefono',
-        'ciclo_id',
         'grupo_id',
         'curso_academico',
-        'numero_curso',
         'importado_via',
-    ];
-
-    protected $casts = [
-        'numero_curso' => 'integer',
     ];
 
     // =========================================================================
@@ -36,11 +30,6 @@ class Alumno extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function ciclo(): BelongsTo
-    {
-        return $this->belongsTo(CicloFormativo::class, 'ciclo_id');
     }
 
     public function grupo(): BelongsTo
@@ -68,5 +57,29 @@ class Alumno extends Model
     public function getNombreCompletoAttribute(): string
     {
         return "{$this->apellidos}, {$this->nombre}";
+    }
+
+    /**
+     * ciclo_id/numero_curso ya no son columnas propias (eliminadas en
+     * 2026_08_10_120000_remove_ciclo_and_curso_columns_from_alumnos): se
+     * derivan siempre de grupo_id -> grupos, para eliminar la divergencia
+     * de datos confirmada en sesion 2026-08-10.
+     *
+     * IMPORTANTE: no es eager-cargable como 'ciclo' -- usar 'grupo.ciclo'
+     * en ->with()/->load().
+     */
+    public function getCicloAttribute(): ?CicloFormativo
+    {
+        return $this->grupo?->ciclo;
+    }
+
+    public function getCicloIdAttribute(): ?int
+    {
+        return $this->grupo?->ciclo_id;
+    }
+
+    public function getNumeroCursoAttribute(): ?int
+    {
+        return $this->grupo?->numero_curso;
     }
 }
