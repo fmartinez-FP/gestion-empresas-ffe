@@ -24,6 +24,29 @@
         <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-lg text-sm">{{ session('success') }}</div>
     @endif
 
+    <div class="bg-white rounded-lg shadow p-5 mb-6">
+        <div class="grid grid-cols-3 gap-4 text-center mb-3">
+            <div>
+                <p class="text-2xl font-bold text-green-700">{{ number_format($horasRealizadas, 2) }}h</p>
+                <p class="text-xs text-gray-500 mt-1">Horas realizadas</p>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-yellow-700">{{ number_format($horasPendientes, 2) }}h</p>
+                <p class="text-xs text-gray-500 mt-1">Horas pendientes</p>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-700">{{ number_format($horasPrevistas, 2) }}h</p>
+                <p class="text-xs text-gray-500 mt-1">Total previsto</p>
+            </div>
+        </div>
+        @if($horasPrevistas > 0)
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="bg-green-600 h-2.5 rounded-full"
+                 style="width: {{ min(100, round(($horasRealizadas / $horasPrevistas) * 100)) }}%"></div>
+        </div>
+        @endif
+    </div>
+
     @if($seguimientos->isEmpty())
         <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
             El alumno aún no ha registrado ninguna entrada en su cuaderno.

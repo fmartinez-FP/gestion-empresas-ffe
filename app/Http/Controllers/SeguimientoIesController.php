@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\AsignacionFct;
 use App\Models\SeguimientoDiario;
+use App\Services\HorarioAsignacionService;
 use Illuminate\Http\Request;
 
 class SeguimientoIesController extends Controller
 {
+    public function __construct(private HorarioAsignacionService $horarioService) {}
+
     public function index(AsignacionFct $asignacion)
     {
         abort_unless(auth()->user()->can('verAsignacion', $asignacion), 403);
@@ -16,7 +19,13 @@ class SeguimientoIesController extends Controller
             ->orderByDesc('fecha')
             ->paginate(25);
 
-        return view('asignaciones.seguimientos.index', compact('asignacion', 'seguimientos'));
+        $horasRealizadas = $this->horarioService->horasRealizadas($asignacion);
+        $horasPrevistas  = $this->horarioService->horasPrevistas($asignacion);
+        $horasPendientes = max(0, round($horasPrevistas - $horasRealizadas, 2));
+
+        return view('asignaciones.seguimientos.index', compact(
+            'asignacion', 'seguimientos', 'horasRealizadas', 'horasPrevistas', 'horasPendientes'
+        ));
     }
 
     public function confirmar(Request $request, AsignacionFct $asignacion, SeguimientoDiario $seguimiento)
