@@ -87,6 +87,29 @@
                 <dd class="font-medium">{{ $asignacion->num_horas ?? '—' }}</dd>
             </div>
         </dl>
+
+        @if($horasPrevistas !== null)
+        <div class="mt-5 pt-5 border-t border-gray-100 grid grid-cols-3 gap-4 text-center">
+            <div>
+                <p class="text-xl font-bold text-green-700">{{ number_format($horasRealizadas, 2) }}h</p>
+                <p class="text-xs text-gray-500 mt-1">Realizadas</p>
+            </div>
+            <div>
+                <p class="text-xl font-bold text-yellow-700">{{ number_format($horasPendientes, 2) }}h</p>
+                <p class="text-xs text-gray-500 mt-1">Pendientes</p>
+            </div>
+            <div>
+                <p class="text-xl font-bold text-gray-700">{{ number_format($horasPrevistas, 2) }}h</p>
+                <p class="text-xs text-gray-500 mt-1">Total previsto</p>
+            </div>
+        </div>
+        @if($horasPrevistas > 0)
+        <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full"
+                 style="width: {{ min(100, round(($horasRealizadas / $horasPrevistas) * 100)) }}%"></div>
+        </div>
+        @endif
+        @endif
     </div>
 @else
     <div class="bg-white rounded-lg shadow p-6 text-gray-500 text-sm">

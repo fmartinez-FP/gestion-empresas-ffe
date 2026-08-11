@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\AsignacionFct;
 use App\Models\SeguimientoDiario;
 use App\Services\CuadernoCalendarioService;
+use App\Services\HorarioAsignacionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SeguimientoDiarioController extends Controller
 {
-    public function __construct(private CuadernoCalendarioService $calendarioService) {}
+    public function __construct(
+        private CuadernoCalendarioService $calendarioService,
+        private HorarioAsignacionService $horarioService,
+    ) {}
 
     public function index(Request $request)
     {
@@ -46,7 +50,19 @@ class SeguimientoDiarioController extends Controller
             ])
             ->values();
 
-        return view('portal.cuaderno.index', compact('asignacion', 'semanas', 'mesActual'));
+        $horasRealizadas = null;
+        $horasPrevistas  = null;
+        $horasPendientes = null;
+
+        if ($asignacion->fecha_inicio !== null && $asignacion->fecha_fin !== null) {
+            $horasRealizadas = $this->horarioService->horasRealizadas($asignacion);
+            $horasPrevistas  = $this->horarioService->horasPrevistas($asignacion);
+            $horasPendientes = max(0, round($horasPrevistas - $horasRealizadas, 2));
+        }
+
+        return view('portal.cuaderno.index', compact(
+            'asignacion', 'semanas', 'mesActual', 'horasRealizadas', 'horasPrevistas', 'horasPendientes'
+        ));
     }
 
     public function create()
