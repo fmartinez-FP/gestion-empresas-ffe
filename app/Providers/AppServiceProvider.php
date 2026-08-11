@@ -39,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('verAsignacion',     [AsignacionPolicy::class, 'verAsignacion']);
         Gate::define('editarAsignacion',  [AsignacionPolicy::class, 'editarAsignacion']);
         Gate::define('cancelarAsignacion',[AsignacionPolicy::class, 'cancelarAsignacion']);
+        Gate::define('ajustarHorasSemana',[AsignacionPolicy::class, 'ajustarHorasSemana']);
+        Gate::define('marcarDiaNoTrabajado',[AsignacionPolicy::class, 'marcarDiaNoTrabajado']);
 
         // Gates para Currículum (módulos, RA, CE, elegibles)
         Gate::define('verCurriculum',      [CurriculumPolicy::class, 'verCurriculum']);

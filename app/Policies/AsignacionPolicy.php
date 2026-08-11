@@ -45,4 +45,22 @@ class AsignacionPolicy
         }
         return false;
     }
+
+    /** Mismo patron que confirmarSeguimiento: tutor_ies de la asignacion, o admin/responsable_ffe */
+    public function ajustarHorasSemana(User $user, AsignacionFct $asignacion): bool
+    {
+        if (in_array($user->rol, ['admin', 'responsable_ffe'])) {
+            return true;
+        }
+        return $asignacion->tutor_ies_id === $user->id;
+    }
+
+    /** Mismo patron que confirmarSeguimiento/ajustarHorasSemana */
+    public function marcarDiaNoTrabajado(User $user, AsignacionFct $asignacion): bool
+    {
+        if (in_array($user->rol, ['admin', 'responsable_ffe'])) {
+            return true;
+        }
+        return $asignacion->tutor_ies_id === $user->id;
+    }
 }

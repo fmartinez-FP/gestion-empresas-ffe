@@ -385,4 +385,104 @@ class HorarioAsignacionTest extends TestCase
 
         $this->assertEquals(['lunes', 'miercoles', 'viernes'], $dias);
     }
+
+    /** @test */
+    public function horas_semana_calcula_previstas_y_confirmadas_de_lunes_a_viernes()
+    {
+        $asignacion = $this->asignacion();
+
+        foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes'] as $dia) {
+            HorarioAsignacion::factory()->create([
+                'asignacion_id'  => $asignacion->id,
+                'dia'            => $dia,
+                'entrada_manana' => '08:00',
+                'salida_manana'  => '15:00',
+                'entrada_tarde'  => null,
+                'salida_tarde'   => null,
+            ]);
+        }
+
+        SeguimientoDiario::factory()->create([
+            'asignacion_id'    => $asignacion->id,
+            'fecha'            => '2026-09-07', // lunes
+            'confirmado_tutor' => true,
+        ]);
+        SeguimientoDiario::factory()->create([
+            'asignacion_id'    => $asignacion->id,
+            'fecha'            => '2026-09-08', // martes
+            'confirmado_tutor' => true,
+        ]);
+        SeguimientoDiario::factory()->create([
+            'asignacion_id'    => $asignacion->id,
+            'fecha'            => '2026-09-09', // miercoles, sin confirmar
+            'confirmado_tutor' => false,
+        ]);
+
+        $asignacion->unsetRelation('horarios');
+        $resultado = $this->servicio()->horasSemana($asignacion, \Carbon\Carbon::parse('2026-09-07'));
+
+        $this->assertEquals(35.0, $resultado['previstas']);
+        $this->assertEquals(14.0, $resultado['confirmadas']);
+        $this->assertEquals(0.0, $resultado['ajuste']);
+        $this->assertEquals(14.0, $resultado['realizadas']);
+    }
+
+    /** @test */
+    public function horas_semana_excluye_dia_marcado_como_festivo(): void
+    {
+        $asignacion = $this->asignacion();
+
+        foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes'] as $dia) {
+            HorarioAsignacion::factory()->create([
+                'asignacion_id'  => $asignacion->id,
+                'dia'            => $dia,
+                'entrada_manana' => '08:00',
+                'salida_manana'  => '15:00',
+                'entrada_tarde'  => null,
+                'salida_tarde'   => null,
+            ]);
+        }
+
+        CalendarioAsignacion::create([
+            'asignacion_id' => $asignacion->id,
+            'fecha'         => '2026-09-09', // miercoles
+            'tipo'          => 'festivo',
+            'motivo'        => 'Prueba',
+        ]);
+
+        $asignacion->unsetRelation('horarios');
+        $resultado = $this->servicio()->horasSemana($asignacion, \Carbon\Carbon::parse('2026-09-07'));
+
+        $this->assertEquals(28.0, $resultado['previstas']); // 4 dias, no 5
+    }
+
+    /** @test */
+    public function horas_semana_incluye_el_ajuste_de_esa_semana_concreta(): void
+    {
+        $asignacion = $this->asignacion();
+        $usuario    = User::factory()->create();
+
+        HorarioAsignacion::factory()->create([
+            'asignacion_id'  => $asignacion->id,
+            'dia'            => 'lunes',
+            'entrada_manana' => '08:00',
+            'salida_manana'  => '15:00',
+            'entrada_tarde'  => null,
+            'salida_tarde'   => null,
+        ]);
+
+        AjusteHorasSemana::create([
+            'asignacion_id' => $asignacion->id,
+            'semana'        => '2026-09-07',
+            'ajuste'        => 2.5,
+            'motivo'        => 'Prueba',
+            'created_by_id' => $usuario->id,
+        ]);
+
+        $asignacion->unsetRelation('horarios');
+        $resultado = $this->servicio()->horasSemana($asignacion, \Carbon\Carbon::parse('2026-09-07'));
+
+        $this->assertEquals(2.5, $resultado['ajuste']);
+        $this->assertEquals(2.5, $resultado['realizadas']); // 0 confirmadas + 2.5 ajuste
+    }
 }

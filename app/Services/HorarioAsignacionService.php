@@ -96,6 +96,66 @@ class HorarioAsignacionService
         return round($totalConfirmadas + $totalAjustes, 2);
     }
 
+    /**
+     * Previstas/realizadas/ajuste de una semana concreta (lunes a viernes a partir de $lunesSemana).
+     * Mismo criterio de exclusion de festivos/no_lectivo/baja que horasPrevistas(), acotado a la semana.
+     *
+     * @return array{previstas: float, confirmadas: float, ajuste: float, realizadas: float}
+     */
+    public function horasSemana(AsignacionFct $asignacion, Carbon $lunesSemana): array
+    {
+        $horariosPorDia = $asignacion->horarios->keyBy('dia');
+        $viernesSemana  = $lunesSemana->copy()->addDays(4);
+
+        $fechasExcluidas = $asignacion->calendario()
+            ->whereBetween('fecha', [$lunesSemana->toDateString(), $viernesSemana->toDateString()])
+            ->where('tipo', '!=', 'laborable')
+            ->pluck('fecha')
+            ->map(fn ($fecha) => Carbon::parse($fecha)->toDateString())
+            ->flip();
+
+        $seguimientosPorFecha = $asignacion->seguimientos()
+            ->whereBetween('fecha', [$lunesSemana->toDateString(), $viernesSemana->toDateString()])
+            ->get()
+            ->keyBy(fn ($s) => Carbon::parse($s->fecha)->toDateString());
+
+        $previstas   = 0.0;
+        $confirmadas = 0.0;
+
+        foreach (CarbonPeriod::create($lunesSemana, $viernesSemana) as $fecha) {
+            if ($fecha->isWeekend() || isset($fechasExcluidas[$fecha->toDateString()])) {
+                continue;
+            }
+
+            $diaSemana = self::DIAS_ORDEN[$fecha->dayOfWeekIso - 1];
+            $horario   = $horariosPorDia->get($diaSemana);
+
+            if ($horario === null) {
+                continue;
+            }
+
+            $horas      = $this->horasDiarias($horario);
+            $previstas += $horas;
+
+            $seguimiento = $seguimientosPorFecha->get($fecha->toDateString());
+
+            if ($seguimiento !== null && $seguimiento->confirmado_tutor) {
+                $confirmadas += $horas;
+            }
+        }
+
+        $ajuste = (float) $asignacion->ajustesHoras()
+            ->where('semana', $lunesSemana->toDateString())
+            ->value('ajuste');
+
+        return [
+            'previstas'   => round($previstas, 2),
+            'confirmadas' => round($confirmadas, 2),
+            'ajuste'      => round($ajuste, 2),
+            'realizadas'  => round($confirmadas + $ajuste, 2),
+        ];
+    }
+
     public function generarTextoHorario(AsignacionFct $asignacion): string
     {
         $horarios = $asignacion->horarios;

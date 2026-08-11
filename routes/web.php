@@ -186,6 +186,8 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get("asignaciones/{asignacion}/seguimientos",                              [\App\Http\Controllers\SeguimientoIesController::class, "index"])->name("asignaciones.seguimientos.index");
     Route::post("asignaciones/{asignacion}/seguimientos/{seguimiento}/confirmar",     [\App\Http\Controllers\SeguimientoIesController::class, "confirmar"])->name("asignaciones.seguimientos.confirmar");
+    Route::post("asignaciones/{asignacion}/ajustes-horas-semana",                    [\App\Http\Controllers\SeguimientoIesController::class, "ajustarHorasSemana"])->name("asignaciones.ajustes-horas-semana.store");
+    Route::post("asignaciones/{asignacion}/marcar-no-trabajado",                     [\App\Http\Controllers\SeguimientoIesController::class, "marcarNoTrabajado"])->name("asignaciones.marcar-no-trabajado.store");
 
     // Calendario asignacion
     Route::get("asignaciones/{asignacion}/calendario",                               [\App\Http\Controllers\CalendarioAsignacionController::class, "index"])->name("asignaciones.calendario.index");

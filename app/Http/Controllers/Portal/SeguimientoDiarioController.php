@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\AsignacionFct;
 use App\Models\SeguimientoDiario;
+use App\Services\CuadernoCalendarioService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SeguimientoDiarioController extends Controller
 {
-    public function index()
+    public function __construct(private CuadernoCalendarioService $calendarioService) {}
+
+    public function index(Request $request)
     {
         $user = auth('web_externo')->user();
 
@@ -24,11 +27,26 @@ class SeguimientoDiarioController extends Controller
             return view('portal.cuaderno.sin-asignacion');
         }
 
-        $seguimientos = SeguimientoDiario::where('asignacion_id', $asignacion->id)
-            ->orderByDesc('fecha')
-            ->paginate(20);
+        $mesActual = $this->calendarioService->resolverMesOverview($asignacion, $request->query('mes'));
 
-        return view('portal.cuaderno.index', compact('asignacion', 'seguimientos'));
+        $seguimientos = SeguimientoDiario::where('asignacion_id', $asignacion->id)
+            ->whereBetween('fecha', [
+                $mesActual->copy()->startOfMonth()->toDateString(),
+                $mesActual->copy()->endOfMonth()->toDateString(),
+            ])
+            ->orderByDesc('fecha')
+            ->get();
+
+        $semanas = $seguimientos
+            ->groupBy(fn ($s) => Carbon::parse($s->fecha)->startOfWeek(Carbon::MONDAY)->toDateString())
+            ->sortKeysDesc()
+            ->map(fn ($grupo, $lunes) => [
+                'lunes'        => Carbon::parse($lunes),
+                'seguimientos' => $grupo,
+            ])
+            ->values();
+
+        return view('portal.cuaderno.index', compact('asignacion', 'semanas', 'mesActual'));
     }
 
     public function create()

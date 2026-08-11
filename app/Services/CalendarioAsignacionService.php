@@ -52,7 +52,7 @@ class CalendarioAsignacionService
         }
 
         $excluidos = CalendarioAsignacion::where("asignacion_id", $asignacion->id)
-            ->whereIn("tipo", ["festivo", "no_lectivo", "baja"])
+            ->whereIn("tipo", ["festivo", "no_lectivo", "baja", "ausencia_no_justificada"])
             ->pluck("fecha")
             ->map(fn ($f) => Carbon::parse($f)->toDateString())
             ->flip()
