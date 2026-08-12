@@ -20,7 +20,32 @@ class UsuarioControllerGrupoTutorTest extends TestCase
     }
 
     #[Test]
-    public function admin_asigna_grupos_tutor_a_profesor_correctamente(): void
+    public function admin_asigna_grupo_tutor_a_profesor_correctamente(): void
+    {
+        Configuracion::setCursoActivo('2025-2026');
+        $admin  = $this->admin();
+        $target = User::factory()->create(['rol' => 'responsable_ffe']);
+        $grupo  = Grupo::factory()->create();
+        Auth::loginUsingId($admin->id);
+
+        $response = $this->put(route('admin.usuarios.update', $target), [
+            'rol'    => 'profesor',
+            'grupos' => [$grupo->id],
+        ]);
+
+        $response->assertRedirect(route('admin.usuarios.index'));
+        $target->refresh();
+        $this->assertEquals('profesor', $target->rol);
+        $this->assertDatabaseHas('profesor_tutor', [
+            'user_id'         => $target->id,
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2025-2026',
+        ]);
+        $this->assertCount(1, $target->gruposTutor);
+    }
+
+    #[Test]
+    public function un_profesor_no_puede_tutorizar_mas_de_un_grupo(): void
     {
         Configuracion::setCursoActivo('2025-2026');
         $admin  = $this->admin();
@@ -34,20 +59,9 @@ class UsuarioControllerGrupoTutorTest extends TestCase
             'grupos' => [$grupoA->id, $grupoB->id],
         ]);
 
-        $response->assertRedirect(route('admin.usuarios.index'));
+        $response->assertSessionHasErrors(['grupos']);
         $target->refresh();
-        $this->assertEquals('profesor', $target->rol);
-        $this->assertDatabaseHas('profesor_tutor', [
-            'user_id'         => $target->id,
-            'grupo_id'        => $grupoA->id,
-            'curso_academico' => '2025-2026',
-        ]);
-        $this->assertDatabaseHas('profesor_tutor', [
-            'user_id'         => $target->id,
-            'grupo_id'        => $grupoB->id,
-            'curso_academico' => '2025-2026',
-        ]);
-        $this->assertCount(2, $target->gruposTutor);
+        $this->assertEquals('responsable_ffe', $target->rol);
     }
 
     #[Test]

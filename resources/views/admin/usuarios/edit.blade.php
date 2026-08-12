@@ -128,20 +128,67 @@
 
             <div id="grupo-container" class="{{ old('rol', $usuario->rol) === 'profesor' ? '' : 'hidden' }}">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Grupos que tutoriza
+                    Grupo que tutoriza
                 </label>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Grupos que este profesor tutorizará en el curso académico activo ({{ \App\Models\Configuracion::cursoActivo() }}). Puede dejarse vacío por ahora; se podrá completar más adelante.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Un profesor tutoriza como máximo un grupo en el curso académico activo ({{ \App\Models\Configuracion::cursoActivo() }}). Puede dejarse vacío por ahora; se podrá completar más adelante.</p>
+
                 @php $gruposUsuario = $usuario->gruposTutor->pluck('id')->toArray(); @endphp
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    @foreach($grupos as $grupo)
-                    <label class="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-colors">
-                        <input type="checkbox" name="grupos[]" value="{{ $grupo->id }}"
-                               {{ in_array($grupo->id, old('grupos', $gruposUsuario)) ? 'checked' : '' }}
-                               class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
-                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ $grupo->etiquetaConCiclo }}</span>
+                @php $grupoSeleccionado = old('grupos.0', $gruposUsuario[0] ?? null); @endphp
+
+                @if($grupos->isEmpty())
+                    <div class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                        No hay grupos activos registrados.
+                    </div>
+                @else
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        1. Ciclo formativo
                     </label>
-                    @endforeach
-                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        @foreach($ciclos as $ciclo)
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-colors">
+                            <input type="radio" name="filtro_ciclo_grupo" id="filtro-ciclo-{{ $ciclo->id }}" value="{{ $ciclo->id }}"
+                                   class="w-4 h-4 border-slate-300 text-primary-600 focus:ring-primary-500">
+                            <div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold mr-2
+                                    @if($ciclo->nivel === 'basica') bg-orange-100 text-orange-700
+                                    @elseif($ciclo->nivel === 'media') bg-blue-100 text-blue-700
+                                    @else bg-purple-100 text-purple-700 @endif">
+                                    {{ $ciclo->codigo }}
+                                </span>
+                                <span class="text-sm text-slate-700 dark:text-slate-300">{{ $ciclo->nombre }}</span>
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        2. Grupo
+                    </label>
+                    <div class="relative" id="combo-grupo">
+                        <button type="button" id="combo-grupo-btn" aria-expanded="false"
+                                class="w-full flex items-center justify-between gap-2 rounded-lg border @error('grupos') border-red-400 @else border-slate-300 @enderror dark:border-slate-600 dark:bg-slate-700 px-3 py-2 text-sm text-left bg-white hover:border-primary-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <span id="combo-grupo-label" class="truncate text-slate-400 dark:text-slate-400">Selecciona un ciclo primero…</span>
+                            <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform" id="combo-grupo-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div id="combo-grupo-panel"
+                             class="hidden absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-lg max-h-60 overflow-y-auto py-1">
+                            @foreach($grupos as $grupo)
+                            <button type="button"
+                                    class="combo-grupo-option hidden w-full flex items-center justify-between gap-2 text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-primary-50 dark:hover:bg-primary-900/30"
+                                    data-ciclo-id="{{ $grupo->ciclo_id }}" data-grupo-id="{{ $grupo->id }}">
+                                <span>{{ $grupo->etiquetaConCiclo }}</span>
+                                <svg class="w-4 h-4 text-primary-600 shrink-0 combo-grupo-check hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                            @endforeach
+                        </div>
+                    </div>
+                    <input type="hidden" name="grupos[]" id="select-grupo-tutor" value="{{ $grupoSeleccionado }}">
+                @endif
                 @error('grupos')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
         </div>
@@ -165,6 +212,112 @@ function toggleCicloSelect() {
     document.getElementById('grupo-container').classList.toggle('hidden', rol !== 'profesor');
 }
 document.addEventListener('DOMContentLoaded', toggleCicloSelect);
+
+document.addEventListener('DOMContentLoaded', function () {
+    var radiosCiclo  = document.querySelectorAll('input[name="filtro_ciclo_grupo"]');
+    var comboWrapper = document.getElementById('combo-grupo');
+    var comboBtn     = document.getElementById('combo-grupo-btn');
+    var comboPanel   = document.getElementById('combo-grupo-panel');
+    var comboLabel   = document.getElementById('combo-grupo-label');
+    var comboChevron = document.getElementById('combo-grupo-chevron');
+    var hiddenInput  = document.getElementById('select-grupo-tutor');
+    var opciones     = document.querySelectorAll('.combo-grupo-option');
+    if (!radiosCiclo.length || !comboBtn || !hiddenInput) return;
+
+    function cerrarPanel() {
+        comboPanel.classList.add('hidden');
+        comboBtn.setAttribute('aria-expanded', 'false');
+        comboChevron.classList.remove('rotate-180');
+    }
+
+    function abrirPanel() {
+        comboPanel.classList.remove('hidden');
+        comboBtn.setAttribute('aria-expanded', 'true');
+        comboChevron.classList.add('rotate-180');
+    }
+
+    function limpiarSeleccion(mensaje) {
+        hiddenInput.value = '';
+        comboLabel.textContent = mensaje;
+        comboLabel.classList.add('text-slate-400');
+        opciones.forEach(function (o) {
+            o.querySelector('.combo-grupo-check').classList.add('hidden');
+        });
+    }
+
+    function seleccionarGrupo(opcion) {
+        hiddenInput.value = opcion.dataset.grupoId;
+        comboLabel.textContent = opcion.querySelector('span').textContent;
+        comboLabel.classList.remove('text-slate-400');
+        opciones.forEach(function (o) {
+            o.querySelector('.combo-grupo-check').classList.toggle('hidden', o !== opcion);
+        });
+        cerrarPanel();
+    }
+
+    function filtrarGrupos() {
+        var cicloId = document.querySelector('input[name="filtro_ciclo_grupo"]:checked')?.value ?? '';
+        var huboSeleccionValida = false;
+
+        opciones.forEach(function (opcion) {
+            var coincide = opcion.dataset.cicloId === cicloId;
+            opcion.classList.toggle('hidden', !coincide);
+            if (coincide && opcion.dataset.grupoId === hiddenInput.value) {
+                huboSeleccionValida = true;
+            }
+        });
+
+        if (!huboSeleccionValida) {
+            limpiarSeleccion(cicloId === '' ? 'Selecciona un ciclo primero…' : 'Selecciona un grupo…');
+        }
+    }
+
+    comboBtn.addEventListener('click', function () {
+        if (comboPanel.classList.contains('hidden')) {
+            abrirPanel();
+        } else {
+            cerrarPanel();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!comboWrapper.contains(e.target)) {
+            cerrarPanel();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') cerrarPanel();
+    });
+
+    opciones.forEach(function (opcion) {
+        opcion.addEventListener('click', function () {
+            seleccionarGrupo(opcion);
+        });
+    });
+
+    radiosCiclo.forEach(function (radio) {
+        radio.addEventListener('change', filtrarGrupos);
+    });
+
+    // Si ya hay un grupo asignado (edicion) o volvemos de un 422 con grupo
+    // seleccionado (old()), preseleccionar tambien el radio de ciclo correspondiente
+    // y mostrar la etiqueta en el boton.
+    if (hiddenInput.value) {
+        var opcionInicial = document.querySelector('.combo-grupo-option[data-grupo-id="' + hiddenInput.value + '"]');
+        if (opcionInicial) {
+            var radioCiclo = document.getElementById('filtro-ciclo-' + opcionInicial.dataset.cicloId);
+            if (radioCiclo) {
+                radioCiclo.checked = true;
+            }
+            comboLabel.textContent = opcionInicial.querySelector('span').textContent;
+            comboLabel.classList.remove('text-slate-400');
+            opcionInicial.querySelector('.combo-grupo-check').classList.remove('hidden');
+        }
+    }
+
+    filtrarGrupos();
+});
 </script>
 @endpush
 @endsection

@@ -58,7 +58,7 @@ class UsuarioController extends Controller
             'rol'      => 'required|in:admin,responsable_ffe,responsable_ciclo,profesor',
             'ciclos'   => 'nullable|array',
             'ciclos.*' => 'exists:ciclos_formativos,id',
-            'grupos'   => 'nullable|array',
+            'grupos'   => 'nullable|array|max:1',
             'grupos.*' => 'exists:grupos,id',
         ], [
             'rol.required' => 'El rol es obligatorio.',
