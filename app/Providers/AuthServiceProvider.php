@@ -38,6 +38,11 @@ class AuthServiceProvider extends ServiceProvider
             return $user->esAdmin() || $user->esResponsableCiclo();
         });
 
+        // Gate para gestion FFE (Ciclos, Alumnos, Curriculum, Calendario FFE): admin o responsable_ffe
+        Gate::define('gestionarFfe', function (User $user) {
+            return $user->esAdmin() || $user->esResponsableFFE();
+        });
+
         // Directivas Blade personalizadas
         Blade::if('admin', function () {
             return auth()->check() && auth()->user()->esAdmin();
