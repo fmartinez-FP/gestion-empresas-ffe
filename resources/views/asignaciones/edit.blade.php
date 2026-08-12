@@ -108,6 +108,12 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tutor IES <span class="text-red-500">*</span></label>
+                @if(auth()->user()->rol === 'profesor')
+                    <input type="text" value="{{ auth()->user()->nombre }}" disabled
+                           class="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-600">
+                    <input type="hidden" name="tutor_ies_id" value="{{ auth()->id() }}">
+                    <p class="text-xs text-gray-400 mt-1">Como profesor, siempre eres el tutor IES de tus asignaciones.</p>
+                @else
                 <select name="tutor_ies_id" required
                         class="w-full rounded-lg border @error('tutor_ies_id') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
                     <option value="">Selecciona un tutor…</option>
@@ -117,6 +123,7 @@
                         </option>
                     @endforeach
                 </select>
+                @endif
                 @error('tutor_ies_id')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
             </div>
 

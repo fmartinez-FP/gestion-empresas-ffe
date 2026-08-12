@@ -122,6 +122,28 @@ class AsignacionFctTest extends TestCase
     }
 
     #[Test]
+    public function profesor_crear_asignacion_fuerza_tutor_ies_a_si_mismo(): void
+    {
+        $otroProfesor = User::factory()->create(['rol' => 'profesor', 'activo' => true]);
+
+        $this->instance(OnboardingAlumnoService::class, Mockery::mock(OnboardingAlumnoService::class, function ($mock) {
+            $mock->shouldReceive('crearCuentaAlumno')->once()->andReturn(User::factory()->create(['rol' => 'alumno']));
+        }));
+
+        $resp = $this->actingAs($this->profesor)->post(route('asignaciones.store', $this->alumno), array_merge([
+            'empresa_id'   => $this->empresa->id,
+            'tutor_ies_id' => $otroProfesor->id, // intenta poner a otro profesor
+        ], $this->horarioMinimoValido()));
+
+        $resp->assertRedirect();
+        $this->assertDatabaseHas('asignaciones_fct', [
+            'alumno_id'    => $this->alumno->id,
+            'empresa_id'   => $this->empresa->id,
+            'tutor_ies_id' => $this->profesor->id, // forzado al propio profesor, no al otro
+        ]);
+    }
+
+    #[Test]
     public function crear_asignacion_sin_empresa_falla_validacion(): void
     {
         $resp = $this->actingAs($this->admin)->post(route('asignaciones.store', $this->alumno), [
@@ -314,6 +336,30 @@ class AsignacionFctTest extends TestCase
             'empresa_id' => $otraEmpresa->id,
             'num_horas'  => 6, // lunes 09:00-15:00
             'estado'     => 'finalizada',
+        ]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_reasignar_tutor_ies_al_actualizar(): void
+    {
+        $otroProfesor = User::factory()->create(['rol' => 'profesor', 'activo' => true]);
+
+        $asignacion = AsignacionFct::factory()->create([
+            'alumno_id'    => $this->alumno->id,
+            'empresa_id'   => $this->empresa->id,
+            'ciclo_id'     => $this->ciclo->id,
+            'tutor_ies_id' => $this->profesor->id,
+        ]);
+
+        $resp = $this->actingAs($this->profesor)->put(route('asignaciones.update', $asignacion), array_merge([
+            'empresa_id'   => $this->empresa->id,
+            'tutor_ies_id' => $otroProfesor->id, // intenta transferirsela a otro profesor
+        ], $this->horarioMinimoValido()));
+
+        $resp->assertRedirect(route('asignaciones.show', $asignacion));
+        $this->assertDatabaseHas('asignaciones_fct', [
+            'id'           => $asignacion->id,
+            'tutor_ies_id' => $this->profesor->id, // sigue siendo el mismo, no se transfirio
         ]);
     }
 

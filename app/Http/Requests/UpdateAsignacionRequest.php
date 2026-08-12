@@ -12,6 +12,19 @@ class UpdateAsignacionRequest extends FormRequest
         return auth()->user()->can('editarAsignacion', $this->route('asignacion'));
     }
 
+    /**
+     * Un profesor siempre es su propio tutor IES: se ignora cualquier valor recibido
+     * del formulario y se fuerza server-side (bloqueado tambien visualmente en la vista).
+     * En la practica ya solo puede editar asignaciones donde ya es tutor_ies_id, pero
+     * esto evita que pueda transferirsela a otro profesor via el formulario.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (auth()->user()->rol === 'profesor') {
+            $this->merge(['tutor_ies_id' => auth()->id()]);
+        }
+    }
+
     public function rules(): array
     {
         $user = auth()->user();

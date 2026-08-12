@@ -12,6 +12,18 @@ class StoreAsignacionRequest extends FormRequest
         return auth()->user()->can('crearAsignacion');
     }
 
+    /**
+     * Un profesor siempre es su propio tutor IES al crear una asignacion: se ignora
+     * cualquier valor recibido del formulario y se fuerza server-side, para que no
+     * pueda manipularse (bloqueado tambien visualmente en la vista).
+     */
+    protected function prepareForValidation(): void
+    {
+        if (auth()->user()->rol === 'profesor') {
+            $this->merge(['tutor_ies_id' => auth()->id()]);
+        }
+    }
+
     public function rules(): array
     {
         return [
