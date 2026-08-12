@@ -104,9 +104,6 @@ Route::middleware('auth')->group(function () {
     // Administración (solo admin)
     Route::prefix('admin')->name('admin.')->middleware('can:admin')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->only(['index', 'show', 'edit', 'update']);
-        Route::resource('ciclos', CicloFormativoController::class);
-        Route::post('ciclos/{ciclo}/grupos', [GrupoController::class, 'store'])->name('ciclos.grupos.store');
-        Route::patch('ciclos/{ciclo}/grupos/{grupo}/toggle', [GrupoController::class, 'toggleActivo'])->name('ciclos.grupos.toggle');
         Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
         Route::get('auditoria/export/excel', [AuditoriaController::class, 'exportExcel'])->name('auditoria.export.excel');
         Route::get('auditoria/export/pdf', [AuditoriaController::class, 'exportPdf'])->name('auditoria.export.pdf');
@@ -117,28 +114,47 @@ Route::middleware('auth')->group(function () {
         Route::post('configuracion/avanzar-curso', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'avanzarCurso'])->name('configuracion.avanzar-curso');
     });
 
+    // =========================================================================
+    // GESTION FFE: Ciclos / Calendario FFE (admin o responsable_ffe)
+    // =========================================================================
+    Route::prefix('admin')->name('admin.')->middleware('can:gestionarFfe')->group(function () {
+        Route::resource('ciclos', CicloFormativoController::class);
+        Route::post('ciclos/{ciclo}/grupos', [GrupoController::class, 'store'])->name('ciclos.grupos.store');
+        Route::patch('ciclos/{ciclo}/grupos/{grupo}/toggle', [GrupoController::class, 'toggleActivo'])->name('ciclos.grupos.toggle');
+
+        Route::get('calendario-ffe', [\App\Http\Controllers\Admin\NoLectivoIesController::class, 'index'])->name('calendario-ffe.index');
+        Route::post('calendario-ffe', [\App\Http\Controllers\Admin\NoLectivoIesController::class, 'store'])->name('calendario-ffe.store');
+        Route::delete('calendario-ffe/{noLectivoIe}', [\App\Http\Controllers\Admin\NoLectivoIesController::class, 'destroy'])->name('calendario-ffe.destroy');
+    });
 
     // =========================================================================
     // CURRICULUM: Modulos / RA / CE / Elegibles FFE
     // =========================================================================
     Route::prefix('admin/curriculum')->name('admin.curriculum.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\CurriculumController::class, 'index'])->name('index');
+        // Lectura: admin, responsable_ffe, responsable_ciclo, profesor
+        Route::middleware('can:verCurriculum')->group(function () {
+            Route::get('/', [\App\Http\Controllers\CurriculumController::class, 'index'])->name('index');
+            Route::get('/{ciclo}/modulos', [\App\Http\Controllers\ModuloProfesionalController::class, 'index'])->name('modulos.index');
+            Route::get('/{ciclo}/modulos/{modulo}/edit', [\App\Http\Controllers\ModuloProfesionalController::class, 'edit'])->name('modulos.edit');
+            Route::get('/modulos/{modulo}/ra', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'index'])->name('ra.index');
+        });
 
-        Route::get('/{ciclo}/modulos', [\App\Http\Controllers\ModuloProfesionalController::class, 'index'])->name('modulos.index');
-        Route::post('/{ciclo}/modulos', [\App\Http\Controllers\ModuloProfesionalController::class, 'store'])->name('modulos.store');
-        Route::get('/{ciclo}/modulos/{modulo}/edit', [\App\Http\Controllers\ModuloProfesionalController::class, 'edit'])->name('modulos.edit');
-        Route::put('/{ciclo}/modulos/{modulo}', [\App\Http\Controllers\ModuloProfesionalController::class, 'update'])->name('modulos.update');
-        Route::delete('/{ciclo}/modulos/{modulo}', [\App\Http\Controllers\ModuloProfesionalController::class, 'destroy'])->name('modulos.destroy');
+        // Escritura: admin, responsable_ffe
+        Route::middleware('can:gestionarCurriculum')->group(function () {
+            Route::post('/{ciclo}/modulos', [\App\Http\Controllers\ModuloProfesionalController::class, 'store'])->name('modulos.store');
+            Route::put('/{ciclo}/modulos/{modulo}', [\App\Http\Controllers\ModuloProfesionalController::class, 'update'])->name('modulos.update');
+            Route::delete('/{ciclo}/modulos/{modulo}', [\App\Http\Controllers\ModuloProfesionalController::class, 'destroy'])->name('modulos.destroy');
 
-        Route::get('/modulos/{modulo}/ra', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'index'])->name('ra.index');
-        Route::post('/modulos/{modulo}/ra', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'store'])->name('ra.store');
-        Route::put('/ra/{ra}', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'update'])->name('ra.update');
-        Route::delete('/ra/{ra}', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'destroy'])->name('ra.destroy');
+            Route::post('/modulos/{modulo}/ra', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'store'])->name('ra.store');
+            Route::put('/ra/{ra}', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'update'])->name('ra.update');
+            Route::delete('/ra/{ra}', [\App\Http\Controllers\ResultadoAprendizajeController::class, 'destroy'])->name('ra.destroy');
 
-        Route::post('/ra/{ra}/criterios', [\App\Http\Controllers\CriterioEvaluacionController::class, 'store'])->name('ce.store');
-        Route::put('/criterios/{ce}', [\App\Http\Controllers\CriterioEvaluacionController::class, 'update'])->name('ce.update');
-        Route::delete('/criterios/{ce}', [\App\Http\Controllers\CriterioEvaluacionController::class, 'destroy'])->name('ce.destroy');
+            Route::post('/ra/{ra}/criterios', [\App\Http\Controllers\CriterioEvaluacionController::class, 'store'])->name('ce.store');
+            Route::put('/criterios/{ce}', [\App\Http\Controllers\CriterioEvaluacionController::class, 'update'])->name('ce.update');
+            Route::delete('/criterios/{ce}', [\App\Http\Controllers\CriterioEvaluacionController::class, 'destroy'])->name('ce.destroy');
+        });
 
+        // Elegibles: autorizacion propia via Gate gestionarElegibles en el controller, sin middleware de ruta
         Route::get('/elegibles', [\App\Http\Controllers\ElegibleFfeController::class, 'index'])->name('elegibles.index');
         Route::post('/elegibles/toggle', [\App\Http\Controllers\ElegibleFfeController::class, 'toggle'])->name('elegibles.toggle');
         Route::post('/elegibles/toggle-ce', [\App\Http\Controllers\ElegibleFfeController::class, 'toggleCe'])->name('elegibles.toggle-ce');

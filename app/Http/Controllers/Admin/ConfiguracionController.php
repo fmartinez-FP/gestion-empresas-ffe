@@ -53,6 +53,10 @@ class ConfiguracionController extends Controller
         
         Configuracion::setCursoActivo($cursoNuevo);
 
+        // Los no lectivos de centro son propios del curso activo; al avanzar de
+        // curso pierden sentido y se eliminan de forma definitiva (decision 2026-08-12).
+        \App\Models\NoLectivoIes::withTrashed()->get()->each->forceDelete();
+
         return redirect()
             ->route('admin.configuracion.curso')
             ->with('success', "Curso avanzado de {$cursoAnterior} a {$cursoNuevo}. Las nuevas colocaciones se registrarán en {$cursoNuevo}.");

@@ -13,7 +13,7 @@ class CurriculumPolicy
 
     public function gestionarCurriculum(User $user): bool
     {
-        return $user->rol === 'admin';
+        return in_array($user->rol, ['admin', 'responsable_ffe']);
     }
 
     public function gestionarElegibles(User $user): bool
