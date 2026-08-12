@@ -17,6 +17,10 @@ use Illuminate\Support\Collection;
  */
 class CuadernoCalendarioService
 {
+    public function __construct(private NoLectivoIesService $noLectivoIesService)
+    {
+    }
+
     /**
      * Días laborables (L-V) dentro de fecha_inicio-fecha_fin de la asignación.
      * No depende del horario configurado (decisión explícita: siempre L-V).
@@ -109,6 +113,19 @@ class CuadernoCalendarioService
             ->where('tipo', '!=', 'laborable')
             ->get()
             ->keyBy(fn ($c) => Carbon::parse($c->fecha)->toDateString());
+
+        if ($fechasStr->isNotEmpty()) {
+            $noLectivos = $this->noLectivoIesService
+                ->fechasExcluidas(Carbon::parse($fechasStr->min()), Carbon::parse($fechasStr->max()))
+                ->intersect($fechasStr);
+
+            foreach ($noLectivos as $fechaNoLectiva) {
+                $festivosPorFecha->put($fechaNoLectiva, (object) [
+                    'tipo'   => 'festivo',
+                    'motivo' => 'No lectivo',
+                ]);
+            }
+        }
 
         return $fechas->mapWithKeys(fn (Carbon $fecha) => [
             $fecha->toDateString() => $this->estadoDia($fecha, $seguimientosPorFecha, $festivosPorFecha),

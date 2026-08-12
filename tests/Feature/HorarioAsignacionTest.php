@@ -9,6 +9,7 @@ use App\Models\HorarioAsignacion;
 use App\Models\SeguimientoDiario;
 use App\Models\User;
 use App\Services\HorarioAsignacionService;
+use App\Services\NoLectivoIesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -19,7 +20,7 @@ class HorarioAsignacionTest extends TestCase
 
     private function servicio(): HorarioAsignacionService
     {
-        return new HorarioAsignacionService();
+        return new HorarioAsignacionService(new NoLectivoIesService());
     }
 
     private function asignacion(array $attrs = []): AsignacionFct

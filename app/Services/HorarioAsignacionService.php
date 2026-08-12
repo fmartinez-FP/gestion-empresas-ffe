@@ -25,6 +25,10 @@ class HorarioAsignacionService
     private const MAX_HORAS_DIA = 8.0;
     private const MAX_HORAS_SEMANA = 40.0;
 
+    public function __construct(private NoLectivoIesService $noLectivoIesService)
+    {
+    }
+
     public function horasDiarias(HorarioAsignacion $horario): float
     {
         $horas = $this->diferenciaHoras($horario->entrada_manana, $horario->salida_manana);
@@ -54,7 +58,12 @@ class HorarioAsignacionService
             ->where('tipo', '!=', 'laborable')
             ->pluck('fecha')
             ->map(fn ($fecha) => Carbon::parse($fecha)->toDateString())
-            ->flip();
+            ->flip()
+            ->union(
+                $this->noLectivoIesService
+                    ->fechasExcluidas($asignacion->fecha_inicio, $asignacion->fecha_fin)
+                    ->flip()
+            );
 
         $total   = 0.0;
         $periodo = CarbonPeriod::create($asignacion->fecha_inicio, $asignacion->fecha_fin);
@@ -112,7 +121,12 @@ class HorarioAsignacionService
             ->where('tipo', '!=', 'laborable')
             ->pluck('fecha')
             ->map(fn ($fecha) => Carbon::parse($fecha)->toDateString())
-            ->flip();
+            ->flip()
+            ->union(
+                $this->noLectivoIesService
+                    ->fechasExcluidas($lunesSemana, $viernesSemana)
+                    ->flip()
+            );
 
         $seguimientosPorFecha = $asignacion->seguimientos()
             ->whereBetween('fecha', [$lunesSemana->toDateString(), $viernesSemana->toDateString()])

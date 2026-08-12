@@ -9,6 +9,10 @@ use Carbon\CarbonPeriod;
 
 class CalendarioAsignacionService
 {
+    public function __construct(private NoLectivoIesService $noLectivoIesService)
+    {
+    }
+
     /**
      * Marca un dia en el calendario de la asignacion.
      * Si ya existe una entrada para esa fecha, la actualiza.
@@ -56,6 +60,11 @@ class CalendarioAsignacionService
             ->pluck("fecha")
             ->map(fn ($f) => Carbon::parse($f)->toDateString())
             ->flip()
+            ->union(
+                $this->noLectivoIesService
+                    ->fechasExcluidas($asignacion->fecha_inicio, $asignacion->fecha_fin)
+                    ->flip()
+            )
             ->all();
 
         $periodo = CarbonPeriod::create(

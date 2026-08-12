@@ -8,6 +8,7 @@ use App\Models\SeguimientoDiario;
 use App\Models\TokenTutorEmpresa;
 use App\Models\User;
 use App\Services\CalendarioAsignacionService;
+use App\Services\NoLectivoIesService;
 use App\Services\TokenTutorEmpresaService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -125,7 +126,7 @@ class CuadernoDigitalTest extends TestCase
             'fecha_fin'    => '2026-06-05',
         ]);
 
-        $servicio = new CalendarioAsignacionService();
+        $servicio = new CalendarioAsignacionService(new NoLectivoIesService());
         $this->assertEquals(5, $servicio->diasLaborables($asignacion));
     }
 
@@ -142,7 +143,7 @@ class CuadernoDigitalTest extends TestCase
             'fecha'         => '2026-06-02',
         ]);
 
-        $servicio = new CalendarioAsignacionService();
+        $servicio = new CalendarioAsignacionService(new NoLectivoIesService());
         $this->assertEquals(4, $servicio->diasLaborables($asignacion));
     }
 
@@ -154,7 +155,7 @@ class CuadernoDigitalTest extends TestCase
             'fecha_fin'    => null,
         ]);
 
-        $servicio = new CalendarioAsignacionService();
+        $servicio = new CalendarioAsignacionService(new NoLectivoIesService());
         $this->assertEquals(0, $servicio->diasLaborables($asignacion));
     }
 
@@ -162,7 +163,7 @@ class CuadernoDigitalTest extends TestCase
     public function marcar_dia_crea_entrada_en_calendario(): void
     {
         $asignacion = AsignacionFct::factory()->create();
-        $servicio   = new CalendarioAsignacionService();
+        $servicio   = new CalendarioAsignacionService(new NoLectivoIesService());
 
         $dia = $servicio->marcarDia($asignacion, Carbon::parse('2026-06-10'), 'festivo', 'San Antonio');
 
@@ -178,7 +179,7 @@ class CuadernoDigitalTest extends TestCase
     public function marcar_dia_actualiza_entrada_existente(): void
     {
         $asignacion = AsignacionFct::factory()->create();
-        $servicio   = new CalendarioAsignacionService();
+        $servicio   = new CalendarioAsignacionService(new NoLectivoIesService());
 
         $servicio->marcarDia($asignacion, Carbon::parse('2026-06-10'), 'festivo', 'San Antonio');
         $servicio->marcarDia($asignacion, Carbon::parse('2026-06-10'), 'baja', 'Baja médica');
@@ -195,7 +196,7 @@ class CuadernoDigitalTest extends TestCase
             'asignacion_id' => $asignacion->id,
         ]);
 
-        $servicio = new CalendarioAsignacionService();
+        $servicio = new CalendarioAsignacionService(new NoLectivoIesService());
         $servicio->eliminarDia($dia);
 
         $this->assertDatabaseMissing('calendario_asignacion', ['id' => $dia->id]);
