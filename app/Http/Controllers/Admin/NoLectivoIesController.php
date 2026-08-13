@@ -14,7 +14,7 @@ class NoLectivoIesController extends Controller
 
     public function index()
     {
-        $this->authorize('viewAny', NoLectivoIes::class);
+        abort_unless(auth()->user()->can('viewAny', NoLectivoIes::class), 403);
 
         $noLectivos = NoLectivoIes::orderBy('fecha')->get();
 
@@ -39,7 +39,7 @@ class NoLectivoIesController extends Controller
 
     public function destroy(NoLectivoIes $noLectivoIe)
     {
-        $this->authorize('delete', $noLectivoIe);
+        abort_unless(auth()->user()->can('delete', $noLectivoIe), 403);
 
         $this->servicio->eliminar($noLectivoIe);
 
