@@ -5,11 +5,6 @@
 @section('content')
 <div class="max-w-5xl mx-auto px-4 py-8">
 
-    <nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-6">
-        <a href="{{ route('dashboard') }}" class="hover:text-primary-600">Inicio</a>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-slate-800 dark:text-white font-medium">Curriculum</span>
-    </nav>
 
     <div class="flex items-center justify-between mb-6">
         <div>

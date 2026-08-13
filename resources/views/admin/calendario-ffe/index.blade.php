@@ -7,8 +7,6 @@
         Los días marcados aquí se aplican como no laborables en el calendario de FFE de todos los alumnos.
     </p>
 
-    @include('admin.partials.nav')
-
     @if (session('success'))
         <div class="mb-6 p-4 rounded-lg bg-accent-100 text-accent-800 dark:bg-accent-900/30 dark:text-accent-400">
             {{ session('success') }}
