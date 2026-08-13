@@ -55,14 +55,33 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                             Empresas
                         </a>
+                        @cannot('gestionarFfe')
                         <a href="{{ route('alumnos.index') }}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 {{ request()->routeIs('alumnos.*') || request()->routeIs('asignaciones.*') ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             Alumnos
                         </a>
+                        @endcannot
                         <a href="{{ route('informes.index') }}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 {{ request()->routeIs('informes.*') ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             Informes
                         </a>
+                        @can('gestionarFfe')
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false" type="button"
+                                    class="nav-link px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 {{ request()->routeIs('alumnos.*') || request()->routeIs('asignaciones.*') || request()->routeIs('admin.ciclos.*') || request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.calendario-ffe.*') ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                Gestión FFE
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="open" x-cloak
+                                 class="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-50 py-1">
+                                <a href="{{ route('alumnos.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('alumnos.*') || request()->routeIs('asignaciones.*') ? 'text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-600 dark:text-slate-300' }} hover:bg-slate-50 dark:hover:bg-slate-700">Alumnos</a>
+                                <a href="{{ route('admin.ciclos.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.ciclos.*') ? 'text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-600 dark:text-slate-300' }} hover:bg-slate-50 dark:hover:bg-slate-700">Ciclos Formativos</a>
+                                <a href="{{ route('admin.curriculum.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.curriculum.*') ? 'text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-600 dark:text-slate-300' }} hover:bg-slate-50 dark:hover:bg-slate-700">Currículum</a>
+                                <a href="{{ route('admin.calendario-ffe.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.calendario-ffe.*') ? 'text-primary-700 dark:text-primary-400 font-medium' : 'text-slate-600 dark:text-slate-300' }} hover:bg-slate-50 dark:hover:bg-slate-700">Calendario FFE</a>
+                            </div>
+                        </div>
+                        @endcan
                         @admin
                         <a href="{{ route('admin.usuarios.index') }}" class="nav-link px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 {{ request()->routeIs('admin.*') ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -202,12 +221,20 @@
             <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <div class="px-4 py-3 space-y-1">
                     <a href="{{ route('empresas.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('empresas.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Empresas</a>
+                    @cannot('gestionarFfe')
                     <a href="{{ route('alumnos.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('alumnos.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Alumnos</a>
+                    @endcannot
                     <a href="{{ route('seguimientos.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('seguimientos.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Agenda</a>
                     <a href="{{ route('colocaciones.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('colocaciones.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Histórico</a>
                     <a href="{{ route('informes.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('informes.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Informes</a>
+                    @can('gestionarFfe')
+                    <p class="px-3 pt-2 pb-1 text-xs font-semibold text-slate-400 uppercase">Gestión FFE</p>
+                    <a href="{{ route('alumnos.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('alumnos.*') || request()->routeIs('asignaciones.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Alumnos</a>
+                    <a href="{{ route('admin.ciclos.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.ciclos.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Ciclos Formativos</a>
+                    <a href="{{ route('admin.curriculum.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.curriculum.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Currículum</a>
+                    <a href="{{ route('admin.calendario-ffe.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario-ffe.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Calendario FFE</a>
+                    @endcan
                     @admin
-                    <a href="{{ route('admin.curriculum.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.curriculum.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Curriculum</a>
                     <a href="{{ route('admin.usuarios.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.*') ? 'bg-primary-50 text-primary-700' : 'text-slate-600' }}">Administración</a>
                     @endadmin
                     {{-- Subnav móvil Empresas --}}
