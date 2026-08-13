@@ -39,6 +39,8 @@ class ExportController extends Controller
      */
     public function empresaPdf(Empresa $empresa): BinaryFileResponse
     {
+        abort_unless(auth()->user()->can('update', $empresa), 403);
+
         $path = $this->pdfService->generarFichaEmpresa($empresa);
 
         return response()->download($path)->deleteFileAfterSend(true);

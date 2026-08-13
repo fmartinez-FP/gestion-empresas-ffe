@@ -204,4 +204,37 @@ class EmpresaManagementTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertDatabaseHas('empresas', ['id' => $empresa->id]);
     }
+
+    /** @test */
+    public function profesor_no_puede_exportar_pdf_de_empresa_ajena()
+    {
+        $creador = User::factory()->create(['rol' => 'profesor']);
+        $otroProfesor = User::factory()->create(['rol' => 'profesor']);
+
+        $empresa = Empresa::create([
+            'nombre' => 'Empresa Ajena PDF',
+            'cif' => 'B88888888',
+            'creador_id' => $creador->id,
+        ]);
+
+        $response = $this->actingAs($otroProfesor)->get(route('export.empresa.pdf', $empresa));
+
+        $response->assertForbidden();
+    }
+
+    /** @test */
+    public function creador_puede_exportar_pdf_de_su_empresa()
+    {
+        $creador = User::factory()->create(['rol' => 'profesor']);
+
+        $empresa = Empresa::create([
+            'nombre' => 'Mi Empresa PDF',
+            'cif' => 'B99999999',
+            'creador_id' => $creador->id,
+        ]);
+
+        $response = $this->actingAs($creador)->get(route('export.empresa.pdf', $empresa));
+
+        $response->assertOk();
+    }
 }
