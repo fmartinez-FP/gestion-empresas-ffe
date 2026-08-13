@@ -118,4 +118,74 @@ class UsuarioControllerGrupoTutorTest extends TestCase
         $target->refresh();
         $this->assertEquals('responsable_ffe', $target->rol);
     }
+
+    #[Test]
+    public function admin_asigna_grupo_tutor_a_responsable_ciclo_correctamente(): void
+    {
+        Configuracion::setCursoActivo('2025-2026');
+        $admin  = $this->admin();
+        $target = User::factory()->create(['rol' => 'responsable_ffe']);
+        $ciclo  = \App\Models\CicloFormativo::factory()->create();
+        $grupo  = Grupo::factory()->create();
+        Auth::loginUsingId($admin->id);
+
+        $response = $this->put(route('admin.usuarios.update', $target), [
+            'rol'    => 'responsable_ciclo',
+            'ciclos' => [$ciclo->id],
+            'grupos' => [$grupo->id],
+        ]);
+
+        $response->assertRedirect(route('admin.usuarios.index'));
+        $target->refresh();
+        $this->assertEquals('responsable_ciclo', $target->rol);
+        $this->assertDatabaseHas('profesor_tutor', [
+            'user_id'         => $target->id,
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2025-2026',
+        ]);
+        $this->assertCount(1, $target->gruposTutor);
+        // Conserva tambien sus ciclos de responsable, no se pisan entre si
+        $this->assertCount(1, $target->ciclos);
+    }
+
+    #[Test]
+    public function un_responsable_ciclo_no_puede_tutorizar_mas_de_un_grupo(): void
+    {
+        Configuracion::setCursoActivo('2025-2026');
+        $admin  = $this->admin();
+        $target = User::factory()->create(['rol' => 'responsable_ffe']);
+        $ciclo  = \App\Models\CicloFormativo::factory()->create();
+        $grupoA = Grupo::factory()->create();
+        $grupoB = Grupo::factory()->create();
+        Auth::loginUsingId($admin->id);
+
+        $response = $this->put(route('admin.usuarios.update', $target), [
+            'rol'    => 'responsable_ciclo',
+            'ciclos' => [$ciclo->id],
+            'grupos' => [$grupoA->id, $grupoB->id],
+        ]);
+
+        $response->assertSessionHasErrors(['grupos']);
+        $target->refresh();
+        $this->assertEquals('responsable_ffe', $target->rol);
+    }
+
+    #[Test]
+    public function cambiar_de_responsable_ciclo_a_otro_rol_hace_detach_de_grupos_tutor(): void
+    {
+        Configuracion::setCursoActivo('2025-2026');
+        $admin  = $this->admin();
+        $target = User::factory()->create(['rol' => 'responsable_ciclo']);
+        $grupo  = Grupo::factory()->create();
+        $target->sincronizarGruposTutor([$grupo->id]);
+        Auth::loginUsingId($admin->id);
+
+        $response = $this->put(route('admin.usuarios.update', $target), [
+            'rol' => 'responsable_ffe',
+        ]);
+
+        $response->assertRedirect(route('admin.usuarios.index'));
+        $target->refresh();
+        $this->assertCount(0, $target->gruposTutor);
+    }
 }

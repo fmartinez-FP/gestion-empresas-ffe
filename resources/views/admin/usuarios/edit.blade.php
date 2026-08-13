@@ -126,11 +126,11 @@
                 @error('ciclos')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
-            <div id="grupo-container" class="{{ old('rol', $usuario->rol) === 'profesor' ? '' : 'hidden' }}">
+            <div id="grupo-container" class="{{ in_array(old('rol', $usuario->rol), ['profesor', 'responsable_ciclo']) ? '' : 'hidden' }}">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Grupo que tutoriza
                 </label>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Un profesor tutoriza como máximo un grupo en el curso académico activo ({{ \App\Models\Configuracion::cursoActivo() }}). Puede dejarse vacío por ahora; se podrá completar más adelante.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Se tutoriza como máximo un grupo en el curso académico activo ({{ \App\Models\Configuracion::cursoActivo() }}). Puede dejarse vacío por ahora; se podrá completar más adelante.</p>
 
                 @php $gruposUsuario = $usuario->gruposTutor->pluck('id')->toArray(); @endphp
                 @php $grupoSeleccionado = old('grupos.0', $gruposUsuario[0] ?? null); @endphp
@@ -209,7 +209,7 @@
 function toggleCicloSelect() {
     const rol = document.querySelector('input[name="rol"]:checked')?.value;
     document.getElementById('ciclo-container').classList.toggle('hidden', rol !== 'responsable_ciclo');
-    document.getElementById('grupo-container').classList.toggle('hidden', rol !== 'profesor');
+    document.getElementById('grupo-container').classList.toggle('hidden', rol !== 'profesor' && rol !== 'responsable_ciclo');
 }
 document.addEventListener('DOMContentLoaded', toggleCicloSelect);
 

@@ -79,7 +79,7 @@ class UsuarioController extends Controller
             $usuario->update(['ciclo_id' => null]);
         }
 
-        if ($validated['rol'] === 'profesor') {
+        if (in_array($validated['rol'], ['profesor', 'responsable_ciclo'])) {
             $usuario->sincronizarGruposTutor($request->grupos ?? []);
         } else {
             $usuario->gruposTutor()->detach();
