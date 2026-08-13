@@ -94,8 +94,7 @@
                 </div>
                 
                 <h1 class="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-                    Gestión de Empresas<br>
-                    <span class="text-primary-200">con Convenio</span>
+                    Gestión <span class="text-primary-200">FFE</span>
                 </h1>
                 
                 <p class="text-lg text-primary-100 mb-8 leading-relaxed">
@@ -115,18 +114,26 @@
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                        </div>
-                        <span class="text-primary-100">Histórico de asignaciones por ciclo</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
                         <span class="text-primary-100">Control automático de vigencia de convenios</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-primary-100">Supervisión de las prácticas de los alumnos</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-primary-100">Generación automática de documentación FFE</span>
                     </div>
                 </div>
             </div>
