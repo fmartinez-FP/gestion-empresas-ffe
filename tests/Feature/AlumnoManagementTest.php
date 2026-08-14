@@ -399,8 +399,8 @@ class AlumnoManagementTest extends TestCase
     {
         $profesor      = $this->profesor();
         $ciclo         = $this->ciclo();
-        $grupoAsignado = Grupo::factory()->create(['ciclo_id' => $ciclo->id]);
-        $grupoAjeno    = Grupo::factory()->create(['ciclo_id' => $ciclo->id]);
+        $grupoAsignado = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 1]);
+        $grupoAjeno    = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
         $profesor->sincronizarGruposTutor([$grupoAsignado->id]);
         $alumno = Alumno::factory()->create([
             'grupo_id'        => $grupoAjeno->id,
