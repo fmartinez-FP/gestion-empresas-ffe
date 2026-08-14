@@ -78,9 +78,18 @@ class AlumnoPolicy
         return $this->esResponsableSuperior($user);
     }
 
-    public function resetearPasswordAlumno(User $user, ?Alumno $alumno = null): bool
+    /**
+     * Mismo criterio de scope que verAlumno(): un profesor solo puede
+     * resetear la contrasena de alumnos de sus grupos tutorizados y del
+     * curso academico activo. El resto de roles gestores (admin,
+     * responsable_ffe, responsable_ciclo) pueden resetear la de cualquier
+     * alumno. Confirmado con Fernando (sesion 2026-08-14): alumno de curso
+     * cerrado queda bloqueado igual que en show/index, incluso si el grupo
+     * fue tutorizado por el profesor en su momento.
+     */
+    public function resetearPasswordAlumno(User $user, Alumno $alumno): bool
     {
-        return $this->esGestorAlumnos($user);
+        return $this->verAlumno($user, $alumno) && $this->esGestorAlumnos($user);
     }
 
     public function eliminarAlumno(User $user): bool

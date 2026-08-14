@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Mail\BienvenidaAlumnoMail;
 use App\Models\Alumno;
+use App\Models\Grupo;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -59,5 +60,69 @@ class ResetearPasswordAlumnoTest extends TestCase
 
         $response->assertRedirect(route('alumnos.show', $alumno));
         $response->assertSessionHas('error');
+    }
+
+    #[Test]
+    public function profesor_puede_resetear_password_de_alumno_de_su_grupo_en_curso_activo(): void
+    {
+        Mail::fake();
+
+        $profesor = User::factory()->create(['rol' => 'profesor']);
+        $grupo = Grupo::factory()->create();
+        $profesor->sincronizarGruposTutor([$grupo->id]);
+
+        $alumnoUser = User::factory()->create(['rol' => 'alumno', 'password_change_required' => false]);
+        $alumno = Alumno::factory()->create([
+            'user_id'         => $alumnoUser->id,
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2025-2026',
+        ]);
+
+        $response = $this->actingAs($profesor)
+            ->post(route('alumnos.resetear-password', $alumno));
+
+        $response->assertRedirect(route('alumnos.show', $alumno));
+        $response->assertSessionHas('success');
+    }
+
+    #[Test]
+    public function profesor_no_puede_resetear_password_de_alumno_de_grupo_ajeno(): void
+    {
+        $profesor = User::factory()->create(['rol' => 'profesor']);
+        $grupoAsignado = Grupo::factory()->create();
+        $grupoAjeno = Grupo::factory()->create();
+        $profesor->sincronizarGruposTutor([$grupoAsignado->id]);
+
+        $alumnoUser = User::factory()->create(['rol' => 'alumno']);
+        $alumno = Alumno::factory()->create([
+            'user_id'         => $alumnoUser->id,
+            'grupo_id'        => $grupoAjeno->id,
+            'curso_academico' => '2025-2026',
+        ]);
+
+        $response = $this->actingAs($profesor)
+            ->post(route('alumnos.resetear-password', $alumno));
+
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function profesor_no_puede_resetear_password_de_alumno_de_curso_academico_cerrado(): void
+    {
+        $profesor = User::factory()->create(['rol' => 'profesor']);
+        $grupo = Grupo::factory()->create();
+        $profesor->sincronizarGruposTutor([$grupo->id]);
+
+        $alumnoUser = User::factory()->create(['rol' => 'alumno']);
+        $alumno = Alumno::factory()->create([
+            'user_id'         => $alumnoUser->id,
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2023-2024',
+        ]);
+
+        $response = $this->actingAs($profesor)
+            ->post(route('alumnos.resetear-password', $alumno));
+
+        $response->assertForbidden();
     }
 }
