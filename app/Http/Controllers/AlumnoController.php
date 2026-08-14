@@ -86,6 +86,8 @@ class AlumnoController extends Controller
 
     public function show(Alumno $alumno)
     {
+        abort_unless(auth()->user()->can('verAlumno', $alumno), 403);
+
         $alumno->load([
             'grupo.ciclo',
             'user',

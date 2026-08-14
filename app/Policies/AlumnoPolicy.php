@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Alumno;
+use App\Models\Configuracion;
 use App\Models\User;
 
 class AlumnoPolicy
@@ -34,6 +35,28 @@ class AlumnoPolicy
     public function editarAlumno(User $user, ?Alumno $alumno = null): bool
     {
         return $this->esGestorAlumnos($user);
+    }
+
+    /**
+     * Ficha individual (show): mismo criterio de scope que el listado (index).
+     * Profesor solo ve alumnos de sus grupos tutorizados y del curso academico
+     * activo; el resto de roles gestores (admin, responsable_ffe,
+     * responsable_ciclo) ven cualquier alumno sin restriccion, igual que en
+     * index(). Confirmado con Fernando (sesion 2026-08-14): un alumno de curso
+     * cerrado NO debe ser visible via show() para un profesor aunque el grupo
+     * fuera suyo en su momento -- misma restriccion que index.
+     */
+    public function verAlumno(User $user, Alumno $alumno): bool
+    {
+        if (! $user->esProfesor()) {
+            return true;
+        }
+
+        if ($alumno->curso_academico !== Configuracion::cursoActivo()) {
+            return false;
+        }
+
+        return $user->gruposTutor()->where('grupos.id', $alumno->grupo_id)->exists();
     }
 
     /**

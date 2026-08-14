@@ -364,16 +364,68 @@ class AlumnoManagementTest extends TestCase
     // =========================================================================
 
     /** @test */
-    public function cualquier_usuario_puede_ver_ficha_alumno()
+    public function admin_puede_ver_ficha_de_cualquier_alumno()
     {
-        $profesor = $this->profesor();
-        $alumno   = $this->alumno(['nombre' => 'Eva', 'apellidos' => 'Torres']);
-        Auth::loginUsingId($profesor->id);
+        $admin  = $this->admin();
+        $alumno = $this->alumno(['nombre' => 'Eva', 'apellidos' => 'Torres']);
+        Auth::loginUsingId($admin->id);
 
         $response = $this->get(route('alumnos.show', $alumno));
         $response->assertStatus(200);
         $response->assertSee('Torres');
         $response->assertSee('Eva');
+    }
+
+    /** @test */
+    public function profesor_puede_ver_ficha_de_alumno_de_su_grupo_en_curso_activo()
+    {
+        $profesor = $this->profesor();
+        $grupo    = Grupo::factory()->create(['ciclo_id' => $this->ciclo()->id]);
+        $profesor->sincronizarGruposTutor([$grupo->id]);
+        $alumno = Alumno::factory()->create([
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2025-2026',
+            'apellidos'       => 'DeSuGrupo',
+        ]);
+        Auth::loginUsingId($profesor->id);
+
+        $response = $this->get(route('alumnos.show', $alumno));
+        $response->assertStatus(200);
+        $response->assertSee('DeSuGrupo');
+    }
+
+    /** @test */
+    public function profesor_no_puede_ver_ficha_de_alumno_de_grupo_ajeno()
+    {
+        $profesor      = $this->profesor();
+        $ciclo         = $this->ciclo();
+        $grupoAsignado = Grupo::factory()->create(['ciclo_id' => $ciclo->id]);
+        $grupoAjeno    = Grupo::factory()->create(['ciclo_id' => $ciclo->id]);
+        $profesor->sincronizarGruposTutor([$grupoAsignado->id]);
+        $alumno = Alumno::factory()->create([
+            'grupo_id'        => $grupoAjeno->id,
+            'curso_academico' => '2025-2026',
+        ]);
+        Auth::loginUsingId($profesor->id);
+
+        $response = $this->get(route('alumnos.show', $alumno));
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function profesor_no_puede_ver_ficha_de_alumno_de_curso_academico_cerrado()
+    {
+        $profesor = $this->profesor();
+        $grupo    = Grupo::factory()->create(['ciclo_id' => $this->ciclo()->id]);
+        $profesor->sincronizarGruposTutor([$grupo->id]);
+        $alumno = Alumno::factory()->create([
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2023-2024',
+        ]);
+        Auth::loginUsingId($profesor->id);
+
+        $response = $this->get(route('alumnos.show', $alumno));
+        $response->assertStatus(403);
     }
 
     // =========================================================================
