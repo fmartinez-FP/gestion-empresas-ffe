@@ -5,7 +5,7 @@
     <h3 class="text-lg font-semibold text-gray-800 mb-4">Documentos</h3>
 
     {{-- GENERAR DOCUMENTOS --}}
-    @can('gestionarDocumento')
+    @can('gestionarDocumento', $asignacion)
     <div class="bg-white rounded-lg shadow p-4 mb-4">
         <p class="text-sm font-medium text-gray-600 mb-3">Generar documento:</p>
         <div class="flex flex-wrap gap-2">
@@ -74,7 +74,7 @@
                         {{ $doc->purgar_after ? $doc->purgar_after->format('d/m/Y') : '—' }}
                     </td>
                     <td class="px-4 py-2 whitespace-nowrap flex gap-2">
-                        @can('gestionarDocumento')
+                        @can('gestionarDocumento', $asignacion)
                         @if(Route::has('documentos.descargar'))
                         <a href="{{ route('documentos.descargar', $doc) }}"
                            class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
@@ -107,7 +107,7 @@
     @endif
 
     {{-- SUBIR PDF FIRMADO --}}
-    @can('gestionarDocumento')
+    @can('gestionarDocumento', $asignacion)
     <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm font-medium text-gray-600 mb-3">Subir documento firmado (PDF):</p>
         @if(Route::has('documentos.subir-firmado'))

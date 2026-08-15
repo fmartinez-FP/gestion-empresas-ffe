@@ -20,7 +20,7 @@ class DocumentoFctController extends Controller
      */
     public function generar(Request $request, AsignacionFct $asignacion, string $tipo): \Illuminate\Http\RedirectResponse
     {
-        abort_unless(auth()->user()->can('gestionarDocumento'), 403);
+        abort_unless(auth()->user()->can('gestionarDocumento', $asignacion), 403);
         abort_unless(in_array($tipo, DocumentoFct::TIPOS_GENERABLES), 422);
 
         $documento = match ($tipo) {
@@ -39,7 +39,7 @@ class DocumentoFctController extends Controller
      */
     public function descargar(DocumentoFct $documento): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        abort_unless(auth()->user()->can('gestionarDocumento'), 403);
+        abort_unless(auth()->user()->can('gestionarDocumento', $documento->asignacion), 403);
         abort_unless(Storage::disk($documento->disco)->exists($documento->ruta_disco), 404);
 
         return Storage::disk($documento->disco)->download(
@@ -53,7 +53,7 @@ class DocumentoFctController extends Controller
      */
     public function subirFirmado(Request $request, AsignacionFct $asignacion): \Illuminate\Http\RedirectResponse
     {
-        abort_unless(auth()->user()->can('gestionarDocumento'), 403);
+        abort_unless(auth()->user()->can('gestionarDocumento', $asignacion), 403);
 
         $request->validate([
             'pdf_firmado' => ['required', 'file', 'mimes:pdf', 'max:10240'],

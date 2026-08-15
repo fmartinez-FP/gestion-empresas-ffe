@@ -19,7 +19,7 @@ class PlanFormativoController extends Controller
      */
     public function form(AsignacionFct $asignacion)
     {
-        abort_unless(auth()->user()->can('gestionarDocumento'), 403);
+        abort_unless(auth()->user()->can('gestionarDocumento', $asignacion), 403);
 
         $asignacion->loadMissing([
             'alumno', 'empresa', 'ciclo',
@@ -42,7 +42,7 @@ class PlanFormativoController extends Controller
      */
     public function generar(Request $request, AsignacionFct $asignacion)
     {
-        abort_unless(auth()->user()->can('gestionarDocumento'), 403);
+        abort_unless(auth()->user()->can('gestionarDocumento', $asignacion), 403);
 
         $validated = $request->validate([
             'medidas_discapacidad'               => ['nullable', 'boolean'],

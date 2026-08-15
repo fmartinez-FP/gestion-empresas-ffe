@@ -45,14 +45,14 @@ class DocumentoFctTest extends TestCase
         return User::factory()->create(['rol' => $rol]);
     }
 
-    private function asignacionCompleta(): AsignacionFct
+    private function asignacionCompleta(array $attrs = []): AsignacionFct
     {
-        return AsignacionFct::factory()->create([
+        return AsignacionFct::factory()->create(array_merge([
             'fecha_inicio'  => now()->subDays(30),
             'fecha_fin'     => now()->addDays(30),
             'num_horas'     => 400,
             'curso_academico' => '2025-2026',
-        ]);
+        ], $attrs));
     }
 
     // =========================================================================
@@ -63,7 +63,7 @@ class DocumentoFctTest extends TestCase
     public function genera_plan_formativo_y_crea_registro(): void
     {
         $user       = $this->usuarioConRol('profesor');
-        $asignacion = $this->asignacionCompleta();
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
 
         $response = $this->actingAs($user)
             ->post(route('documentos.generar', [$asignacion, 'plan_formativo']));
@@ -108,7 +108,7 @@ class DocumentoFctTest extends TestCase
     public function regenerar_mismo_tipo_elimina_el_previo(): void
     {
         $user       = $this->usuarioConRol('profesor');
-        $asignacion = $this->asignacionCompleta();
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
 
         $this->actingAs($user)->post(route('documentos.generar', [$asignacion, 'plan_formativo']));
         $this->actingAs($user)->post(route('documentos.generar', [$asignacion, 'plan_formativo']));
@@ -121,11 +121,68 @@ class DocumentoFctTest extends TestCase
     public function tipo_invalido_devuelve_422(): void
     {
         $user       = $this->usuarioConRol('profesor');
-        $asignacion = $this->asignacionCompleta();
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
 
         $this->actingAs($user)
             ->post(route('documentos.generar', [$asignacion, 'tipo_inexistente']))
             ->assertStatus(422);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function profesor_ajeno_no_puede_generar_documento(): void
+    {
+        $tutor      = $this->usuarioConRol('profesor');
+        $otro       = $this->usuarioConRol('profesor');
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $tutor->id]);
+
+        $this->actingAs($otro)
+            ->post(route('documentos.generar', [$asignacion, 'plan_formativo']))
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('documentos_fct', ['asignacion_id' => $asignacion->id]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function responsable_ciclo_ajeno_no_puede_generar_documento(): void
+    {
+        $tutor      = $this->usuarioConRol('profesor');
+        $ciclo      = $this->usuarioConRol('responsable_ciclo');
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $tutor->id]);
+
+        $this->actingAs($ciclo)
+            ->post(route('documentos.generar', [$asignacion, 'plan_formativo']))
+            ->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function profesor_ajeno_no_puede_descargar_documento(): void
+    {
+        $tutor      = $this->usuarioConRol('profesor');
+        $otro       = $this->usuarioConRol('profesor');
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $tutor->id]);
+
+        $this->actingAs($tutor)->post(route('documentos.generar', [$asignacion, 'plan_formativo']));
+        $doc = DocumentoFct::first();
+
+        $this->actingAs($otro)
+            ->get(route('documentos.descargar', $doc))
+            ->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function profesor_ajeno_no_puede_subir_firmado(): void
+    {
+        $tutor      = $this->usuarioConRol('profesor');
+        $otro       = $this->usuarioConRol('profesor');
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $tutor->id]);
+
+        $pdf = UploadedFile::fake()->create('firmado.pdf', 100, 'application/pdf');
+
+        $this->actingAs($otro)
+            ->post(route('documentos.subir-firmado', $asignacion), ['pdf_firmado' => $pdf])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('documentos_fct', ['asignacion_id' => $asignacion->id]);
     }
 
     // =========================================================================
@@ -136,7 +193,7 @@ class DocumentoFctTest extends TestCase
     public function descarga_documento_existente(): void
     {
         $user       = $this->usuarioConRol('profesor');
-        $asignacion = $this->asignacionCompleta();
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
 
         // Generar primero
         $this->actingAs($user)->post(route('documentos.generar', [$asignacion, 'plan_formativo']));
@@ -150,8 +207,10 @@ class DocumentoFctTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function descarga_falla_si_archivo_no_existe_en_disco(): void
     {
-        $user = $this->usuarioConRol('profesor');
-        $doc  = DocumentoFct::factory()->create([
+        $user       = $this->usuarioConRol('profesor');
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
+        $doc        = DocumentoFct::factory()->create([
+            'asignacion_id'  => $asignacion->id,
             'ruta_disco'     => 'fct/99/inexistente.pdf',
             'disco'          => 'private',
             'nombre_archivo' => 'inexistente.pdf',
@@ -191,7 +250,7 @@ class DocumentoFctTest extends TestCase
     public function sube_firmado_multiples_veces_acumula_registros(): void
     {
         $user       = $this->usuarioConRol('profesor');
-        $asignacion = $this->asignacionCompleta();
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
 
         $pdf = UploadedFile::fake()->create('firmado.pdf', 100, 'application/pdf');
         $this->actingAs($user)->post(route('documentos.subir-firmado', $asignacion), ['pdf_firmado' => $pdf]);
@@ -204,7 +263,7 @@ class DocumentoFctTest extends TestCase
     public function subida_requiere_archivo_pdf(): void
     {
         $user       = $this->usuarioConRol('profesor');
-        $asignacion = $this->asignacionCompleta();
+        $asignacion = $this->asignacionCompleta(['tutor_ies_id' => $user->id]);
 
         $this->actingAs($user)
             ->post(route('documentos.subir-firmado', $asignacion), [])
