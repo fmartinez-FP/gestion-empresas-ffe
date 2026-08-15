@@ -87,7 +87,7 @@
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 class="text-base font-semibold text-gray-900">Asignaciones FFE</h2>
-            @can('crearAsignacion')
+            @can('crearAsignacion', $alumno)
             @if(Route::has('asignaciones.create'))
             <a href="{{ route('asignaciones.create', $alumno) }}"
                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">

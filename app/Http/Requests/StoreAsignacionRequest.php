@@ -9,7 +9,7 @@ class StoreAsignacionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->user()->can('crearAsignacion');
+        return auth()->user()->can('crearAsignacion', $this->route('alumno'));
     }
 
     /**

@@ -42,6 +42,16 @@ class EmpresaPolicy
         return $this->update($user, $empresa);
     }
 
+    /**
+     * Mismo criterio que verPersonasContacto()/update(): solo el responsable
+     * de la empresa (creador/responsable_ciclo de su ciclo/admin/responsable_ffe)
+     * puede consultar las sedes. Confirmado con Fernando (sesion 2026-08-14).
+     */
+    public function verSedes(User $user, Empresa $empresa): bool
+    {
+        return $this->update($user, $empresa);
+    }
+
     public function verAuditoria(User $user, Empresa $empresa): bool
     {
         if ($user->esAdmin() || $user->esResponsableFFE()) {

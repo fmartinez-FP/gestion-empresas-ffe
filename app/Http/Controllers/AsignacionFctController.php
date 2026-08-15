@@ -23,7 +23,7 @@ class AsignacionFctController extends Controller
 
     public function create(Alumno $alumno)
     {
-        abort_unless(auth()->user()->can('crearAsignacion'), 403);
+        abort_unless(auth()->user()->can('crearAsignacion', $alumno), 403);
 
         $cursoActivo  = Configuracion::cursoActivo();
         $empresas     = Empresa::orderBy('nombre')->get(['id', 'nombre']);
@@ -237,6 +237,8 @@ class AsignacionFctController extends Controller
 
     public function sedes(Empresa $empresa)
     {
+        abort_unless(auth()->user()->can('verSedes', $empresa), 403);
+
         $sedes = $empresa->direcciones()
             ->orderBy('principal', 'desc')
             ->orderBy('municipio')
@@ -250,6 +252,8 @@ class AsignacionFctController extends Controller
 
     public function contactos(Empresa $empresa)
     {
+        abort_unless(auth()->user()->can('verPersonasContacto', $empresa), 403);
+
         $contactos = $empresa->personasContacto()
             ->orderBy('principal', 'desc')
             ->orderBy('nombre')

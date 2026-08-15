@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Alumno;
 use App\Models\AsignacionFct;
 use App\Models\User;
 
@@ -12,10 +13,21 @@ class AsignacionPolicy
         return in_array($user->rol, ['admin', 'responsable_ffe', 'responsable_ciclo', 'profesor']);
     }
 
-    /** Cualquier personal del IES puede crear asignaciones */
-    public function crearAsignacion(User $user): bool
+    /**
+     * Cualquier personal del IES puede crear asignaciones, pero un profesor
+     * solo para alumnos de sus grupos tutorizados y del curso academico
+     * activo -- mismo criterio que AlumnoPolicy::verAlumno(). Confirmado con
+     * Fernando (sesion 2026-08-14): antes no se validaba el alumno en
+     * absoluto, permitiendo a cualquier profesor crear asignaciones para
+     * cualquier alumno del sistema.
+     */
+    public function crearAsignacion(User $user, Alumno $alumno): bool
     {
-        return $user->esAdmin() || $user->esResponsableFFE() || $user->esResponsableCiclo() || $user->esProfesor();
+        if (! ($user->esAdmin() || $user->esResponsableFFE() || $user->esResponsableCiclo() || $user->esProfesor())) {
+            return false;
+        }
+
+        return app(AlumnoPolicy::class)->verAlumno($user, $alumno);
     }
 
     /** Admin y responsable_ffe pueden cancelar; otros no */

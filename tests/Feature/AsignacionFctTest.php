@@ -41,6 +41,11 @@ class AsignacionFctTest extends TestCase
             'grupo_id'        => Grupo::factory()->create(['ciclo_id' => $this->ciclo->id, 'numero_curso' => 2])->id,
             'curso_academico' => '2025-2026',
         ]);
+
+        // El profesor de este fixture tutoriza el grupo del alumno de este fixture,
+        // para que los tests del "camino feliz" (crear/ver formulario) no colisionen
+        // con el scope de AlumnoPolicy::verAlumno() aplicado en crearAsignacion().
+        $this->profesor->sincronizarGruposTutor([$this->alumno->grupo_id]);
     }
 
     /**
@@ -82,6 +87,54 @@ class AsignacionFctTest extends TestCase
     {
         $resp = $this->actingAs($this->profesor)->get(route('asignaciones.create', $this->alumno));
         $resp->assertOk()->assertViewIs('asignaciones.create');
+    }
+
+    #[Test]
+    public function profesor_no_puede_ver_formulario_crear_asignacion_de_alumno_de_grupo_ajeno(): void
+    {
+        $grupoAjeno = Grupo::factory()->create(['ciclo_id' => $this->ciclo->id, 'numero_curso' => 1]);
+        $alumnoAjeno = Alumno::factory()->create([
+            'grupo_id'        => $grupoAjeno->id,
+            'curso_academico' => '2025-2026',
+        ]);
+
+        $resp = $this->actingAs($this->profesor)->get(route('asignaciones.create', $alumnoAjeno));
+        $resp->assertForbidden();
+    }
+
+    #[Test]
+    public function profesor_no_puede_crear_asignacion_de_alumno_de_grupo_ajeno(): void
+    {
+        $grupoAjeno = Grupo::factory()->create(['ciclo_id' => $this->ciclo->id, 'numero_curso' => 1]);
+        $alumnoAjeno = Alumno::factory()->create([
+            'grupo_id'        => $grupoAjeno->id,
+            'curso_academico' => '2025-2026',
+        ]);
+
+        $resp = $this->actingAs($this->profesor)->post(route('asignaciones.store', $alumnoAjeno), array_merge([
+            'empresa_id'   => $this->empresa->id,
+            'tutor_ies_id' => $this->profesor->id,
+        ], $this->horarioMinimoValido()));
+
+        $resp->assertForbidden();
+        $this->assertDatabaseMissing('asignaciones_fct', ['alumno_id' => $alumnoAjeno->id]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_crear_asignacion_de_alumno_de_curso_academico_cerrado(): void
+    {
+        $alumnoCursoCerrado = Alumno::factory()->create([
+            'grupo_id'        => $this->alumno->grupo_id,
+            'curso_academico' => '2023-2024',
+        ]);
+
+        $resp = $this->actingAs($this->profesor)->post(route('asignaciones.store', $alumnoCursoCerrado), array_merge([
+            'empresa_id'   => $this->empresa->id,
+            'tutor_ies_id' => $this->profesor->id,
+        ], $this->horarioMinimoValido()));
+
+        $resp->assertForbidden();
+        $this->assertDatabaseMissing('asignaciones_fct', ['alumno_id' => $alumnoCursoCerrado->id]);
     }
 
     // =========================================================================
@@ -482,6 +535,36 @@ class AsignacionFctTest extends TestCase
         \App\Models\PersonaContacto::factory()->create(['empresa_id' => $this->empresa->id]);
 
         $resp = $this->actingAs($this->admin)->getJson(route('interna.empresa.contactos', $this->empresa));
+        $resp->assertOk()->assertJsonStructure([['id', 'label']]);
+    }
+
+    #[Test]
+    public function profesor_ajeno_a_la_empresa_no_puede_ver_sedes(): void
+    {
+        // $this->empresa tiene creador_id distinto (factory por defecto); $this->profesor
+        // no tiene relacion alguna con ella.
+        \App\Models\Direccion::factory()->create(['empresa_id' => $this->empresa->id]);
+
+        $resp = $this->actingAs($this->profesor)->getJson(route('interna.empresa.sedes', $this->empresa));
+        $resp->assertForbidden();
+    }
+
+    #[Test]
+    public function profesor_ajeno_a_la_empresa_no_puede_ver_contactos(): void
+    {
+        \App\Models\PersonaContacto::factory()->create(['empresa_id' => $this->empresa->id]);
+
+        $resp = $this->actingAs($this->profesor)->getJson(route('interna.empresa.contactos', $this->empresa));
+        $resp->assertForbidden();
+    }
+
+    #[Test]
+    public function profesor_creador_de_la_empresa_puede_ver_sedes(): void
+    {
+        $empresaPropia = \App\Models\Empresa::factory()->create(['creador_id' => $this->profesor->id]);
+        \App\Models\Direccion::factory()->create(['empresa_id' => $empresaPropia->id]);
+
+        $resp = $this->actingAs($this->profesor)->getJson(route('interna.empresa.sedes', $empresaPropia));
         $resp->assertOk()->assertJsonStructure([['id', 'label']]);
     }
 }
