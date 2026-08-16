@@ -29,7 +29,7 @@ class CalendarioAsignacionController extends Controller
 
     public function store(Request $request, AsignacionFct $asignacion)
     {
-        abort_unless(auth()->user()->can('verAsignacion', $asignacion), 403);
+        abort_unless(auth()->user()->can('editarAsignacion', $asignacion), 403);
 
         $validated = $request->validate([
             'fecha'  => ['required', 'date'],
@@ -49,7 +49,7 @@ class CalendarioAsignacionController extends Controller
 
     public function destroy(AsignacionFct $asignacion, CalendarioAsignacion $calendario)
     {
-        abort_unless(auth()->user()->can('verAsignacion', $asignacion), 403);
+        abort_unless(auth()->user()->can('editarAsignacion', $asignacion), 403);
         abort_unless($calendario->asignacion_id === $asignacion->id, 404);
 
         $this->servicio->eliminarDia($calendario);
