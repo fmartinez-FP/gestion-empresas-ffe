@@ -31,6 +31,11 @@ class CurriculumManagementTest extends TestCase
         return User::factory()->create(['rol' => 'profesor']);
     }
 
+    private function responsableCiclo(): User
+    {
+        return User::factory()->create(['rol' => 'responsable_ciclo']);
+    }
+
     private function ciclo(): CicloFormativo
     {
         return CicloFormativo::factory()->create();
@@ -388,5 +393,135 @@ class CurriculumManagementTest extends TestCase
             ->assertJson(['elegible' => true]);
 
         $this->assertDatabaseCount('elegibles_ffe', 2);
+    }
+
+    #[Test]
+    public function profesor_no_puede_crear_ra(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+
+        $this->actingAs($this->profesor())
+            ->post(route('admin.curriculum.ra.store', $modulo), [
+                'codigo'      => 'RA1',
+                'descripcion' => 'Intento no autorizado',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('resultados_aprendizaje', ['modulo_id' => $modulo->id]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_actualizar_ra(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+        $ra = $this->ra($modulo);
+
+        $this->actingAs($this->profesor())
+            ->put(route('admin.curriculum.ra.update', $ra), [
+                'codigo'      => 'RA9',
+                'descripcion' => 'Intento no autorizado',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('resultados_aprendizaje', ['id' => $ra->id, 'codigo' => $ra->codigo]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_eliminar_ra(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+        $ra = $this->ra($modulo);
+
+        $this->actingAs($this->profesor())
+            ->delete(route('admin.curriculum.ra.destroy', $ra))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('resultados_aprendizaje', ['id' => $ra->id]);
+    }
+
+    #[Test]
+    public function responsable_ciclo_no_puede_gestionar_ra(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+
+        $this->actingAs($this->responsableCiclo())
+            ->post(route('admin.curriculum.ra.store', $modulo), [
+                'codigo'      => 'RA1',
+                'descripcion' => 'Intento no autorizado',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('resultados_aprendizaje', ['modulo_id' => $modulo->id]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_crear_ce(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+        $ra = $this->ra($modulo);
+
+        $this->actingAs($this->profesor())
+            ->post(route('admin.curriculum.ce.store', $ra), [
+                'codigo'      => 'CE1.1',
+                'descripcion' => 'Intento no autorizado',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('criterios_evaluacion', ['resultado_aprendizaje_id' => $ra->id]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_actualizar_ce(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+        $ra = $this->ra($modulo);
+        $ce = $this->ce($ra);
+
+        $this->actingAs($this->profesor())
+            ->put(route('admin.curriculum.ce.update', $ce), [
+                'codigo'      => 'CE9.9',
+                'descripcion' => 'Intento no autorizado',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('criterios_evaluacion', ['id' => $ce->id, 'codigo' => $ce->codigo]);
+    }
+
+    #[Test]
+    public function profesor_no_puede_eliminar_ce(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+        $ra = $this->ra($modulo);
+        $ce = $this->ce($ra);
+
+        $this->actingAs($this->profesor())
+            ->delete(route('admin.curriculum.ce.destroy', $ce))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('criterios_evaluacion', ['id' => $ce->id]);
+    }
+
+    #[Test]
+    public function responsable_ciclo_no_puede_gestionar_ce(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+        $ra = $this->ra($modulo);
+
+        $this->actingAs($this->responsableCiclo())
+            ->post(route('admin.curriculum.ce.store', $ra), [
+                'codigo'      => 'CE1.1',
+                'descripcion' => 'Intento no autorizado',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('criterios_evaluacion', ['resultado_aprendizaje_id' => $ra->id]);
     }
 }
