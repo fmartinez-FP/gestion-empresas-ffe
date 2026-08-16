@@ -32,9 +32,16 @@ class EmpresaPolicy
         return $user->esAdmin();
     }
 
+    /**
+     * Mismo criterio que update()/verPersonasContacto()/verSedes(): solo el
+     * responsable de la empresa (creador/responsable_ciclo de su ciclo/admin/
+     * responsable_ffe) puede registrar colocaciones. Antes solo comprobaba
+     * que la empresa tuviera algun ciclo asociado, sin relacion con el
+     * usuario -- IDOR real (Fase I, sesion 2026-08-16).
+     */
     public function colocar(User $user, Empresa $empresa): bool
     {
-        return $empresa->ciclos()->exists();
+        return $this->update($user, $empresa);
     }
 
     public function verPersonasContacto(User $user, Empresa $empresa): bool
