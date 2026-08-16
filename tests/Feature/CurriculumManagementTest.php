@@ -153,6 +153,58 @@ class CurriculumManagementTest extends TestCase
     }
 
     #[Test]
+    public function admin_puede_ver_formulario_editar_modulo(): void
+    {
+        $ciclo = $this->ciclo();
+        $modulo = $this->modulo($ciclo);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.curriculum.modulos.edit', [$ciclo, $modulo]))
+            ->assertOk();
+    }
+
+    #[Test]
+    public function editar_modulo_de_otro_ciclo_devuelve_404(): void
+    {
+        $ciclo1 = $this->ciclo();
+        $ciclo2 = $this->ciclo();
+        $modulo = $this->modulo($ciclo2);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.curriculum.modulos.edit', [$ciclo1, $modulo]))
+            ->assertNotFound();
+    }
+
+    #[Test]
+    public function actualizar_modulo_de_otro_ciclo_devuelve_404(): void
+    {
+        $ciclo1 = $this->ciclo();
+        $ciclo2 = $this->ciclo();
+        $modulo = $this->modulo($ciclo2);
+
+        $this->actingAs($this->admin())
+            ->put(route('admin.curriculum.modulos.update', [$ciclo1, $modulo]), [
+                'codigo' => 'MP99',
+                'nombre' => 'Intento cruzado',
+            ])
+            ->assertNotFound();
+    }
+
+    #[Test]
+    public function eliminar_modulo_de_otro_ciclo_devuelve_404(): void
+    {
+        $ciclo1 = $this->ciclo();
+        $ciclo2 = $this->ciclo();
+        $modulo = $this->modulo($ciclo2);
+
+        $this->actingAs($this->admin())
+            ->delete(route('admin.curriculum.modulos.destroy', [$ciclo1, $modulo]))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('modulos_profesionales', ['id' => $modulo->id]);
+    }
+
+    #[Test]
     public function admin_puede_ver_ra_de_modulo(): void
     {
         $ciclo = $this->ciclo();
