@@ -178,6 +178,33 @@ class ColocacionControllerTest extends TestCase
     }
 
     #[Test]
+    public function creador_no_puede_inyectar_registrado_por_id_ni_origen_al_crear_colocacion(): void
+    {
+        $ciclo = $this->ciclo();
+        $creador = $this->profesor();
+        $otroUsuario = User::factory()->create();
+        $empresa = $this->empresaConCiclo($ciclo, $creador);
+
+        $this->actingAs($creador)
+            ->post(route('colocaciones.store'), [
+                'empresa_id'        => $empresa->id,
+                'ciclo_id'          => $ciclo->id,
+                'numero_curso'      => 1,
+                'num_alumnos'       => 2,
+                'num_horas'         => 200,
+                'registrado_por_id' => $otroUsuario->id,
+                'origen'            => 'automatica',
+            ])
+            ->assertRedirect(route('empresas.show', $empresa));
+
+        $this->assertDatabaseHas('colocaciones', [
+            'empresa_id'        => $empresa->id,
+            'registrado_por_id' => $creador->id,
+            'origen'            => 'manual',
+        ]);
+    }
+
+    #[Test]
     public function creador_puede_crear_colocacion(): void
     {
         $ciclo = $this->ciclo();

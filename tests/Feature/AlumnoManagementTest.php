@@ -118,6 +118,54 @@ class AlumnoManagementTest extends TestCase
     // =========================================================================
 
     /** @test */
+    public function crear_alumno_ignora_user_id_inyectado_en_el_payload()
+    {
+        $admin = $this->admin();
+        $ciclo = $this->ciclo();
+        $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, 'numero_curso' => 2]);
+        $otroUsuario = User::factory()->create();
+        Auth::loginUsingId($admin->id);
+
+        $response = $this->post(route('alumnos.store'), [
+            'nombre'          => 'Ana',
+            'apellidos'       => 'Martinez Lopez',
+            'email'           => 'ana.massassign@educa.madrid.org',
+            'telefono'        => '600111222',
+            'grupo_id'        => $grupo->id,
+            'curso_academico' => '2025-2026',
+            'user_id'         => $otroUsuario->id,
+        ]);
+
+        $response->assertRedirect();
+        $alumno = Alumno::where('email', 'ana.massassign@educa.madrid.org')->firstOrFail();
+        $this->assertNull($alumno->user_id);
+    }
+
+    /** @test */
+    public function profesor_no_puede_reasignar_grupo_de_alumno_via_mass_assignment()
+    {
+        $profesorSinPermisoGrupo = User::factory()->create(['rol' => 'profesor', 'activo' => true]);
+        $alumno = $this->alumno();
+        $grupoOriginal = $alumno->grupo_id;
+        $otroGrupo = Grupo::factory()->create([
+            'ciclo_id'     => $alumno->grupo->ciclo_id,
+            'numero_curso' => 1,
+        ]);
+        Auth::loginUsingId($profesorSinPermisoGrupo->id);
+
+        $response = $this->put(route('alumnos.update', $alumno), [
+            'email'    => 'nuevo.massassign@educa.madrid.org',
+            'telefono' => '600999888',
+            'grupo_id' => $otroGrupo->id,
+        ]);
+
+        $response->assertSessionDoesntHaveErrors();
+        $alumno->refresh();
+        $this->assertEquals($grupoOriginal, $alumno->grupo_id);
+        $this->assertEquals('nuevo.massassign@educa.madrid.org', $alumno->email);
+    }
+
+    /** @test */
     public function admin_puede_crear_alumno()
     {
         $admin = $this->admin();
