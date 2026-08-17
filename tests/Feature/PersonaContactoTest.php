@@ -206,4 +206,70 @@ class PersonaContactoTest extends TestCase
             ->put("/empresas/{$empresa1->id}/personas-contacto/{$persona->id}", ['nombre' => 'Hack'])
             ->assertStatus(404);
     }
+
+    /** @test */
+    public function persona_de_otra_empresa_devuelve_404_en_destroy()
+    {
+        $user = User::factory()->create(['rol' => 'profesor']);
+        $empresa1 = $this->crearEmpresa($user);
+        $empresa2 = Empresa::create(['nombre' => 'Otra', 'cif' => 'B00000002', 'creador_id' => $user->id]);
+        $persona = PersonaContacto::create(['empresa_id' => $empresa2->id, 'nombre' => 'Contacto', 'principal' => true]);
+
+        $this->actingAs($user)
+            ->delete("/empresas/{$empresa1->id}/personas-contacto/{$persona->id}")
+            ->assertStatus(404);
+
+        $this->assertDatabaseHas('personas_contacto', ['id' => $persona->id]);
+    }
+
+    /** @test */
+    public function profesor_ajeno_no_puede_eliminar_persona_contacto()
+    {
+        $propietario = User::factory()->create(['rol' => 'profesor']);
+        $otro = User::factory()->create(['rol' => 'profesor']);
+        $empresa = $this->crearEmpresa($propietario);
+        $persona = PersonaContacto::create(['empresa_id' => $empresa->id, 'nombre' => 'Contacto', 'principal' => true]);
+
+        $this->actingAs($otro)
+            ->delete("/empresas/{$empresa->id}/personas-contacto/{$persona->id}")
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('personas_contacto', ['id' => $persona->id]);
+    }
+
+    /** @test */
+    public function responsable_ciclo_que_tutoriza_puede_crear_persona_contacto()
+    {
+        $ciclo = \App\Models\CicloFormativo::factory()->create();
+        $empresa = $this->crearEmpresa(User::factory()->create(['rol' => 'profesor']));
+        $empresa->ciclos()->attach($ciclo->id, ['acepta_primero' => true, 'acepta_segundo' => true]);
+
+        $responsable = User::factory()->create(['rol' => 'responsable_ciclo']);
+        $responsable->ciclos()->attach($ciclo->id);
+
+        $this->actingAs($responsable)
+            ->post("/empresas/{$empresa->id}/personas-contacto", ['nombre' => 'Desde Responsable'])
+            ->assertRedirect(route('empresas.show', $empresa));
+
+        $this->assertDatabaseHas('personas_contacto', ['empresa_id' => $empresa->id, 'nombre' => 'Desde Responsable']);
+    }
+
+    /** @test */
+    public function responsable_ciclo_ajeno_no_puede_crear_persona_contacto()
+    {
+        $ciclo = \App\Models\CicloFormativo::factory()->create();
+        $empresa = $this->crearEmpresa(User::factory()->create(['rol' => 'profesor']));
+        $empresa->ciclos()->attach($ciclo->id, ['acepta_primero' => true, 'acepta_segundo' => true]);
+
+        $responsable = User::factory()->create(['rol' => 'responsable_ciclo']);
+        // No se le asocia el ciclo: no tutoriza nada relacionado con esta empresa.
+
+        $this->actingAs($responsable)
+            ->post("/empresas/{$empresa->id}/personas-contacto", ['nombre' => 'Intento no autorizado'])
+            ->assertRedirect(route('empresas.show', $empresa))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseMissing('personas_contacto', ['empresa_id' => $empresa->id]);
+    }
 }
