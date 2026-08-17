@@ -75,4 +75,22 @@ class AsignacionPolicy
         }
         return $asignacion->tutor_ies_id === $user->id;
     }
+
+    /**
+     * Generar/rotar el token de acceso externo del tutor de empresa: mismo
+     * patron que ajustarHorasSemana/marcarDiaNoTrabajado, admin/responsable_ffe
+     * sin restriccion, resto solo si es tutor_ies de la asignacion. Corrige
+     * hallazgo Fase I punto 7 (sesion 2026-08-17): antes usaba verAsignacion,
+     * que para responsable_ciclo es un gate global sin scope (ve TODAS las
+     * asignaciones), permitiendo generar tokens de acceso externo para
+     * asignaciones ajenas sin relacion alguna con ellas. Confirmado con
+     * Fernando: mismo criterio que ajustarHorasSemana/marcarDiaNoTrabajado.
+     */
+    public function gestionarTokenTutorEmpresa(User $user, AsignacionFct $asignacion): bool
+    {
+        if (in_array($user->rol, ['admin', 'responsable_ffe'])) {
+            return true;
+        }
+        return $asignacion->tutor_ies_id === $user->id;
+    }
 }

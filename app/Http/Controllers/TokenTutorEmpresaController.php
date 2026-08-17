@@ -11,7 +11,7 @@ class TokenTutorEmpresaController extends Controller
 
     public function generar(AsignacionFct $asignacion)
     {
-        abort_unless(auth()->user()->can('verAsignacion', $asignacion), 403);
+        abort_unless(auth()->user()->can('gestionarTokenTutorEmpresa', $asignacion), 403);
 
         $token = $this->servicio->generar($asignacion);
 
