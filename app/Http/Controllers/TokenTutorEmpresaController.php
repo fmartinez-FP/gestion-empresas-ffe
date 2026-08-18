@@ -13,9 +13,9 @@ class TokenTutorEmpresaController extends Controller
     {
         abort_unless(auth()->user()->can('gestionarTokenTutorEmpresa', $asignacion), 403);
 
-        $token = $this->servicio->generar($asignacion);
+        $resultado = $this->servicio->generar($asignacion);
 
-        $url = route('tutor.acceso', ['token' => $token->token]);
+        $url = route('tutor.acceso', ['token' => $resultado['tokenPlano']]);
 
         return back()->with('token_generado', $url);
     }

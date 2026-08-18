@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class TokenTutorEmpresaService
 {
-    public function generar(AsignacionFct $asignacion): TokenTutorEmpresa
+    public function generar(AsignacionFct $asignacion): array
     {
         // Invalidar tokens anteriores de esta asignacion
         $asignacion->tokenstutor()
@@ -16,21 +16,28 @@ class TokenTutorEmpresaService
             ->update(["expires_at" => now()]);
 
         do {
-            $token = hash("sha256", Str::random(40));
-        } while (TokenTutorEmpresa::where("token", $token)->exists());
+            $tokenPlano = Str::random(40);
+            $tokenHash  = hash("sha256", $tokenPlano);
+        } while (TokenTutorEmpresa::where("token", $tokenHash)->exists());
 
-        return TokenTutorEmpresa::create([
+        $registro = TokenTutorEmpresa::create([
             "asignacion_id" => $asignacion->id,
-            "token"         => $token,
+            "token"         => $tokenHash,
             "expires_at"    => now()->addDays(30),
             "usado_at"      => null,
             "ip_uso"        => null,
         ]);
+
+        return [
+            "registro"   => $registro,
+            "tokenPlano" => $tokenPlano,
+        ];
     }
 
     public function validar(string $token): ?TokenTutorEmpresa
     {
-        $registro = TokenTutorEmpresa::where("token", $token)->first();
+        $tokenHash = hash("sha256", $token);
+        $registro  = TokenTutorEmpresa::where("token", $tokenHash)->first();
 
         if ($registro === null) {
             return null;

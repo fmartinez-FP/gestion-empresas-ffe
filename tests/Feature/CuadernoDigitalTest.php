@@ -32,11 +32,11 @@ class CuadernoDigitalTest extends TestCase
         $asignacion = AsignacionFct::factory()->create();
         $servicio   = new TokenTutorEmpresaService();
 
-        $token = $servicio->generar($asignacion);
+        $registro = $servicio->generar($asignacion)['registro'];
 
-        $this->assertNotNull($token->token);
-        $this->assertTrue($token->expires_at->greaterThan(now()->addDays(29)));
-        $this->assertNull($token->usado_at);
+        $this->assertNotNull($registro->token);
+        $this->assertTrue($registro->expires_at->greaterThan(now()->addDays(29)));
+        $this->assertNull($registro->usado_at);
     }
 
     #[Test]
@@ -45,8 +45,8 @@ class CuadernoDigitalTest extends TestCase
         $asignacion = AsignacionFct::factory()->create();
         $servicio   = new TokenTutorEmpresaService();
 
-        $primero  = $servicio->generar($asignacion);
-        $segundo  = $servicio->generar($asignacion);
+        $primero  = $servicio->generar($asignacion)['registro'];
+        $segundo  = $servicio->generar($asignacion)['registro'];
 
         $primero->refresh();
         $this->assertFalse($primero->estaVigente());
@@ -59,11 +59,11 @@ class CuadernoDigitalTest extends TestCase
         $asignacion = AsignacionFct::factory()->create();
         $servicio   = new TokenTutorEmpresaService();
 
-        $token    = $servicio->generar($asignacion);
-        $resultado = $servicio->validar($token->token);
+        $generado  = $servicio->generar($asignacion);
+        $resultado = $servicio->validar($generado['tokenPlano']);
 
         $this->assertNotNull($resultado);
-        $this->assertEquals($token->id, $resultado->id);
+        $this->assertEquals($generado['registro']->id, $resultado->id);
     }
 
     #[Test]
@@ -86,13 +86,13 @@ class CuadernoDigitalTest extends TestCase
     {
         $asignacion = AsignacionFct::factory()->create();
         $servicio   = new TokenTutorEmpresaService();
-        $token      = $servicio->generar($asignacion);
+        $registro   = $servicio->generar($asignacion)['registro'];
 
-        $servicio->marcarUsado($token, '10.0.0.1');
-        $token->refresh();
+        $servicio->marcarUsado($registro, '10.0.0.1');
+        $registro->refresh();
 
-        $this->assertNotNull($token->usado_at);
-        $this->assertEquals('10.0.0.1', $token->ip_uso);
+        $this->assertNotNull($registro->usado_at);
+        $this->assertEquals('10.0.0.1', $registro->ip_uso);
     }
 
     #[Test]
@@ -413,22 +413,25 @@ class CuadernoDigitalTest extends TestCase
     public function tutor_empresa_accede_con_token_valido(): void
     {
         $asignacion = AsignacionFct::factory()->create(['estado' => 'activa']);
-        $token      = TokenTutorEmpresa::factory()->for($asignacion, 'asignacion')->create();
+        $servicio   = new TokenTutorEmpresaService();
+        $generado   = $servicio->generar($asignacion);
 
-        $response = $this->get(route('tutor.acceso', $token->token));
+        $response = $this->get(route('tutor.acceso', $generado['tokenPlano']));
 
         $response->assertOk();
-        $token->refresh();
-        $this->assertNotNull($token->usado_at);
+        $generado['registro']->refresh();
+        $this->assertNotNull($generado['registro']->usado_at);
     }
 
     #[Test]
     public function tutor_empresa_recibe_404_con_token_expirado(): void
     {
         $asignacion = AsignacionFct::factory()->create();
-        $token      = TokenTutorEmpresa::factory()->for($asignacion, 'asignacion')->expirado()->create();
+        $servicio   = new TokenTutorEmpresaService();
+        $generado   = $servicio->generar($asignacion);
+        $generado['registro']->update(['expires_at' => now()->subDay()]);
 
-        $response = $this->get(route('tutor.acceso', $token->token));
+        $response = $this->get(route('tutor.acceso', $generado['tokenPlano']));
 
         $response->assertNotFound();
     }
@@ -437,13 +440,14 @@ class CuadernoDigitalTest extends TestCase
     public function tutor_empresa_puede_comentar_seguimiento(): void
     {
         $asignacion  = AsignacionFct::factory()->create(['estado' => 'activa']);
-        $token       = TokenTutorEmpresa::factory()->for($asignacion, 'asignacion')->create();
+        $servicio    = new TokenTutorEmpresaService();
+        $generado    = $servicio->generar($asignacion);
         $seguimiento = SeguimientoDiario::factory()->create([
             'asignacion_id' => $asignacion->id,
         ]);
 
         $response = $this->post(
-            route('tutor.comentar', ['token' => $token->token, 'seguimiento' => $seguimiento]),
+            route('tutor.comentar', ['token' => $generado['tokenPlano'], 'seguimiento' => $seguimiento]),
             ['comentario_tutor' => 'Muy buen trabajo.']
         );
 
@@ -456,13 +460,14 @@ class CuadernoDigitalTest extends TestCase
     {
         $asignacion1 = AsignacionFct::factory()->create();
         $asignacion2 = AsignacionFct::factory()->create();
-        $token       = TokenTutorEmpresa::factory()->for($asignacion1, 'asignacion')->create();
+        $servicio    = new TokenTutorEmpresaService();
+        $generado    = $servicio->generar($asignacion1);
         $seguimiento = SeguimientoDiario::factory()->create([
             'asignacion_id' => $asignacion2->id,
         ]);
 
         $response = $this->post(
-            route('tutor.comentar', ['token' => $token->token, 'seguimiento' => $seguimiento]),
+            route('tutor.comentar', ['token' => $generado['tokenPlano'], 'seguimiento' => $seguimiento]),
             ['comentario_tutor' => 'Intento cruzado.']
         );
 
