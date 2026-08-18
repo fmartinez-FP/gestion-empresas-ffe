@@ -89,5 +89,13 @@ class AppServiceProvider extends ServiceProvider
                     return response()->json(['error' => 'Demasiadas peticiones. Espera un momento.'], 429);
                 });
         });
+        // Rate limiter acceso tutor empresa (magic link, sin sesión): 20 peticiones/minuto por IP
+        RateLimiter::for('tutor', function (Request $request) {
+            return Limit::perMinute(20)
+                ->by($request->ip())
+                ->response(function () {
+                    abort(429, 'Demasiadas peticiones. Inténtalo de nuevo en un minuto.');
+                });
+        });
     }
 }

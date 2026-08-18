@@ -217,5 +217,7 @@ Route::middleware('auth')->group(function () {
 // =========================================================================
 // ACCESO PUBLICO TUTOR EMPRESA (sin guard)
 // =========================================================================
-Route::get("tutor/{token}",                                    [\App\Http\Controllers\TutorEmpresaController::class, "acceso"])->name("tutor.acceso");
-Route::post("tutor/{token}/comentar/{seguimiento}",            [\App\Http\Controllers\TutorEmpresaController::class, "comentar"])->name("tutor.comentar");
+Route::middleware("throttle:tutor")->group(function () {
+    Route::get("tutor/{token}",                                    [\App\Http\Controllers\TutorEmpresaController::class, "acceso"])->name("tutor.acceso");
+    Route::post("tutor/{token}/comentar/{seguimiento}",            [\App\Http\Controllers\TutorEmpresaController::class, "comentar"])->name("tutor.comentar");
+});
