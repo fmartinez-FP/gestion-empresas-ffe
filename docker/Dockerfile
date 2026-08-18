@@ -12,6 +12,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         pdo_mysql mbstring exif pcntl bcmath \
         gd xml intl ldap zip
 
+# CA interna de IES Pacifico para LDAP STARTTLS (172.16.90.55)
+COPY docker/certs/ies-pacifico-ldap-ca.crt /usr/local/share/ca-certificates/ies-pacifico-ldap-ca.crt
+RUN update-ca-certificates \
+    && echo 'TLS_CACERT /etc/ssl/certs/ca-certificates.crt' >> /etc/openldap/ldap.conf
+
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
