@@ -97,5 +97,17 @@ class AppServiceProvider extends ServiceProvider
                     abort(429, 'Demasiadas peticiones. Inténtalo de nuevo en un minuto.');
                 });
         });
+        // Rate limiter login portal externo (alumno/tutor_empresa): 5 intentos/minuto por email+IP
+        RateLimiter::for('portal-login', function (Request $request) {
+            return Limit::perMinute(5)
+                ->by(strtolower($request->input('email', '')) . '|' . $request->ip())
+                ->response(function () {
+                    return back()
+                        ->withInput(request()->only('email', 'remember'))
+                        ->withErrors([
+                            'email' => 'Demasiados intentos fallidos. Espera 1 minuto antes de volver a intentarlo.',
+                        ]);
+                });
+        });
     }
 }
