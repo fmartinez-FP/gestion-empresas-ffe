@@ -142,8 +142,10 @@
                                 @if($notificacionesNav->count() > 0)
                                 <div class="divide-y divide-slate-100 dark:divide-slate-700 max-h-96 overflow-y-auto">
                                     @foreach($notificacionesNav as $notif)
-                                    <a href="{{ route('notificaciones.leer', $notif) }}"
-                                       class="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                    <form method="POST" action="{{ route('notificaciones.leer', $notif) }}">
+                                        @csrf
+                                        <button type="submit"
+                                       class="w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                         <div class="flex-shrink-0 mt-0.5">
                                             @php
                                                 $ic = match($notif->tipo) {
@@ -164,7 +166,8 @@
                                             <p class="text-sm text-slate-800 dark:text-white leading-snug">{{ $notif->titulo }}</p>
                                             <p class="text-xs text-slate-400 mt-0.5">{{ $notif->created_at->diffForHumans() }}</p>
                                         </div>
-                                    </a>
+                                        </button>
+                                    </form>
                                     @endforeach
                                 </div>
                                 @else

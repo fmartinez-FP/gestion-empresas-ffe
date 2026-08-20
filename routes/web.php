@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/empresas-mapa/datos', [MapaController::class, 'datos'])->name('mapa.datos');
 
     // Notificaciones
-    Route::get('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'leer'])->name('notificaciones.leer');
+    Route::post('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'leer'])->name('notificaciones.leer');
     Route::post('/empresas/{empresa}/renovar', [EmpresaController::class, 'renovar'])->name('empresas.renovar');
     Route::post('/empresas/{empresa}/duplicar', [EmpresaController::class, 'duplicar'])->name('empresas.duplicar');
     
