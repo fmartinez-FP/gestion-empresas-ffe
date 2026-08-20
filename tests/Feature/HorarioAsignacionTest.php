@@ -12,6 +12,7 @@ use App\Services\HorarioAsignacionService;
 use App\Services\NoLectivoIesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class HorarioAsignacionTest extends TestCase
@@ -31,7 +32,7 @@ class HorarioAsignacionTest extends TestCase
         ], $attrs));
     }
 
-    /** @test */
+    #[Test]
     public function horas_diarias_calcula_jornada_continua()
     {
         $horario = HorarioAsignacion::factory()->make([
@@ -42,7 +43,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(7.0, $this->servicio()->horasDiarias($horario));
     }
 
-    /** @test */
+    #[Test]
     public function horas_diarias_calcula_jornada_partida()
     {
         $horario = HorarioAsignacion::factory()->partida()->make([
@@ -55,7 +56,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(9.0, $this->servicio()->horasDiarias($horario));
     }
 
-    /** @test */
+    #[Test]
     public function horas_previstas_ignora_dias_sin_horario_configurado()
     {
         $asignacion = $this->asignacion([
@@ -77,7 +78,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(21.0, $this->servicio()->horasPrevistas($asignacion));
     }
 
-    /** @test */
+    #[Test]
     public function horas_previstas_excluye_festivos_no_lectivos_y_bajas()
     {
         $asignacion = $this->asignacion([
@@ -113,7 +114,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(14.0, $this->servicio()->horasPrevistas($asignacion));
     }
 
-    /** @test */
+    #[Test]
     public function horas_previstas_lanza_excepcion_si_falta_fecha_inicio()
     {
         $asignacion = $this->asignacion(['fecha_inicio' => null]);
@@ -122,7 +123,7 @@ class HorarioAsignacionTest extends TestCase
         $this->servicio()->horasPrevistas($asignacion);
     }
 
-    /** @test */
+    #[Test]
     public function horas_previstas_lanza_excepcion_si_falta_fecha_fin()
     {
         $asignacion = $this->asignacion(['fecha_fin' => null]);
@@ -131,7 +132,7 @@ class HorarioAsignacionTest extends TestCase
         $this->servicio()->horasPrevistas($asignacion);
     }
 
-    /** @test */
+    #[Test]
     public function horas_realizadas_solo_cuenta_seguimientos_confirmados()
     {
         $asignacion = $this->asignacion();
@@ -159,7 +160,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(7.0, $this->servicio()->horasRealizadas($asignacion));
     }
 
-    /** @test */
+    #[Test]
     public function horas_realizadas_suma_siempre_los_ajustes_semanales()
     {
         $asignacion = $this->asignacion();
@@ -189,7 +190,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(4.5, $this->servicio()->horasRealizadas($asignacion));
     }
 
-    /** @test */
+    #[Test]
     public function generar_texto_horario_agrupa_dias_consecutivos_con_mismo_horario()
     {
         $asignacion = $this->asignacion();
@@ -218,7 +219,7 @@ class HorarioAsignacionTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function generar_texto_horario_incluye_tramo_de_tarde_en_jornada_partida()
     {
         $asignacion = $this->asignacion();
@@ -240,7 +241,7 @@ class HorarioAsignacionTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function advertencias_detecta_exceso_diario()
     {
         $asignacion = $this->asignacion();
@@ -258,7 +259,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals('exceso_diario', $advertencias[0]['tipo']);
     }
 
-    /** @test */
+    #[Test]
     public function advertencias_detecta_exceso_semanal()
     {
         $asignacion = $this->asignacion();
@@ -279,7 +280,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertContains('exceso_semanal', $tipos);
     }
 
-    /** @test */
+    #[Test]
     public function validar_horarios_detecta_dia_duplicado()
     {
         $errores = $this->servicio()->validarHorarios([
@@ -290,7 +291,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertNotEmpty($errores);
     }
 
-    /** @test */
+    #[Test]
     public function validar_horarios_detecta_solape_entre_manana_y_tarde()
     {
         $errores = $this->servicio()->validarHorarios([
@@ -306,7 +307,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertNotEmpty($errores);
     }
 
-    /** @test */
+    #[Test]
     public function guardar_persiste_horarios_y_recalcula_num_horas_y_horario()
     {
         $asignacion = $this->asignacion([
@@ -326,7 +327,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals('Lunes a Martes 08:00-15:00', $asignacion->horario);
     }
 
-    /** @test */
+    #[Test]
     public function guardar_reemplaza_horarios_previos_en_vez_de_acumularlos()
     {
         $asignacion = $this->asignacion([
@@ -349,7 +350,7 @@ class HorarioAsignacionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guardar_lanza_validation_exception_si_los_horarios_no_son_validos()
     {
         $asignacion = $this->asignacion();
@@ -361,7 +362,7 @@ class HorarioAsignacionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function no_se_puede_duplicar_dia_para_la_misma_asignacion()
     {
         $asignacion = $this->asignacion();
@@ -373,7 +374,7 @@ class HorarioAsignacionTest extends TestCase
         HorarioAsignacion::factory()->create(['asignacion_id' => $asignacion->id, 'dia' => 'lunes']);
     }
 
-    /** @test */
+    #[Test]
     public function relacion_horarios_ordena_lunes_a_domingo()
     {
         $asignacion = $this->asignacion();
@@ -387,7 +388,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(['lunes', 'miercoles', 'viernes'], $dias);
     }
 
-    /** @test */
+    #[Test]
     public function horas_semana_calcula_previstas_y_confirmadas_de_lunes_a_viernes()
     {
         $asignacion = $this->asignacion();
@@ -428,7 +429,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(14.0, $resultado['realizadas']);
     }
 
-    /** @test */
+    #[Test]
     public function horas_semana_excluye_dia_marcado_como_festivo(): void
     {
         $asignacion = $this->asignacion();
@@ -457,7 +458,7 @@ class HorarioAsignacionTest extends TestCase
         $this->assertEquals(28.0, $resultado['previstas']); // 4 dias, no 5
     }
 
-    /** @test */
+    #[Test]
     public function horas_semana_incluye_el_ajuste_de_esa_semana_concreta(): void
     {
         $asignacion = $this->asignacion();

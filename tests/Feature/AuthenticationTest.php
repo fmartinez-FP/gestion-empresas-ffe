@@ -5,13 +5,14 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function pagina_login_se_muestra_correctamente()
     {
         $response = $this->get('/login');
@@ -20,7 +21,7 @@ class AuthenticationTest extends TestCase
         $response->assertSee('Iniciar sesión');
     }
 
-    /** @test */
+    #[Test]
     public function usuario_puede_autenticarse()
     {
         $user = User::factory()->create([
@@ -37,7 +38,7 @@ class AuthenticationTest extends TestCase
         $this->assertEquals($user->id, Auth::id());
     }
 
-    /** @test */
+    #[Test]
     public function usuario_inactivo_no_puede_autenticarse()
     {
         $user = User::factory()->create([
@@ -56,7 +57,7 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    /** @test */
+    #[Test]
     public function credenciales_incorrectas_muestran_error()
     {
         $user = User::factory()->create([
@@ -74,7 +75,7 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    /** @test */
+    #[Test]
     public function usuario_puede_cerrar_sesion()
     {
         $user = User::factory()->create();
@@ -87,7 +88,7 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    /** @test */
+    #[Test]
     public function rutas_protegidas_redirigen_a_login()
     {
         $response = $this->get('/dashboard');
@@ -100,7 +101,7 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function usuario_autenticado_accede_a_dashboard()
     {
         $user = User::factory()->create();

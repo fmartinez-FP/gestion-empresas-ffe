@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AlumnoManagementTest extends TestCase
@@ -54,7 +55,7 @@ class AlumnoManagementTest extends TestCase
     // ACCESO — LISTADO
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function usuario_autenticado_puede_ver_listado_alumnos()
     {
         $user = $this->profesor();
@@ -65,7 +66,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertSee('Alumnos en FFE');
     }
 
-    /** @test */
+    #[Test]
     public function usuario_no_autenticado_es_redirigido()
     {
         $response = $this->get(route('alumnos.index'));
@@ -76,7 +77,7 @@ class AlumnoManagementTest extends TestCase
     // FILTROS
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function listado_filtra_por_ciclo()
     {
         $admin  = $this->admin();
@@ -96,7 +97,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertDontSee('López');
     }
 
-    /** @test */
+    #[Test]
     public function listado_filtra_por_busqueda_texto()
     {
         $admin = $this->admin();
@@ -117,7 +118,7 @@ class AlumnoManagementTest extends TestCase
     // CREAR
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function crear_alumno_ignora_user_id_inyectado_en_el_payload()
     {
         $admin = $this->admin();
@@ -141,7 +142,7 @@ class AlumnoManagementTest extends TestCase
         $this->assertNull($alumno->user_id);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_reasignar_grupo_de_alumno_via_mass_assignment()
     {
         $profesorSinPermisoGrupo = User::factory()->create(['rol' => 'profesor', 'activo' => true]);
@@ -165,7 +166,7 @@ class AlumnoManagementTest extends TestCase
         $this->assertEquals('nuevo.massassign@educa.madrid.org', $alumno->email);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_crear_alumno()
     {
         $admin = $this->admin();
@@ -190,7 +191,7 @@ class AlumnoManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function crear_alumno_requiere_nombre_y_apellidos()
     {
         $admin = $this->admin();
@@ -209,7 +210,7 @@ class AlumnoManagementTest extends TestCase
         $this->assertDatabaseCount('alumnos', 0);
     }
 
-    /** @test */
+    #[Test]
     public function crear_alumno_valida_formato_curso_academico()
     {
         $admin = $this->admin();
@@ -231,7 +232,7 @@ class AlumnoManagementTest extends TestCase
     // EDITAR
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function admin_puede_editar_alumno()
     {
         $admin  = $this->admin();
@@ -253,7 +254,7 @@ class AlumnoManagementTest extends TestCase
     // SOFT DELETE
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function admin_puede_dar_de_baja_alumno()
     {
         $admin  = $this->admin();
@@ -266,7 +267,7 @@ class AlumnoManagementTest extends TestCase
         $this->assertSoftDeleted('alumnos', ['id' => $alumno->id]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_dar_de_baja_alumno()
     {
         $profesor = $this->profesor();
@@ -279,7 +280,7 @@ class AlumnoManagementTest extends TestCase
         $this->assertDatabaseHas('alumnos', ['id' => $alumno->id, 'deleted_at' => null]);
     }
 
-    /** @test */
+    #[Test]
     public function alumno_dado_de_baja_no_aparece_en_listado_activos()
     {
         $admin  = $this->admin();
@@ -295,7 +296,7 @@ class AlumnoManagementTest extends TestCase
     // ARCHIVO
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function admin_puede_acceder_al_archivo()
     {
         $admin  = $this->admin();
@@ -308,7 +309,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertSee('Juan');
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_acceder_al_archivo()
     {
         $profesor = $this->profesor();
@@ -318,7 +319,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function responsable_ffe_puede_acceder_al_archivo()
     {
         $rffe   = $this->responsableFFE();
@@ -334,7 +335,7 @@ class AlumnoManagementTest extends TestCase
     // IMPORTACIÓN
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function admin_puede_ver_formulario_importacion()
     {
         $admin = $this->admin();
@@ -345,7 +346,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertSee('Importar alumnos');
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_ver_formulario_importacion()
     {
         $profesor = $this->profesor();
@@ -359,7 +360,7 @@ class AlumnoManagementTest extends TestCase
     // IMPORT ALUMNOS SERVICE — DEDUPLICACIÓN
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function importar_deduplica_por_nombre_apellidos_ciclo_curso()
     {
         $ciclo = $this->ciclo();
@@ -389,7 +390,7 @@ class AlumnoManagementTest extends TestCase
         $this->assertDatabaseCount('alumnos', 2);          // original + Carlos
     }
 
-    /** @test */
+    #[Test]
     public function importar_falla_si_faltan_columnas_obligatorias()
     {
         $ciclo = $this->ciclo();
@@ -411,7 +412,7 @@ class AlumnoManagementTest extends TestCase
     // FICHA — SHOW
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function admin_puede_ver_ficha_de_cualquier_alumno()
     {
         $admin  = $this->admin();
@@ -424,7 +425,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertSee('Eva');
     }
 
-    /** @test */
+    #[Test]
     public function profesor_puede_ver_ficha_de_alumno_de_su_grupo_en_curso_activo()
     {
         $profesor = $this->profesor();
@@ -442,7 +443,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertSee('DeSuGrupo');
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_ver_ficha_de_alumno_de_grupo_ajeno()
     {
         $profesor      = $this->profesor();
@@ -460,7 +461,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_ver_ficha_de_alumno_de_curso_academico_cerrado()
     {
         $profesor = $this->profesor();
@@ -480,7 +481,7 @@ class AlumnoManagementTest extends TestCase
     // SCOPE POR PROFESOR (Fase L)
     // =========================================================================
 
-    /** @test */
+    #[Test]
     public function profesor_con_grupo_tutor_asignado_solo_ve_alumnos_de_su_grupo_y_curso_activo()
     {
         $profesor = $this->profesor();
@@ -504,7 +505,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertDontSee('CursoAnterior');
     }
 
-    /** @test */
+    #[Test]
     public function profesor_sin_grupos_tutor_asignados_ve_listado_vacio_y_aviso()
     {
         $profesor = $this->profesor();
@@ -521,7 +522,7 @@ class AlumnoManagementTest extends TestCase
         $response->assertSee('Todavía no tienes grupos asignados');
     }
 
-    /** @test */
+    #[Test]
     public function admin_ve_alumnos_de_todos_los_ciclos_sin_depender_de_ciclos_tutor()
     {
         $admin = $this->admin();

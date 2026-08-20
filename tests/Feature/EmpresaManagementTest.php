@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Empresa;
 use App\Models\CicloFormativo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class EmpresaManagementTest extends TestCase
@@ -18,7 +19,7 @@ class EmpresaManagementTest extends TestCase
         $this->seed(\Database\Seeders\CicloFormativoSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function usuario_puede_ver_listado_empresas()
     {
         $user = User::factory()->create();
@@ -35,7 +36,7 @@ class EmpresaManagementTest extends TestCase
         $response->assertSee('Empresas');
     }
 
-    /** @test */
+    #[Test]
     public function usuario_puede_crear_empresa()
     {
         $user = User::factory()->create();
@@ -64,7 +65,7 @@ class EmpresaManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function validacion_cif_unico()
     {
         $user = User::factory()->create();
@@ -83,7 +84,7 @@ class EmpresaManagementTest extends TestCase
         $response->assertSessionHasErrors('cif');
     }
 
-    /** @test */
+    #[Test]
     public function usuario_puede_ver_detalle_empresa()
     {
         $user = User::factory()->create();
@@ -101,7 +102,7 @@ class EmpresaManagementTest extends TestCase
         $response->assertSee('B22222222');
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_editar_su_empresa()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -124,7 +125,7 @@ class EmpresaManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_editar_empresa_ajena()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -145,7 +146,7 @@ class EmpresaManagementTest extends TestCase
         $response->assertSessionHas('error');
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_editar_cualquier_empresa()
     {
         $profesor = User::factory()->create(['rol' => 'profesor']);
@@ -169,7 +170,7 @@ class EmpresaManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_eliminar_empresa()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -187,7 +188,7 @@ class EmpresaManagementTest extends TestCase
         $this->assertDatabaseMissing('empresas', ['id' => $empresa->id]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_eliminar_empresa()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -205,7 +206,7 @@ class EmpresaManagementTest extends TestCase
         $this->assertDatabaseHas('empresas', ['id' => $empresa->id]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_no_puede_exportar_pdf_de_empresa_ajena()
     {
         $creador = User::factory()->create(['rol' => 'profesor']);
@@ -222,7 +223,7 @@ class EmpresaManagementTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_exportar_pdf_de_su_empresa()
     {
         $creador = User::factory()->create(['rol' => 'profesor']);

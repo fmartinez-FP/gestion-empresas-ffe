@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Models\PersonaContacto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PersonaContactoTest extends TestCase
@@ -27,7 +28,7 @@ class PersonaContactoTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_ver_formulario_crear_persona_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -39,7 +40,7 @@ class PersonaContactoTest extends TestCase
             ->assertSee('Persona de Contacto');
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_crear_persona_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -52,7 +53,7 @@ class PersonaContactoTest extends TestCase
             ->assertSessionHas('error');
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_crear_persona_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -74,7 +75,7 @@ class PersonaContactoTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function primera_persona_se_marca_como_principal_automaticamente()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -91,7 +92,7 @@ class PersonaContactoTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function marcar_como_principal_desmarca_la_anterior()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -109,7 +110,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['id' => $segunda->id, 'principal' => true]);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_editar_persona_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -126,7 +127,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['id' => $persona->id, 'nombre' => 'Modificado', 'cargo' => 'CEO']);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_editar_persona_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -142,7 +143,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['id' => $persona->id, 'nombre' => 'Contacto']);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_gestionar_personas_de_cualquier_empresa()
     {
         $profesor = User::factory()->create(['rol' => 'profesor']);
@@ -156,7 +157,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['empresa_id' => $empresa->id, 'nombre' => 'Desde Admin']);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_eliminar_persona_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -170,7 +171,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseMissing('personas_contacto', ['id' => $persona->id]);
     }
 
-    /** @test */
+    #[Test]
     public function al_eliminar_principal_la_siguiente_asume_el_rol()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -183,7 +184,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['id' => $segunda->id, 'principal' => true]);
     }
 
-    /** @test */
+    #[Test]
     public function nombre_es_obligatorio()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -194,7 +195,7 @@ class PersonaContactoTest extends TestCase
             ->assertSessionHasErrors('nombre');
     }
 
-    /** @test */
+    #[Test]
     public function persona_de_otra_empresa_devuelve_404()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -207,7 +208,7 @@ class PersonaContactoTest extends TestCase
             ->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function persona_de_otra_empresa_devuelve_404_en_destroy()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -222,7 +223,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['id' => $persona->id]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_eliminar_persona_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -238,7 +239,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['id' => $persona->id]);
     }
 
-    /** @test */
+    #[Test]
     public function responsable_ciclo_que_tutoriza_puede_crear_persona_contacto()
     {
         $ciclo = \App\Models\CicloFormativo::factory()->create();
@@ -255,7 +256,7 @@ class PersonaContactoTest extends TestCase
         $this->assertDatabaseHas('personas_contacto', ['empresa_id' => $empresa->id, 'nombre' => 'Desde Responsable']);
     }
 
-    /** @test */
+    #[Test]
     public function responsable_ciclo_ajeno_no_puede_crear_persona_contacto()
     {
         $ciclo = \App\Models\CicloFormativo::factory()->create();

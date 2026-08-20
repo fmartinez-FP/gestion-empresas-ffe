@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Models\PersonaContacto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PersonaContactoTest extends TestCase
@@ -28,7 +29,7 @@ class PersonaContactoTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function puede_crear_persona_contacto()
     {
         $empresa = $this->crearEmpresa();
@@ -43,7 +44,7 @@ class PersonaContactoTest extends TestCase
         $this->assertTrue((bool) $persona->principal);
     }
 
-    /** @test */
+    #[Test]
     public function empresa_tiene_relacion_has_many_personas_contacto()
     {
         $empresa = $this->crearEmpresa();
@@ -53,7 +54,7 @@ class PersonaContactoTest extends TestCase
         $this->assertEquals(2, $empresa->personasContacto()->count());
     }
 
-    /** @test */
+    #[Test]
     public function accessor_persona_contacto_devuelve_nombre_del_principal()
     {
         $empresa = $this->crearEmpresa();
@@ -64,14 +65,14 @@ class PersonaContactoTest extends TestCase
         $this->assertEquals('Principal', $empresa->persona_contacto);
     }
 
-    /** @test */
+    #[Test]
     public function accessor_persona_contacto_devuelve_null_sin_personas()
     {
         $empresa = $this->crearEmpresa();
         $this->assertNull($empresa->persona_contacto);
     }
 
-    /** @test */
+    #[Test]
     public function persona_contacto_pertenece_a_empresa()
     {
         $empresa = $this->crearEmpresa();

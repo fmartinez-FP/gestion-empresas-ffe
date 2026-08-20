@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Models\User;
 use App\Models\CicloFormativo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Carbon\Carbon;
 
@@ -19,7 +20,7 @@ class EmpresaTest extends TestCase
         $this->seed(\Database\Seeders\CicloFormativoSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function puede_crear_una_empresa()
     {
         $user = User::factory()->create();
@@ -36,7 +37,7 @@ class EmpresaTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function estado_convenio_es_activo_cuando_fecha_firma_reciente()
     {
         $user = User::factory()->create();
@@ -51,7 +52,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals('activo', $empresa->estado_convenio);
     }
 
-    /** @test */
+    #[Test]
     public function estado_convenio_es_por_caducar_cuando_faltan_menos_de_6_meses()
     {
         $user = User::factory()->create();
@@ -67,7 +68,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals('por_caducar', $empresa->estado_convenio);
     }
 
-    /** @test */
+    #[Test]
     public function estado_convenio_es_caducado_cuando_pasan_4_anos()
     {
         $user = User::factory()->create();
@@ -82,7 +83,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals('caducado', $empresa->estado_convenio);
     }
 
-    /** @test */
+    #[Test]
     public function estado_convenio_es_sin_convenio_cuando_no_hay_fecha_firma()
     {
         $user = User::factory()->create();
@@ -97,7 +98,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals('sin_convenio', $empresa->estado_convenio);
     }
 
-    /** @test */
+    #[Test]
     public function calcula_fecha_vencimiento_correctamente()
     {
         $user = User::factory()->create();
@@ -113,7 +114,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals('2024-06-15', $empresa->fecha_vencimiento->format('Y-m-d'));
     }
 
-    /** @test */
+    #[Test]
     public function scope_estado_convenio_filtra_correctamente()
     {
         $user = User::factory()->create();
@@ -142,7 +143,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals('Caducada', $caducadas->first()->nombre);
     }
 
-    /** @test */
+    #[Test]
     public function scope_buscar_encuentra_por_nombre_cif_o_contacto()
     {
         $user = User::factory()->create();
@@ -165,7 +166,7 @@ class EmpresaTest extends TestCase
         $this->assertEquals(0, Empresa::buscar('NoExiste')->count());
     }
 
-    /** @test */
+    #[Test]
     public function puede_sincronizar_ciclos_con_pivot()
     {
         $user = User::factory()->create();

@@ -7,6 +7,7 @@ use App\Models\AsignacionFct;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AjusteHorasSemanaTest extends TestCase
@@ -21,7 +22,7 @@ class AjusteHorasSemanaTest extends TestCase
         ], $attrs));
     }
 
-    /** @test */
+    #[Test]
     public function se_puede_crear_un_ajuste_asociado_a_una_asignacion()
     {
         $asignacion = $this->asignacion();
@@ -43,7 +44,7 @@ class AjusteHorasSemanaTest extends TestCase
         $this->assertEquals(3.5, $ajuste->ajuste);
     }
 
-    /** @test */
+    #[Test]
     public function estado_positivo_genera_un_ajuste_mayor_que_cero()
     {
         $ajuste = AjusteHorasSemana::factory()->positivo()->create();
@@ -51,7 +52,7 @@ class AjusteHorasSemanaTest extends TestCase
         $this->assertGreaterThan(0, $ajuste->ajuste);
     }
 
-    /** @test */
+    #[Test]
     public function estado_negativo_genera_un_ajuste_menor_que_cero()
     {
         $ajuste = AjusteHorasSemana::factory()->negativo()->create();
@@ -59,7 +60,7 @@ class AjusteHorasSemanaTest extends TestCase
         $this->assertLessThan(0, $ajuste->ajuste);
     }
 
-    /** @test */
+    #[Test]
     public function no_se_puede_duplicar_semana_para_la_misma_asignacion()
     {
         $asignacion = $this->asignacion();
@@ -77,7 +78,7 @@ class AjusteHorasSemanaTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function ajustes_se_borran_en_cascada_al_borrar_definitivamente_la_asignacion()
     {
         $asignacion = $this->asignacion();
@@ -89,7 +90,7 @@ class AjusteHorasSemanaTest extends TestCase
         $this->assertDatabaseCount('ajuste_horas_semana', 0);
     }
 
-    /** @test */
+    #[Test]
     public function relacion_ajustes_horas_ordena_por_semana_ascendente()
     {
         $asignacion = $this->asignacion();
@@ -102,7 +103,7 @@ class AjusteHorasSemanaTest extends TestCase
         $this->assertEquals(['2026-09-07', '2026-09-14'], $semanas);
     }
 
-    /** @test */
+    #[Test]
     public function creado_por_apunta_al_usuario_que_registro_el_ajuste()
     {
         $usuario = User::factory()->create();

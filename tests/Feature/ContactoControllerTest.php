@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ContactoControllerTest extends TestCase
@@ -49,7 +50,7 @@ class ContactoControllerTest extends TestCase
         ], $overrides);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_ver_formulario_crear_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -60,7 +61,7 @@ class ContactoControllerTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_ver_formulario_crear_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -72,7 +73,7 @@ class ContactoControllerTest extends TestCase
             ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_crear_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -89,7 +90,7 @@ class ContactoControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_crear_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -103,7 +104,7 @@ class ContactoControllerTest extends TestCase
         $this->assertDatabaseMissing('contactos', ['empresa_id' => $empresa->id]);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_ver_formulario_editar_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -115,7 +116,7 @@ class ContactoControllerTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_editar_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -134,7 +135,7 @@ class ContactoControllerTest extends TestCase
         $this->assertDatabaseHas('contactos', ['id' => $contacto->id, 'resultado' => 'exitoso']);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_actualizar_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -148,7 +149,7 @@ class ContactoControllerTest extends TestCase
         $this->assertDatabaseHas('contactos', ['id' => $contacto->id, 'resultado' => 'cita_programada']);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_eliminar_contacto()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -162,7 +163,7 @@ class ContactoControllerTest extends TestCase
         $this->assertDatabaseMissing('contactos', ['id' => $contacto->id]);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_eliminar_contacto()
     {
         $propietario = User::factory()->create(['rol' => 'profesor']);
@@ -177,7 +178,7 @@ class ContactoControllerTest extends TestCase
         $this->assertDatabaseHas('contactos', ['id' => $contacto->id]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_gestionar_contactos_de_cualquier_empresa()
     {
         $profesor = User::factory()->create(['rol' => 'profesor']);
@@ -191,7 +192,7 @@ class ContactoControllerTest extends TestCase
         $this->assertDatabaseHas('contactos', ['empresa_id' => $empresa->id]);
     }
 
-    /** @test */
+    #[Test]
     public function contacto_de_otra_empresa_devuelve_404()
     {
         $user = User::factory()->create(['rol' => 'profesor']);
@@ -208,7 +209,7 @@ class ContactoControllerTest extends TestCase
             ->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function creador_puede_descargar_archivo_adjunto()
     {
         Storage::fake('private');
@@ -229,7 +230,7 @@ class ContactoControllerTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function profesor_ajeno_no_puede_descargar_archivo_adjunto()
     {
         Storage::fake('private');

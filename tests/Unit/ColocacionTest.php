@@ -7,6 +7,7 @@ use App\Models\Empresa;
 use App\Models\User;
 use App\Models\CicloFormativo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Carbon\Carbon;
 
@@ -20,7 +21,7 @@ class ColocacionTest extends TestCase
         $this->seed(\Database\Seeders\CicloFormativoSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function puede_crear_una_colocacion()
     {
         $user = User::factory()->create();
@@ -48,7 +49,7 @@ class ColocacionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function obtener_curso_actual_calcula_correctamente()
     {
         // El curso académico depende de la fecha actual
@@ -61,7 +62,7 @@ class ColocacionTest extends TestCase
         $this->assertEquals($expectedCurso, $cursoActual);
     }
 
-    /** @test */
+    #[Test]
     public function generar_lista_cursos_devuelve_array_correcto()
     {
         $cursos = Colocacion::generarListaCursos(3, 1);
@@ -74,7 +75,7 @@ class ColocacionTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function curso_etiqueta_devuelve_formato_correcto()
     {
         $user = User::factory()->create();
@@ -109,7 +110,7 @@ class ColocacionTest extends TestCase
         $this->assertEquals('2º', $colocacion2->curso_etiqueta);
     }
 
-    /** @test */
+    #[Test]
     public function scope_curso_academico_filtra_correctamente()
     {
         $user = User::factory()->create();
@@ -144,7 +145,7 @@ class ColocacionTest extends TestCase
         $this->assertEquals(1, Colocacion::cursoAcademico('2024-2025')->count());
     }
 
-    /** @test */
+    #[Test]
     public function estadisticas_por_ciclo_calcula_totales()
     {
         $user = User::factory()->create();

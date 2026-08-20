@@ -8,6 +8,7 @@ use App\Models\SeguimientoDiario;
 use App\Services\CuadernoCalendarioService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CuadernoCalendarioServiceTest extends TestCase
@@ -22,7 +23,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->servicio = app(CuadernoCalendarioService::class);
     }
 
-    /** @test */
+    #[Test]
     public function dias_laborables_excluye_fines_de_semana(): void
     {
         // Lunes 2026-01-05 a domingo 2026-01-11 -> deben quedar 5 dias (L-V)
@@ -37,7 +38,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertTrue($dias->every(fn (Carbon $d) => ! $d->isWeekend()));
     }
 
-    /** @test */
+    #[Test]
     public function dias_laborables_devuelve_vacio_si_faltan_fechas(): void
     {
         $asignacion = AsignacionFct::factory()->create([
@@ -48,7 +49,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertTrue($this->servicio->diasLaborables($asignacion)->isEmpty());
     }
 
-    /** @test */
+    #[Test]
     public function agrupar_por_semana_junta_los_dias_bajo_el_lunes_correspondiente(): void
     {
         $asignacion = AsignacionFct::factory()->create([
@@ -66,7 +67,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertCount(5, $semanas->get('2026-01-12'));
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_festivo_si_esta_marcado_en_calendario_asignacion(): void
     {
         $asignacion = AsignacionFct::factory()->create();
@@ -87,7 +88,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('San Jose', $estado['motivo']);
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_confirmado_si_hay_seguimiento_confirmado(): void
     {
         $asignacion  = AsignacionFct::factory()->create();
@@ -106,7 +107,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('confirmado', $estado['estado']);
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_pendiente_si_hay_seguimiento_sin_confirmar(): void
     {
         $asignacion  = AsignacionFct::factory()->create();
@@ -125,7 +126,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('pendiente', $estado['estado']);
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_no_trabajado_si_es_dia_pasado_sin_entrada(): void
     {
         $estado = $this->servicio->estadoDia(
@@ -137,7 +138,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('no_trabajado', $estado['estado']);
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_pendiente_si_es_hoy_sin_entrada(): void
     {
         $estado = $this->servicio->estadoDia(
@@ -149,7 +150,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('pendiente', $estado['estado']);
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_pendiente_si_es_dia_futuro_sin_entrada(): void
     {
         $estado = $this->servicio->estadoDia(
@@ -161,7 +162,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('pendiente', $estado['estado']);
     }
 
-    /** @test */
+    #[Test]
     public function resolver_estados_devuelve_el_estado_correcto_para_varias_fechas_en_una_pasada(): void
     {
         $asignacion  = AsignacionFct::factory()->create();
@@ -184,7 +185,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertSame('festivo', $estados->get('2026-02-11')['estado']);
     }
 
-    /** @test */
+    #[Test]
     public function dias_del_mes_solo_incluye_dias_laborables_dentro_del_periodo_de_la_asignacion(): void
     {
         $asignacion = AsignacionFct::factory()->create([
@@ -199,7 +200,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertFalse($dias->contains(fn (Carbon $d) => $d->toDateString() === '2026-03-09'));
     }
 
-    /** @test */
+    #[Test]
     public function dias_del_mes_devuelve_vacio_si_faltan_fechas_de_la_asignacion(): void
     {
         $asignacion = AsignacionFct::factory()->create([
@@ -210,7 +211,7 @@ class CuadernoCalendarioServiceTest extends TestCase
         $this->assertTrue($this->servicio->diasDelMes($asignacion, Carbon::parse('2026-03-01'))->isEmpty());
     }
 
-    /** @test */
+    #[Test]
     public function estado_dia_devuelve_ausencia_si_esta_marcado_como_ausencia_no_justificada(): void
     {
         $asignacion = AsignacionFct::factory()->create();

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Empresa;
 use App\Models\CicloFormativo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -18,7 +19,7 @@ class UserTest extends TestCase
         $this->seed(\Database\Seeders\CicloFormativoSeeder::class);
     }
 
-    /** @test */
+    #[Test]
     public function puede_crear_usuario_admin()
     {
         $user = User::factory()->create([
@@ -30,7 +31,7 @@ class UserTest extends TestCase
         $this->assertFalse($user->esProfesor());
     }
 
-    /** @test */
+    #[Test]
     public function puede_crear_usuario_responsable_ciclo()
     {
         $ciclo = CicloFormativo::first();
@@ -46,7 +47,7 @@ class UserTest extends TestCase
         $this->assertEquals($ciclo->id, $user->ciclo_id);
     }
 
-    /** @test */
+    #[Test]
     public function puede_crear_usuario_profesor()
     {
         $user = User::factory()->create([
@@ -58,7 +59,7 @@ class UserTest extends TestCase
         $this->assertTrue($user->esProfesor());
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_editar_cualquier_empresa()
     {
         $admin = User::factory()->create(['rol' => 'admin']);
@@ -73,7 +74,7 @@ class UserTest extends TestCase
         $this->assertTrue($admin->can('update', $empresa));
     }
 
-    /** @test */
+    #[Test]
     public function profesor_solo_puede_editar_sus_empresas()
     {
         $profesor1 = User::factory()->create(['rol' => 'profesor']);
@@ -95,7 +96,7 @@ class UserTest extends TestCase
         $this->assertFalse($profesor1->can('update', $empresaAjena));
     }
 
-    /** @test */
+    #[Test]
     public function responsable_puede_editar_empresas_de_su_ciclo()
     {
         $ciclo = CicloFormativo::first();
@@ -120,7 +121,7 @@ class UserTest extends TestCase
         $this->assertTrue($responsable->can('update', $empresa));
     }
 
-    /** @test */
+    #[Test]
     public function nombre_rol_devuelve_etiqueta_correcta()
     {
         $admin = User::factory()->create(['rol' => 'admin']);
@@ -132,7 +133,7 @@ class UserTest extends TestCase
         $this->assertEquals('Profesor', $profesor->nombre_rol);
     }
 
-    /** @test */
+    #[Test]
     public function scope_activos_filtra_usuarios_activos()
     {
         User::factory()->create(['activo' => true]);
@@ -142,7 +143,7 @@ class UserTest extends TestCase
         $this->assertEquals(2, User::activos()->count());
     }
 
-    /** @test */
+    #[Test]
     public function scope_rol_filtra_por_rol()
     {
         User::factory()->create(['rol' => 'admin']);
