@@ -5,27 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] },
-                    colors: {
-                        primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a',950:'#172554' },
-                        accent: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d' }
-                    }
-                }
-            }
-        }
-    </script>
+    @include('partials.brand-head')
     <style>
-        [x-cloak] { display: none !important; }
         .nav-link { transition: all 0.2s ease; }
     </style>
     @stack('styles')
@@ -41,11 +22,12 @@
                     
                     <!-- Logo -->
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-3 flex-shrink-0">
-                        <img src="{{ asset('favicon.png') }}" alt="FFE" class="h-10 w-10 rounded-lg object-contain">
-                        <div class="hidden sm:block leading-tight">
-                            <span class="block text-sm font-bold text-slate-800 dark:text-white">Gestión de Empresas</span>
-                            <span class="block text-xs text-slate-500 dark:text-slate-400">{{ config('app.name') }}</span>
-                        </div>
+                        <span class="inline-flex items-center bg-white rounded-lg px-2 py-1.5 shadow-sm ring-1 ring-slate-900/5">
+                            <img src="{{ asset('images/logo-ffe.png') }}" alt="Gestión FFE" class="h-9 sm:h-10 w-auto">
+                        </span>
+                        <span class="hidden sm:block text-xs font-medium text-slate-500 dark:text-slate-400 leading-tight">
+                            {{ config('app.name') }}
+                        </span>
                     </a>
 
                     <!-- Navegación central — barra primaria -->
@@ -300,8 +282,10 @@
         <footer class="mt-auto border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <img src="{{ asset('images/logo.png') }}" alt="{{ config('centro.nombre_corto') }}" class="h-8 w-auto opacity-60 dark:opacity-40">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center bg-white rounded-md px-1.5 py-1 ring-1 ring-slate-900/5">
+                            <img src="{{ asset('images/logo-instituto.png') }}" alt="{{ config('centro.nombre_corto') }}" class="h-8 w-auto">
+                        </span>
                         <p class="text-sm text-slate-500 dark:text-slate-400">© {{ date('Y') }} {{ config('app.name') }}</p>
                     </div>
                     <p class="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0">v2.0.0</p>

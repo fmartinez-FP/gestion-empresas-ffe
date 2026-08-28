@@ -4,15 +4,18 @@
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center -mt-8">
-    <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+    <div class="bg-white shadow-sm rounded-2xl border border-slate-200 p-8 w-full max-w-md">
 
         <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Portal del Alumno</h1>
-            <p class="text-gray-500 text-sm mt-1">{{ config('centro.nombre', 'FFE') }}</p>
+            <span class="inline-flex items-center justify-center mb-4">
+                <img src="{{ asset('images/logo-ffe.png') }}" alt="Gestión FFE" class="h-14 w-auto">
+            </span>
+            <h1 class="text-2xl font-bold text-slate-800">Portal del Alumno</h1>
+            <p class="text-slate-500 text-sm mt-1">{{ config('centro.nombre', 'FFE') }}</p>
         </div>
 
         @if ($errors->any())
-            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm">
+            <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
                 {{ $errors->first() }}
             </div>
         @endif
@@ -21,7 +24,7 @@
             @csrf
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
                     Correo electrónico
                 </label>
                 <input
@@ -31,13 +34,13 @@
                     value="{{ old('email') }}"
                     required
                     autofocus
-                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="nombre@educa.madrid.org"
                 >
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
                     Contraseña
                 </label>
                 <div class="relative">
@@ -46,9 +49,9 @@
                         id="password"
                         name="password"
                         required
-                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-10"
+                        class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-10"
                     >
-                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600">
+                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-slate-600">
                         <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -73,13 +76,13 @@
             </div>
 
             <div class="flex items-center">
-                <input type="checkbox" id="remember" name="remember" class="mr-2">
-                <label for="remember" class="text-sm text-gray-600">Recordar sesión</label>
+                <input type="checkbox" id="remember" name="remember" class="mr-2 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                <label for="remember" class="text-sm text-slate-600">Recordar sesión</label>
             </div>
 
             <button
                 type="submit"
-                class="w-full bg-primary text-white py-2 px-4 rounded font-medium text-sm hover:bg-blue-700 transition"
+                class="w-full bg-primary-600 text-white py-2.5 px-4 rounded-xl font-medium text-sm hover:bg-primary-700 transition shadow-lg shadow-primary-500/20"
             >
                 Acceder
             </button>

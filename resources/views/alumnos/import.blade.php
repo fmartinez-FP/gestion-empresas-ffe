@@ -7,9 +7,9 @@
 
 
     <div class="mb-6">
-        <a href="{{ route('alumnos.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Volver al listado</a>
-        <h1 class="text-2xl font-bold text-gray-900 mt-2">Importar alumnos</h1>
-        <p class="text-sm text-gray-500 mt-1">Carga masiva desde Excel o CSV. La deduplicación es por nombre + apellidos + grupo + curso académico.</p>
+        <a href="{{ route('alumnos.index') }}" class="text-sm text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300">← Volver al listado</a>
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white mt-2">Importar alumnos</h1>
+        <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Carga masiva desde Excel o CSV. La deduplicación es por nombre + apellidos + grupo + curso académico.</p>
     </div>
 
     @if(session('import_errores'))
@@ -24,20 +24,20 @@
     @endif
 
     <form method="POST" action="{{ route('alumnos.import.submit') }}" enctype="multipart/form-data"
-          class="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+          class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 space-y-5">
         @csrf
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Archivo Excel / CSV <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Archivo Excel / CSV <span class="text-red-500">*</span></label>
             <input type="file" name="archivo" accept=".xlsx,.xls,.csv" required
-                   class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                   class="w-full text-sm text-gray-600 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
             @error('archivo')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
-            <p class="text-xs text-gray-400 mt-1">Máximo 5 MB. Columnas requeridas: <strong>Nombre</strong>, <strong>Apellidos</strong>. Opcionales: Email, Teléfono.</p>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Máximo 5 MB. Columnas requeridas: <strong>Nombre</strong>, <strong>Apellidos</strong>. Opcionales: Email, Teléfono.</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ciclo formativo <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Ciclo formativo <span class="text-red-500">*</span></label>
                 @if($grupos->isEmpty())
                     <div class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
                         No hay grupos activos. Crea uno antes de importar.
@@ -45,7 +45,7 @@
                 @else
                     {{-- Filtro visual, no se envia: solo acota las opciones del select de grupo --}}
                     <select id="filtro-ciclo"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         <option value="">Selecciona un ciclo…</option>
                         @foreach($ciclos as $ciclo)
                             <option value="{{ $ciclo->id }}">{{ $ciclo->codigo }} — {{ $ciclo->nombre }}</option>
@@ -54,9 +54,9 @@
                 @endif
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Grupo <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Grupo <span class="text-red-500">*</span></label>
                 <select name="grupo_id" id="select-grupo" required
-                        class="w-full rounded-lg border @error('grupo_id') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full rounded-lg border @error('grupo_id') border-red-400 @else border-gray-300 dark:border-slate-600 @enderror px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Selecciona un ciclo primero…</option>
                     @foreach($grupos as $grupo)
                         <option value="{{ $grupo->id }}" data-ciclo-id="{{ $grupo->ciclo_id }}" hidden
@@ -70,22 +70,22 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Curso académico <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Curso académico <span class="text-red-500">*</span></label>
             <input type="text" name="curso_academico" value="{{ old('curso_academico', $cursoActivo) }}"
                    placeholder="2025-2026" pattern="\d{4}-\d{4}" required
-                   class="w-full sm:w-1/2 rounded-lg border @error('curso_academico') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                   class="w-full sm:w-1/2 rounded-lg border @error('curso_academico') border-red-400 @else border-gray-300 dark:border-slate-600 @enderror px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
             @error('curso_academico')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
         </div>
 
         <div class="flex gap-3 pt-2">
-            <button type="submit" class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+            <button type="submit" class="px-5 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
                 Importar
             </button>
             <a href="{{ route('alumnos.plantilla') }}"
-               class="px-5 py-2 bg-white border border-gray-300 text-sm text-gray-600 rounded-lg hover:bg-gray-50">
+               class="px-5 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm text-gray-600 dark:text-slate-400 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
                 Descargar plantilla
             </a>
-            <a href="{{ route('alumnos.index') }}" class="px-5 py-2 text-sm text-gray-400 hover:text-gray-600">
+            <a href="{{ route('alumnos.index') }}" class="px-5 py-2 text-sm text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:text-slate-400">
                 Cancelar
             </a>
         </div>

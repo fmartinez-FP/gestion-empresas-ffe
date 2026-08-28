@@ -10,36 +10,36 @@
 
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Cuaderno de seguimiento</h1>
-            <p class="text-sm text-gray-500 mt-1">
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Cuaderno de seguimiento</h1>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">
                 {{ $asignacion->alumno->nombre }} {{ $asignacion->alumno->apellidos }} —
                 {{ $asignacion->empresa->nombre }}
             </p>
         </div>
         <a href="{{ route('asignaciones.show', $asignacion) }}"
-           class="text-sm text-blue-600 hover:underline">← Volver a la asignación</a>
+           class="text-sm text-primary-600 dark:text-primary-400 hover:underline">← Volver a la asignación</a>
     </div>
 
     @if(session('success'))
-        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-lg text-sm">{{ session('success') }}</div>
+        <div class="mb-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg text-sm">{{ session('success') }}</div>
     @endif
     @if(session('error'))
         <div class="mb-4 p-3 bg-red-100 text-red-800 rounded-lg text-sm">{{ session('error') }}</div>
     @endif
 
-    <div class="bg-white rounded-lg shadow p-5 mb-6">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-5 mb-6">
         <div class="grid grid-cols-3 gap-4 text-center mb-3">
             <div>
                 <p class="text-2xl font-bold text-green-700">{{ number_format($horasRealizadas, 2) }}h</p>
-                <p class="text-xs text-gray-500 mt-1">Horas realizadas</p>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Horas realizadas</p>
             </div>
             <div>
                 <p class="text-2xl font-bold text-yellow-700">{{ number_format($horasPendientes, 2) }}h</p>
-                <p class="text-xs text-gray-500 mt-1">Horas pendientes</p>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Horas pendientes</p>
             </div>
             <div>
-                <p class="text-2xl font-bold text-gray-700">{{ number_format($horasPrevistas, 2) }}h</p>
-                <p class="text-xs text-gray-500 mt-1">Total previsto</p>
+                <p class="text-2xl font-bold text-gray-700 dark:text-slate-300">{{ number_format($horasPrevistas, 2) }}h</p>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Total previsto</p>
             </div>
         </div>
         @if($horasPrevistas > 0)
@@ -57,12 +57,12 @@
 
             <div class="flex items-center justify-between">
                 <a href="{{ request()->fullUrlWithQuery(['mes' => $mesActual->copy()->subMonth()->format('Y-m')]) }}"
-                   class="text-sm text-blue-600 hover:underline">‹ Mes anterior</a>
-                <span class="text-sm font-semibold text-gray-700">
+                   class="text-sm text-primary-600 dark:text-primary-400 hover:underline">‹ Mes anterior</a>
+                <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">
                     {{ ucfirst($mesActual->isoFormat('MMMM YYYY')) }}
                 </span>
                 <a href="{{ request()->fullUrlWithQuery(['mes' => $mesActual->copy()->addMonth()->format('Y-m')]) }}"
-                   class="text-sm text-blue-600 hover:underline">Mes siguiente ›</a>
+                   class="text-sm text-primary-600 dark:text-primary-400 hover:underline">Mes siguiente ›</a>
             </div>
 
             @forelse($semanas as $semana)
@@ -71,9 +71,9 @@
                     fn ($d) => $d['estado'] === 'pendiente' && $d['seguimiento']
                 )->count();
             @endphp
-            <details class="bg-white rounded-lg shadow" @if($loop->first) open @endif>
+            <details class="bg-white dark:bg-slate-800 rounded-lg shadow" @if($loop->first) open @endif>
                 <summary class="cursor-pointer select-none px-5 py-4 flex items-center justify-between gap-4">
-                    <span class="font-semibold text-gray-800">
+                    <span class="font-semibold text-slate-800 dark:text-white">
                         Semana del {{ $semana['lunes']->format('d/m/Y') }}
                         @if($pendientesConfirmar > 0)
                             <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -81,11 +81,11 @@
                             </span>
                         @endif
                     </span>
-                    <span class="text-sm text-gray-500 whitespace-nowrap">
+                    <span class="text-sm text-gray-500 dark:text-slate-400 whitespace-nowrap">
                         {{ number_format($semana['horas']['realizadas'], 2) }}h
                         / {{ number_format($semana['horas']['previstas'], 2) }}h prevista{{ $semana['horas']['previstas'] == 1 ? '' : 's' }}
                         @if($semana['horas']['ajuste'] != 0)
-                            <span class="text-xs text-blue-600">(ajuste {{ $semana['horas']['ajuste'] > 0 ? '+' : '' }}{{ number_format($semana['horas']['ajuste'], 2) }}h)</span>
+                            <span class="text-xs text-primary-600 dark:text-primary-400">(ajuste {{ $semana['horas']['ajuste'] > 0 ? '+' : '' }}{{ number_format($semana['horas']['ajuste'], 2) }}h)</span>
                         @endif
                     </span>
                 </summary>
@@ -96,35 +96,35 @@
                         <div class="flex items-start gap-3">
                             <span @class([
                                     'inline-flex items-center justify-center w-16 shrink-0 rounded px-2 py-1 text-xs font-medium',
-                                    'bg-green-100 text-green-800' => $dia['estado'] === 'confirmado',
+                                    'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' => $dia['estado'] === 'confirmado',
                                     'bg-yellow-100 text-yellow-800' => $dia['estado'] === 'pendiente',
                                     'bg-orange-100 text-orange-800' => $dia['estado'] === 'no_trabajado',
                                     'bg-red-100 text-red-800' => $dia['estado'] === 'ausencia',
-                                    'bg-gray-200 text-gray-600' => $dia['estado'] === 'festivo',
+                                    'bg-gray-200 text-gray-600 dark:text-slate-400' => $dia['estado'] === 'festivo',
                                 ])>
                                 {{ $dia['fecha']->isoFormat('ddd D/M') }}
                             </span>
                             <div>
                                 @if($dia['estado'] === 'confirmado')
-                                    <p class="text-sm text-gray-700">Confirmado
+                                    <p class="text-sm text-gray-700 dark:text-slate-300">Confirmado
                                         @if($dia['seguimiento']?->confirmado_at)
                                             ({{ $dia['seguimiento']->confirmado_at->format('d/m H:i') }})
                                         @endif
                                     </p>
                                     @if($dia['seguimiento']?->descripcion_tareas)
-                                        <p class="text-xs text-gray-500 line-clamp-1">{{ $dia['seguimiento']->descripcion_tareas }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-slate-400 line-clamp-1">{{ $dia['seguimiento']->descripcion_tareas }}</p>
                                     @endif
                                 @elseif($dia['estado'] === 'pendiente' && $dia['seguimiento'])
-                                    <p class="text-sm text-gray-700">Pendiente de confirmar</p>
-                                    <p class="text-xs text-gray-500 line-clamp-1">{{ $dia['seguimiento']->descripcion_tareas }}</p>
+                                    <p class="text-sm text-gray-700 dark:text-slate-300">Pendiente de confirmar</p>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400 line-clamp-1">{{ $dia['seguimiento']->descripcion_tareas }}</p>
                                 @elseif($dia['estado'] === 'pendiente')
-                                    <p class="text-sm text-gray-400">Sin registrar todavía</p>
+                                    <p class="text-sm text-gray-400 dark:text-slate-500">Sin registrar todavía</p>
                                 @elseif($dia['estado'] === 'no_trabajado')
-                                    <p class="text-sm text-gray-700">No trabajado</p>
+                                    <p class="text-sm text-gray-700 dark:text-slate-300">No trabajado</p>
                                 @elseif($dia['estado'] === 'ausencia')
-                                    <p class="text-sm text-gray-700">Ausencia no justificada @if($dia['motivo']): {{ $dia['motivo'] }}@endif</p>
+                                    <p class="text-sm text-gray-700 dark:text-slate-300">Ausencia no justificada @if($dia['motivo']): {{ $dia['motivo'] }}@endif</p>
                                 @elseif($dia['estado'] === 'festivo')
-                                    <p class="text-sm text-gray-700">{{ ucfirst($dia['tipo']) }}@if($dia['motivo']): {{ $dia['motivo'] }}@endif</p>
+                                    <p class="text-sm text-gray-700 dark:text-slate-300">{{ ucfirst($dia['tipo']) }}@if($dia['motivo']): {{ $dia['motivo'] }}@endif</p>
                                 @endif
                             </div>
                         </div>
@@ -163,19 +163,19 @@
                             @csrf
                             <input type="hidden" name="semana" value="{{ $semana['lunes']->toDateString() }}">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Ajuste horas (+/-)</label>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Ajuste horas (+/-)</label>
                                 <input type="number" step="0.25" name="ajuste"
                                     value="{{ $semana['horas']['ajuste'] }}"
-                                    class="w-28 border border-gray-300 rounded-lg px-2 py-1.5 text-sm">
+                                    class="w-28 border border-gray-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm">
                             </div>
                             <div class="flex-1 min-w-[160px]">
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Motivo (opcional)</label>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Motivo (opcional)</label>
                                 <input type="text" name="motivo" maxlength="500"
                                     placeholder="Ej. recuperación de horas..."
-                                    class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm">
+                                    class="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm">
                             </div>
                             <button type="submit"
-                                class="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                                class="px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition whitespace-nowrap">
                                 Guardar ajuste
                             </button>
                         </form>
@@ -184,25 +184,25 @@
                 </div>
             </details>
             @empty
-            <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+            <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-8 text-center text-gray-500 dark:text-slate-400">
                 Este mes no tiene días laborables dentro del período de la asignación.
             </div>
             @endforelse
         </div>
 
         {{-- Columna derecha: overview mensual --}}
-        <div class="bg-white rounded-lg shadow p-5 h-fit">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-5 h-fit">
             <div class="flex items-center justify-between mb-4">
                 <a href="{{ request()->fullUrlWithQuery(['mes' => $mesActual->copy()->subMonth()->format('Y-m')]) }}"
-                   class="text-gray-400 hover:text-gray-700 text-sm">‹</a>
-                <span class="text-sm font-semibold text-gray-800">
+                   class="text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:text-slate-300 text-sm">‹</a>
+                <span class="text-sm font-semibold text-slate-800 dark:text-white">
                     {{ ucfirst($mesActual->isoFormat('MMMM YYYY')) }}
                 </span>
                 <a href="{{ request()->fullUrlWithQuery(['mes' => $mesActual->copy()->addMonth()->format('Y-m')]) }}"
-                   class="text-gray-400 hover:text-gray-700 text-sm">›</a>
+                   class="text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:text-slate-300 text-sm">›</a>
             </div>
 
-            <div class="grid grid-cols-5 gap-1 text-center text-xs text-gray-400 mb-1">
+            <div class="grid grid-cols-5 gap-1 text-center text-xs text-gray-400 dark:text-slate-500 mb-1">
                 <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span>
             </div>
 
@@ -224,11 +224,11 @@
                                 @class([
                                     'aspect-square flex items-center justify-center rounded text-[11px]',
                                     'bg-green-500 text-white' => $estadoCelda && $estadoCelda['estado'] === 'confirmado',
-                                    'bg-yellow-400 text-gray-900' => $estadoCelda && $estadoCelda['estado'] === 'pendiente',
+                                    'bg-yellow-400 text-slate-800 dark:text-white' => $estadoCelda && $estadoCelda['estado'] === 'pendiente',
                                     'bg-orange-400 text-white' => $estadoCelda && $estadoCelda['estado'] === 'no_trabajado',
                                     'bg-red-400 text-white' => $estadoCelda && $estadoCelda['estado'] === 'ausencia',
-                                    'bg-gray-200 text-gray-500' => $estadoCelda && $estadoCelda['estado'] === 'festivo',
-                                    'text-gray-300' => ! $estadoCelda,
+                                    'bg-gray-200 text-gray-500 dark:text-slate-400' => $estadoCelda && $estadoCelda['estado'] === 'festivo',
+                                    'text-gray-300 dark:text-slate-600' => ! $estadoCelda,
                                 ])>
                                 {{ $fechaCelda->day }}
                             </span>
@@ -238,7 +238,7 @@
                 @endwhile
             </div>
 
-            <div class="mt-4 space-y-1.5 text-xs text-gray-600">
+            <div class="mt-4 space-y-1.5 text-xs text-gray-600 dark:text-slate-400">
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-green-500"></span> Confirmado</div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-yellow-400"></span> Pendiente</div>
                 <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-orange-400"></span> No trabajado</div>

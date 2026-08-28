@@ -39,6 +39,11 @@
     </style>
 </head>
 <body>
+    @if(file_exists(public_path('images/logo-instituto.png')))
+    <div style="text-align:right; margin-bottom:8px;">
+        <img src="{{ public_path('images/logo-instituto.png') }}" alt="{{ config('centro.nombre_corto') }}" style="height:28px;">
+    </div>
+    @endif
     <div class="header">
         <h1>{{ $empresa->nombre }}</h1>
         <p>CIF: {{ $empresa->cif }}</p>

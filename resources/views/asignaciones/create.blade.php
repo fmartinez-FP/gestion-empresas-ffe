@@ -6,14 +6,14 @@
     @include('partials.nav-alumnos')
 
     {{-- Breadcrumb --}}
-    <div class="mb-1 text-sm text-gray-500">
-        <a href="{{ route('alumnos.index') }}" class="hover:text-gray-700">Alumnos</a>
+    <div class="mb-1 text-sm text-gray-500 dark:text-slate-400">
+        <a href="{{ route('alumnos.index') }}" class="hover:text-gray-700 dark:text-slate-300">Alumnos</a>
         <span class="mx-1">›</span>
-        <a href="{{ route('alumnos.show', $alumno) }}" class="hover:text-gray-700">{{ $alumno->nombre_completo }}</a>
+        <a href="{{ route('alumnos.show', $alumno) }}" class="hover:text-gray-700 dark:text-slate-300">{{ $alumno->nombre_completo }}</a>
         <span class="mx-1">›</span>
         <span>Nueva asignación</span>
     </div>
-    <h1 class="text-2xl font-bold text-gray-900 mt-2 mb-6">Nueva asignación FFE</h1>
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-white mt-2 mb-6">Nueva asignación FFE</h1>
 
     @if($errors->any())
     <div class="mb-4 rounded-lg bg-red-50 border border-red-300 px-4 py-3 text-sm text-red-700">
@@ -37,20 +37,20 @@
         @csrf
 
         {{-- Alumno (solo lectura) --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Alumno</h2>
-            <p class="text-gray-900 font-medium">{{ $alumno->nombre_completo }}</p>
-            <p class="text-sm text-gray-500">{{ $alumno->ciclo->codigo }} — {{ $alumno->ciclo->nombre }} · {{ $alumno->numero_curso }}º curso · {{ $cursoActivo }}</p>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-3">Alumno</h2>
+            <p class="text-slate-800 dark:text-white font-medium">{{ $alumno->nombre_completo }}</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400">{{ $alumno->ciclo->codigo }} — {{ $alumno->ciclo->nombre }} · {{ $alumno->numero_curso }}º curso · {{ $cursoActivo }}</p>
         </div>
 
         {{-- Empresa, sede y tutor empresa --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5 space-y-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Empresa</h2>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5 space-y-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">Empresa</h2>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Empresa <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Empresa <span class="text-red-500">*</span></label>
                 <select name="empresa_id" required x-model="empresaId" @change="cargarDatosEmpresa()"
-                        class="w-full rounded-lg border @error('empresa_id') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full rounded-lg border @error('empresa_id') border-red-400 @else border-gray-300 dark:border-slate-600 @enderror px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Selecciona una empresa…</option>
                     @foreach($empresas as $empresa)
                         <option value="{{ $empresa->id }}" {{ old('empresa_id') == $empresa->id ? 'selected' : '' }}>
@@ -62,9 +62,9 @@
             </div>
 
             <div x-show="empresaId">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sede (dirección de la empresa)</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Sede (dirección de la empresa)</label>
                 <select name="sede_id" x-model="sedeId"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Sin sede específica</option>
                     <template x-for="s in sedes" :key="s.id">
                         <option :value="s.id" :selected="s.id == sedeId" x-text="s.label"></option>
@@ -73,9 +73,9 @@
             </div>
 
             <div x-show="empresaId">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tutor de empresa</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Tutor de empresa</label>
                 <select name="tutor_empresa_id" x-model="tutorEmpresaId"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Sin tutor de empresa</option>
                     <template x-for="c in contactos" :key="c.id">
                         <option :value="c.id" :selected="c.id == tutorEmpresaId" x-text="c.label"></option>
@@ -85,19 +85,19 @@
         </div>
 
         {{-- Tutor IES y fechas --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5 space-y-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Seguimiento IES</h2>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5 space-y-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">Seguimiento IES</h2>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tutor IES <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Tutor IES <span class="text-red-500">*</span></label>
                 @if(auth()->user()->rol === 'profesor')
                     <input type="text" value="{{ auth()->user()->nombre }}" disabled
-                           class="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-600">
+                           class="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:text-slate-400">
                     <input type="hidden" name="tutor_ies_id" value="{{ auth()->id() }}">
-                    <p class="text-xs text-gray-400 mt-1">Como profesor, siempre eres el tutor IES de tus asignaciones.</p>
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Como profesor, siempre eres el tutor IES de tus asignaciones.</p>
                 @else
                 <select name="tutor_ies_id" required
-                        class="w-full rounded-lg border @error('tutor_ies_id') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full rounded-lg border @error('tutor_ies_id') border-red-400 @else border-gray-300 dark:border-slate-600 @enderror px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Selecciona un tutor…</option>
                     @foreach($tutoresIes as $tutor)
                         <option value="{{ $tutor->id }}" {{ old('tutor_ies_id', auth()->id()) == $tutor->id ? 'selected' : '' }}>
@@ -111,39 +111,39 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha inicio <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Fecha inicio <span class="text-red-500">*</span></label>
                     <input type="date" name="fecha_inicio" required value="{{ old('fecha_inicio') }}"
-                           class="w-full rounded-lg border @error('fecha_inicio') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                           class="w-full rounded-lg border @error('fecha_inicio') border-red-400 @else border-gray-300 dark:border-slate-600 @enderror px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     @error('fecha_inicio')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha fin <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Fecha fin <span class="text-red-500">*</span></label>
                     <input type="date" name="fecha_fin" required value="{{ old('fecha_fin') }}"
-                           class="w-full rounded-lg border @error('fecha_fin') border-red-400 @else border-gray-300 @enderror px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                           class="w-full rounded-lg border @error('fecha_fin') border-red-400 @else border-gray-300 dark:border-slate-600 @enderror px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     @error('fecha_fin')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
 
         {{-- Horario semanal --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Horario semanal <span class="text-red-500">*</span></h2>
-            <p class="text-xs text-gray-400 mb-4">Por defecto solo de lunes a viernes. El número de horas totales se calcula automáticamente a partir de las fechas de inicio/fin y el calendario de la asignación.</p>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1">Horario semanal <span class="text-red-500">*</span></h2>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mb-4">Por defecto solo de lunes a viernes. El número de horas totales se calcula automáticamente a partir de las fechas de inicio/fin y el calendario de la asignación.</p>
 
             <div class="flex flex-col sm:flex-row gap-2 mb-5">
                 <label class="flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-sm"
-                       :class="modo === 'igual' ? 'border-blue-400 bg-blue-50 text-blue-800' : 'border-gray-200 text-gray-600'">
-                    <input type="radio" :checked="modo === 'igual'" @change="cambiarModo('igual')" class="text-blue-600 focus:ring-blue-500">
+                       :class="modo === 'igual' ? 'border-blue-400 bg-blue-50 text-blue-800' : 'border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400'">
+                    <input type="radio" :checked="modo === 'igual'" @change="cambiarModo('igual')" class="text-primary-600 dark:text-primary-400 focus:ring-primary-500">
                     Igual de lunes a viernes
                 </label>
                 <label class="flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-sm"
-                       :class="modo === 'lj_v' ? 'border-blue-400 bg-blue-50 text-blue-800' : 'border-gray-200 text-gray-600'">
-                    <input type="radio" :checked="modo === 'lj_v'" @change="cambiarModo('lj_v')" class="text-blue-600 focus:ring-blue-500">
+                       :class="modo === 'lj_v' ? 'border-blue-400 bg-blue-50 text-blue-800' : 'border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400'">
+                    <input type="radio" :checked="modo === 'lj_v'" @change="cambiarModo('lj_v')" class="text-primary-600 dark:text-primary-400 focus:ring-primary-500">
                     Lunes a jueves igual, viernes diferente
                 </label>
                 <label class="flex-1 flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-sm"
-                       :class="modo === 'cada_dia' ? 'border-blue-400 bg-blue-50 text-blue-800' : 'border-gray-200 text-gray-600'">
-                    <input type="radio" :checked="modo === 'cada_dia'" @change="cambiarModo('cada_dia')" class="text-blue-600 focus:ring-blue-500">
+                       :class="modo === 'cada_dia' ? 'border-blue-400 bg-blue-50 text-blue-800' : 'border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400'">
+                    <input type="radio" :checked="modo === 'cada_dia'" @change="cambiarModo('cada_dia')" class="text-primary-600 dark:text-primary-400 focus:ring-primary-500">
                     Diferente cada día
                 </label>
             </div>
@@ -152,85 +152,85 @@
             <div x-show="modo === 'igual'" x-cloak class="border border-gray-100 rounded-lg p-4 mb-3">
                 <label class="flex items-center gap-2 mb-3 cursor-pointer">
                     <input type="checkbox" x-model="bloqueComun.jornadaPartida" @change="toggleComun()"
-                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="text-sm font-medium text-gray-700">Jornada partida</span>
+                           class="rounded border-gray-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500">
+                    <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Jornada partida</span>
                 </label>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Entrada mañana</label>
-                        <input type="time" x-model="bloqueComun.entrada_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada mañana</label>
+                        <input type="time" x-model="bloqueComun.entrada_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Salida mañana</label>
-                        <input type="time" x-model="bloqueComun.salida_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida mañana</label>
+                        <input type="time" x-model="bloqueComun.salida_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     </div>
                     <div x-show="bloqueComun.jornadaPartida">
-                        <label class="block text-xs text-gray-500 mb-1">Entrada tarde</label>
-                        <input type="time" x-model="bloqueComun.entrada_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada tarde</label>
+                        <input type="time" x-model="bloqueComun.entrada_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     </div>
                     <div x-show="bloqueComun.jornadaPartida">
-                        <label class="block text-xs text-gray-500 mb-1">Salida tarde</label>
-                        <input type="time" x-model="bloqueComun.salida_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida tarde</label>
+                        <input type="time" x-model="bloqueComun.salida_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     </div>
                 </div>
-                <p class="text-xs text-gray-400 mt-3">Lunes a viernes, <span x-text="horasDelDia(bloqueComun).toFixed(2)"></span>h/día.</p>
+                <p class="text-xs text-gray-400 dark:text-slate-500 mt-3">Lunes a viernes, <span x-text="horasDelDia(bloqueComun).toFixed(2)"></span>h/día.</p>
             </div>
 
             {{-- Modo: L-J igual, V diferente --}}
             <div x-show="modo === 'lj_v'" x-cloak class="space-y-3 mb-3">
                 <div class="border border-gray-100 rounded-lg p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Lunes a jueves</p>
+                    <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase mb-2">Lunes a jueves</p>
                     <label class="flex items-center gap-2 mb-3 cursor-pointer">
                         <input type="checkbox" x-model="bloqueLJ.jornadaPartida" @change="toggleLJ()"
-                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Jornada partida</span>
+                               class="rounded border-gray-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500">
+                        <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Jornada partida</span>
                     </label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Entrada mañana</label>
-                            <input type="time" x-model="bloqueLJ.entrada_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada mañana</label>
+                            <input type="time" x-model="bloqueLJ.entrada_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Salida mañana</label>
-                            <input type="time" x-model="bloqueLJ.salida_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida mañana</label>
+                            <input type="time" x-model="bloqueLJ.salida_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                         <div x-show="bloqueLJ.jornadaPartida">
-                            <label class="block text-xs text-gray-500 mb-1">Entrada tarde</label>
-                            <input type="time" x-model="bloqueLJ.entrada_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada tarde</label>
+                            <input type="time" x-model="bloqueLJ.entrada_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                         <div x-show="bloqueLJ.jornadaPartida">
-                            <label class="block text-xs text-gray-500 mb-1">Salida tarde</label>
-                            <input type="time" x-model="bloqueLJ.salida_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida tarde</label>
+                            <input type="time" x-model="bloqueLJ.salida_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-3"><span x-text="horasDelDia(bloqueLJ).toFixed(2)"></span>h/día × 4 días.</p>
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-3"><span x-text="horasDelDia(bloqueLJ).toFixed(2)"></span>h/día × 4 días.</p>
                 </div>
                 <div class="border border-gray-100 rounded-lg p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Viernes</p>
+                    <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase mb-2">Viernes</p>
                     <label class="flex items-center gap-2 mb-3 cursor-pointer">
                         <input type="checkbox" x-model="bloqueViernes.jornadaPartida" @change="toggleViernes()"
-                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Jornada partida</span>
+                               class="rounded border-gray-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500">
+                        <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Jornada partida</span>
                     </label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Entrada mañana</label>
-                            <input type="time" x-model="bloqueViernes.entrada_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada mañana</label>
+                            <input type="time" x-model="bloqueViernes.entrada_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Salida mañana</label>
-                            <input type="time" x-model="bloqueViernes.salida_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida mañana</label>
+                            <input type="time" x-model="bloqueViernes.salida_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                         <div x-show="bloqueViernes.jornadaPartida">
-                            <label class="block text-xs text-gray-500 mb-1">Entrada tarde</label>
-                            <input type="time" x-model="bloqueViernes.entrada_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada tarde</label>
+                            <input type="time" x-model="bloqueViernes.entrada_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                         <div x-show="bloqueViernes.jornadaPartida">
-                            <label class="block text-xs text-gray-500 mb-1">Salida tarde</label>
-                            <input type="time" x-model="bloqueViernes.salida_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida tarde</label>
+                            <input type="time" x-model="bloqueViernes.salida_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-3"><span x-text="horasDelDia(bloqueViernes).toFixed(2)"></span>h ese día.</p>
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-3"><span x-text="horasDelDia(bloqueViernes).toFixed(2)"></span>h ese día.</p>
                 </div>
             </div>
 
@@ -241,33 +241,33 @@
                         <div class="flex items-center gap-4 flex-wrap">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" x-model="dia.activo" @change="toggleDiaIndividual(dia)"
-                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-800 w-24" x-text="dia.label"></span>
+                                       class="rounded border-gray-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500">
+                                <span class="text-sm font-medium text-slate-800 dark:text-white w-24" x-text="dia.label"></span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer" x-show="dia.activo">
                                 <input type="checkbox" x-model="dia.jornadaPartida" @change="toggleJornadaDiaIndividual(dia)"
-                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                <span class="text-xs text-gray-500">Jornada partida</span>
+                                       class="rounded border-gray-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500">
+                                <span class="text-xs text-gray-500 dark:text-slate-400">Jornada partida</span>
                             </label>
-                            <span class="text-xs text-gray-400 ml-auto" x-show="dia.activo" x-text="horasDelDia(dia).toFixed(2) + 'h'"></span>
+                            <span class="text-xs text-gray-400 dark:text-slate-500 ml-auto" x-show="dia.activo" x-text="horasDelDia(dia).toFixed(2) + 'h'"></span>
                         </div>
 
                         <div x-show="dia.activo" x-cloak class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 pl-6">
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">Entrada mañana</label>
-                                <input type="time" x-model="dia.entrada_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada mañana</label>
+                                <input type="time" x-model="dia.entrada_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-1">Salida mañana</label>
-                                <input type="time" x-model="dia.salida_manana" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida mañana</label>
+                                <input type="time" x-model="dia.salida_manana" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                             </div>
                             <div x-show="dia.jornadaPartida">
-                                <label class="block text-xs text-gray-500 mb-1">Entrada tarde</label>
-                                <input type="time" x-model="dia.entrada_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Entrada tarde</label>
+                                <input type="time" x-model="dia.entrada_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                             </div>
                             <div x-show="dia.jornadaPartida">
-                                <label class="block text-xs text-gray-500 mb-1">Salida tarde</label>
-                                <input type="time" x-model="dia.salida_tarde" class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Salida tarde</label>
+                                <input type="time" x-model="dia.salida_tarde" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                             </div>
                         </div>
                     </div>
@@ -287,8 +287,8 @@
             </template>
 
             <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
-                <span class="text-gray-500">Total previsto por semana:</span>
-                <span class="font-medium text-gray-800" x-text="totalSemanal().toFixed(2) + 'h'"></span>
+                <span class="text-gray-500 dark:text-slate-400">Total previsto por semana:</span>
+                <span class="font-medium text-slate-800 dark:text-white" x-text="totalSemanal().toFixed(2) + 'h'"></span>
             </div>
 
             <template x-if="erroresGlobales().length">
@@ -308,25 +308,25 @@
 
         {{-- RA / CE elegibles --}}
         @if($modulos->isNotEmpty())
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-4">
                 Resultados de Aprendizaje y Criterios de Evaluación elegibles
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Selecciona los RA y CE que el alumno trabajará en esta empresa. Solo se muestran los marcados como elegibles FFE para {{ $cursoActivo }}.</p>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mb-4">Selecciona los RA y CE que el alumno trabajará en esta empresa. Solo se muestran los marcados como elegibles FFE para {{ $cursoActivo }}.</p>
 
             <div class="space-y-4">
                 @foreach($modulos as $modulo)
                     @if($modulo->resultadosAprendizaje->isNotEmpty())
                     <div class="border border-gray-100 rounded-lg p-4">
-                        <p class="text-xs font-semibold text-gray-400 uppercase mb-3">{{ $modulo->codigo }} — {{ $modulo->nombre }}</p>
+                        <p class="text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase mb-3">{{ $modulo->codigo }} — {{ $modulo->nombre }}</p>
                         <div class="space-y-3">
                             @foreach($modulo->resultadosAprendizaje as $ra)
                             <div>
                                 <label class="flex items-start gap-2 cursor-pointer">
                                     <input type="checkbox" name="ra_ids[]" value="{{ $ra->id }}"
                                            {{ in_array($ra->id, old('ra_ids', [])) ? 'checked' : '' }}
-                                           class="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                    <span class="text-sm text-gray-800 font-medium">{{ $ra->codigo }} — {{ $ra->nombre }}</span>
+                                           class="mt-0.5 rounded border-gray-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500">
+                                    <span class="text-sm text-slate-800 dark:text-white font-medium">{{ $ra->codigo }} — {{ $ra->nombre }}</span>
                                 </label>
 
                                 @if($ra->criterios->isNotEmpty())
@@ -335,8 +335,8 @@
                                     <label class="flex items-start gap-2 cursor-pointer">
                                         <input type="checkbox" name="ce_ids[]" value="{{ $ce->id }}"
                                                {{ in_array($ce->id, old('ce_ids', [])) ? 'checked' : '' }}
-                                               class="mt-0.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                        <span class="text-xs text-gray-600">{{ $ce->codigo }} — {{ $ce->descripcion }}</span>
+                                               class="mt-0.5 rounded border-gray-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
+                                        <span class="text-xs text-gray-600 dark:text-slate-400">{{ $ce->codigo }} — {{ $ce->descripcion }}</span>
                                     </label>
                                     @endforeach
                                 </div>
@@ -358,11 +358,11 @@
 
         <div class="flex gap-3">
             <button type="submit" :disabled="!formularioValido()"
-                    :class="formularioValido() ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+                    :class="formularioValido() ? 'bg-primary-600 hover:bg-primary-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 dark:text-slate-400 cursor-not-allowed'"
                     class="px-5 py-2 text-sm font-medium rounded-lg transition-colors">
                 Crear asignación
             </button>
-            <a href="{{ route('alumnos.show', $alumno) }}" class="px-5 py-2 bg-white border border-gray-300 text-sm text-gray-600 rounded-lg hover:bg-gray-50">
+            <a href="{{ route('alumnos.show', $alumno) }}" class="px-5 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm text-gray-600 dark:text-slate-400 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
                 Cancelar
             </a>
         </div>

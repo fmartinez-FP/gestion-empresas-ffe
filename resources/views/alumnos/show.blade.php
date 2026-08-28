@@ -13,15 +13,15 @@
 
 
     <div class="mb-6">
-        <a href="{{ route('alumnos.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Volver al listado</a>
+        <a href="{{ route('alumnos.index') }}" class="text-sm text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300">← Volver al listado</a>
     </div>
 
     {{-- Cabecera --}}
-    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-start justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ $alumno->nombre_completo }}</h1>
-                <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-500">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">{{ $alumno->nombre_completo }}</h1>
+                <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-500 dark:text-slate-400">
                     @if($alumno->email)
                         <span>{{ $alumno->email }}</span>
                     @endif
@@ -35,7 +35,7 @@
                             {{ $alumno->ciclo->codigo }} — {{ $alumno->ciclo->nombre }}
                         </span>
                     @endif
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:text-slate-300">
                         {{ $alumno->curso_academico }} · {{ $alumno->numero_curso }}º curso
                     </span>
                     @if($alumno->importado_via === 'excel')
@@ -74,7 +74,7 @@
                       onsubmit="return confirm('¿Dar de baja a {{ addslashes($alumno->nombre_completo) }}? El alumno pasará al Archivo y su cuenta de portal quedará desactivada.')">
                     @csrf @method('DELETE')
                     <button type="submit"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-red-300 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50">
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 border border-red-300 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50">
                         Dar de baja
                     </button>
                 </form>
@@ -84,13 +84,13 @@
     </div>
 
     {{-- Asignaciones FFE --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 class="text-base font-semibold text-gray-900">Asignaciones FFE</h2>
+            <h2 class="text-base font-semibold text-slate-800 dark:text-white">Asignaciones FFE</h2>
             @can('crearAsignacion', $alumno)
             @if(Route::has('asignaciones.create'))
             <a href="{{ route('asignaciones.create', $alumno) }}"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
                 + Nueva asignación
             </a>
             @endif
@@ -98,47 +98,47 @@
         </div>
 
         @if($alumno->asignaciones->isEmpty())
-            <div class="px-6 py-10 text-center text-sm text-gray-400">
+            <div class="px-6 py-10 text-center text-sm text-gray-400 dark:text-slate-500">
                 Este alumno no tiene asignaciones FFE registradas.
             </div>
         @else
-            <table class="min-w-full divide-y divide-gray-100 text-sm">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-gray-100 dark:divide-slate-700 text-sm">
+                <thead class="bg-gray-50 dark:bg-slate-700">
                     <tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-500">Empresa</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-500">Período</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-500">Tutor IES</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-500">Estado</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Empresa</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Período</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Tutor IES</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Estado</th>
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                     @foreach($alumno->asignaciones as $asignacion)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 font-medium text-gray-900">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
+                        <td class="px-4 py-3 font-medium text-slate-800 dark:text-white">
                             {{ $asignacion->empresa->nombre ?? '—' }}
                         </td>
-                        <td class="px-4 py-3 text-gray-500">
+                        <td class="px-4 py-3 text-gray-500 dark:text-slate-400">
                             @if($asignacion->fecha_inicio)
                                 {{ \Carbon\Carbon::parse($asignacion->fecha_inicio)->format('d/m/Y') }}
                                 @if($asignacion->fecha_fin)
                                     — {{ \Carbon\Carbon::parse($asignacion->fecha_fin)->format('d/m/Y') }}
                                 @endif
                             @else
-                                <span class="text-gray-300">Sin fechas</span>
+                                <span class="text-gray-300 dark:text-slate-600">Sin fechas</span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-gray-500">{{ $asignacion->tutorIes->nombre ?? '—' }}</td>
+                        <td class="px-4 py-3 text-gray-500 dark:text-slate-400">{{ $asignacion->tutorIes->nombre ?? '—' }}</td>
                         <td class="px-4 py-3">
                             @php
-                                $colores = ['activa' => 'bg-green-100 text-green-800', 'finalizada' => 'bg-gray-100 text-gray-600', 'cancelada' => 'bg-red-100 text-red-700'];
+                                $colores = ['activa' => 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400', 'finalizada' => 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300', 'cancelada' => 'bg-red-100 text-red-700'];
                             @endphp
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $colores[$asignacion->estado] ?? '' }}">
                                 {{ ucfirst($asignacion->estado) }}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-right">
-                            <a href="{{ route('asignaciones.show', $asignacion) }}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Ver →</a>
+                            <a href="{{ route('asignaciones.show', $asignacion) }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-xs font-medium">Ver →</a>
                         </td>
                     </tr>
                     @endforeach

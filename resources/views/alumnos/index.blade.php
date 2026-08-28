@@ -8,27 +8,27 @@
     {{-- Cabecera --}}
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Alumnos en FFE</h1>
-            <p class="text-sm text-gray-500 mt-1">{{ $alumnos->total() }} alumno{{ $alumnos->total() !== 1 ? 's' : '' }} activo{{ $alumnos->total() !== 1 ? 's' : '' }}</p>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Alumnos en FFE</h1>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ $alumnos->total() }} alumno{{ $alumnos->total() !== 1 ? 's' : '' }} activo{{ $alumnos->total() !== 1 ? 's' : '' }}</p>
         </div>
         <div class="flex gap-2">
             @can('importarAlumnos')
             <a href="{{ route('alumnos.import') }}"
-               class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
+               class="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                 Importar
             </a>
             @endcan
             @can('verArchivo')
             <a href="{{ route('alumnos.archivo') }}"
-               class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">
+               class="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2L19 8"/></svg>
                 Archivo
             </a>
             @endcan
             @can('crearAlumno')
             <a href="{{ route('alumnos.create') }}"
-               class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+               class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Nuevo alumno
             </a>
@@ -53,22 +53,22 @@
     {{-- Un profesor solo filtra por nombre/apellidos/email: ciclo/curso academico/numero
          de curso no tienen sentido para su vista, que ya esta acotada a su(s) grupo(s)
          tutor y al curso academico activo (sesion 2026-08-10). --}}
-    <form method="GET" action="{{ route('alumnos.index') }}" class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+    <form method="GET" action="{{ route('alumnos.index') }}" class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 mb-6">
         @if(auth()->user()->esProfesor())
         <div class="grid grid-cols-1 gap-3">
             <div>
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre, apellidos o email…"
-                       class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                       class="w-full rounded-lg border border-gray-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
             </div>
         </div>
         @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div class="lg:col-span-2">
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre, apellidos o email…"
-                       class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                       class="w-full rounded-lg border border-gray-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
             </div>
             <div>
-                <select name="ciclo_id" class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <select name="ciclo_id" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Todos los ciclos</option>
                     @foreach($ciclos as $ciclo)
                         <option value="{{ $ciclo->id }}" {{ request('ciclo_id') == $ciclo->id ? 'selected' : '' }}>
@@ -78,7 +78,7 @@
                 </select>
             </div>
             <div>
-                <select name="curso_academico" class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <select name="curso_academico" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">Todos los cursos</option>
                     @foreach($cursosAcademicos as $ca)
                         <option value="{{ $ca }}" {{ request('curso_academico') === $ca ? 'selected' : '' }}>{{ $ca }}</option>
@@ -86,7 +86,7 @@
                 </select>
             </div>
             <div>
-                <select name="numero_curso" class="w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <select name="numero_curso" class="w-full rounded-lg border border-gray-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500">
                     <option value="">1º y 2º</option>
                     <option value="1" {{ request('numero_curso') == '1' ? 'selected' : '' }}>1º curso</option>
                     <option value="2" {{ request('numero_curso') == '2' ? 'selected' : '' }}>2º curso</option>
@@ -95,69 +95,69 @@
         </div>
         @endif
         <div class="flex gap-2 mt-3">
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">Filtrar</button>
+            <button type="submit" class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">Filtrar</button>
             @if(request()->hasAny(['q','ciclo_id','curso_academico','numero_curso']))
-            <a href="{{ route('alumnos.index') }}" class="px-4 py-2 bg-white border border-gray-300 text-sm text-gray-600 rounded-lg hover:bg-gray-50">Limpiar</a>
+            <a href="{{ route('alumnos.index') }}" class="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm text-gray-600 dark:text-slate-400 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">Limpiar</a>
             @endif
         </div>
     </form>
 
     {{-- Tabla --}}
     @if($alumnos->isEmpty())
-        <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
-            <p class="mt-4 text-gray-500">No hay alumnos que coincidan con los filtros.</p>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+            <p class="mt-4 text-gray-500 dark:text-slate-400">No hay alumnos que coincidan con los filtros.</p>
             @can('crearAlumno')
-            <a href="{{ route('alumnos.create') }}" class="mt-4 inline-block text-blue-600 text-sm hover:underline">Añadir el primero</a>
+            <a href="{{ route('alumnos.create') }}" class="mt-4 inline-block text-primary-600 dark:text-primary-400 text-sm hover:underline">Añadir el primero</a>
             @endcan
         </div>
     @else
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+            <thead class="bg-gray-50 dark:bg-slate-700">
                 <tr>
-                    <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Alumno</th>
-                    <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Ciclo</th>
-                    <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Curso</th>
-                    <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Empresa FFE</th>
-                    <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Alumno</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Ciclo</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Curso</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Empresa FFE</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
                     <th class="px-4 py-3"></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                 @foreach($alumnos as $alumno)
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700">
                     <td class="px-4 py-3">
-                        <div class="font-medium text-gray-900">{{ $alumno->nombre_completo }}</div>
+                        <div class="font-medium text-slate-800 dark:text-white">{{ $alumno->nombre_completo }}</div>
                         @if($alumno->email)
-                        <div class="text-xs text-gray-400">{{ $alumno->email }}</div>
+                        <div class="text-xs text-gray-400 dark:text-slate-500">{{ $alumno->email }}</div>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-gray-600">
+                    <td class="px-4 py-3 text-gray-600 dark:text-slate-400">
                         @if($alumno->ciclo)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">{{ $alumno->ciclo->codigo }}</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">{{ $alumno->ciclo->codigo }}</span>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-gray-600">
+                    <td class="px-4 py-3 text-gray-600 dark:text-slate-400">
                         {{ $alumno->curso_academico }}<br>
-                        <span class="text-xs text-gray-400">{{ $alumno->numero_curso }}º</span>
+                        <span class="text-xs text-gray-400 dark:text-slate-500">{{ $alumno->numero_curso }}º</span>
                     </td>
-                    <td class="px-4 py-3 text-gray-600">
+                    <td class="px-4 py-3 text-gray-600 dark:text-slate-400">
                         @if($alumno->asignacionActiva && $alumno->asignacionActiva->empresa)
                             {{ $alumno->asignacionActiva->empresa->nombre }}
                         @else
-                            <span class="text-gray-400 text-xs">Sin asignación</span>
+                            <span class="text-gray-400 dark:text-slate-500 text-xs">Sin asignación</span>
                         @endif
                     </td>
                     <td class="px-4 py-3">
                         @if($alumno->asignacionActiva)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">En FFE</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">En FFE</span>
                         @else
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Pendiente</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">Pendiente</span>
                         @endif
                     </td>
                     <td class="px-4 py-3 text-right">
-                        <a href="{{ route('alumnos.show', $alumno) }}" class="text-blue-600 hover:text-blue-800 font-medium text-xs">Ver ficha →</a>
+                        <a href="{{ route('alumnos.show', $alumno) }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium text-xs">Ver ficha →</a>
                     </td>
                 </tr>
                 @endforeach

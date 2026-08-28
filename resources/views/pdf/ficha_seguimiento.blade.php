@@ -14,13 +14,24 @@
     .checkbox { border: 1px solid #000; display: inline-block; width: 9px; height: 9px; margin: 0 3px; }
     .actividades-table th { background: #d0d0d0; text-align: center; font-size: 8pt; }
     .actividades-table td { font-size: 8.5pt; }
+    .logo-area { float: left; width: 18mm; }
+    .logo-area img { width: 16mm; }
+    .header-text { margin-left: 20mm; }
 </style>
 </head>
 <body>
 <div class="page">
 
-    <h1>Anexo</h1>
-    <h2>Ficha de seguimiento periódico</h2>
+    @if(file_exists(public_path('images/logo-instituto.png')))
+    <div class="logo-area">
+        <img src="{{ public_path('images/logo-instituto.png') }}" alt="{{ config('centro.nombre_corto') }}">
+    </div>
+    @endif
+    <div class="header-text">
+        <h1>Anexo</h1>
+        <h2>Ficha de seguimiento periódico</h2>
+    </div>
+    <div style="clear:both;"></div>
 
     {{-- CABECERA CURSO/CONVENIO --}}
     <table style="margin-bottom:10px;">
