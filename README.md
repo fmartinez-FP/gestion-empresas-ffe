@@ -7,7 +7,7 @@ Plataforma web para gestión de empresas colaboradoras en la **Fase de Formació
 - Alta, baja y modificación de empresas con convenio
 - Registro de contactos (llamadas, emails, visitas, reuniones)
 - Valoraciones de empresas por criterios cuantitativos
-- Control de colocaciones y seguimiento laboral
+- Control de envíos de alumnos a empresa y seguimiento laboral
 - Generación de informes PDF y exportación a Excel
 - Auditoría de cambios críticos
 - Notificaciones automáticas (convenios por caducar, resúmenes mensuales)
@@ -67,6 +67,14 @@ docker compose exec app php artisan migrate --seed
 docker compose exec app php artisan config:cache
 docker compose exec app php artisan route:cache
 docker compose exec app php artisan view:cache
+```
+
+### 5. Permisos de storage
+
+Tras levantar los contenedores por primera vez, asigna los permisos correctos al directorio de storage:
+
+```bash
+docker exec ffe-app chown -R www-data:www-data /var/www/html/storage
 ```
 
 Accede en `http://localhost:8084` (puerto configurable con `APP_PORT` en `.env`).
@@ -163,7 +171,7 @@ docker compose exec app php artisan migrate:fresh
 | Rol | Descripción |
 |-----|-------------|
 | `admin` | Acceso total y configuración del sistema |
-| `responsable_ffe` | Gestión completa de empresas y colocaciones |
+| `responsable_ffe` | Gestión completa de empresas y envíos de alumnos a empresa |
 | `responsable_ciclo` | Gestión de empresas de su ciclo formativo |
 | `profesor` | Consulta y registro de contactos |
 
