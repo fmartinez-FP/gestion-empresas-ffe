@@ -184,6 +184,7 @@ class ColocacionTest extends TestCase
         // El método agrupa por ciclo+numero_curso, hay que sumar las filas del ciclo
         $cicloRows = collect($stats['2024-2025'])->where('ciclo_id', $ciclo->id);
         $this->assertEquals(8, $cicloRows->sum('total_alumnos'));
-        $this->assertEquals(700, $cicloRows->sum('total_horas'));
+        // total_horas = alumnos x horas por alumno (5x400 + 3x300), no la suma de num_horas.
+        $this->assertEquals(2900, $cicloRows->sum('total_horas'));
     }
 }

@@ -59,12 +59,13 @@ Route::middleware('auth')->group(function () {
     // Notificaciones
     Route::post('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'leer'])->name('notificaciones.leer');
     Route::post('/empresas/{empresa}/renovar', [EmpresaController::class, 'renovar'])->name('empresas.renovar');
-    Route::post('/empresas/{empresa}/duplicar', [EmpresaController::class, 'duplicar'])->name('empresas.duplicar');
     
     // Importación de empresas
-    Route::get('/empresas-import', [ImportController::class, 'index'])->name('empresas.import');
-    Route::post('/empresas-import', [ImportController::class, 'store'])->name('empresas.import.store');
-    Route::get('/empresas-import/plantilla', [ImportController::class, 'plantilla'])->name('empresas.import.plantilla');
+    Route::middleware('can:importarEmpresas')->group(function () {
+        Route::get('/empresas-import', [ImportController::class, 'index'])->name('empresas.import');
+        Route::post('/empresas-import', [ImportController::class, 'store'])->name('empresas.import.store');
+        Route::get('/empresas-import/plantilla', [ImportController::class, 'plantilla'])->name('empresas.import.plantilla');
+    });
     
     // Colocaciones
     Route::get('/colocaciones', [ColocacionController::class, 'index'])->name('colocaciones.index');
@@ -167,8 +168,10 @@ Route::middleware('auth')->group(function () {
     Route::get('alumnos/import', [\App\Http\Controllers\AlumnoController::class, 'importForm'])->name('alumnos.import');
     Route::post('alumnos/import', [\App\Http\Controllers\AlumnoController::class, 'import'])->name('alumnos.import.submit');
     Route::get('alumnos/plantilla', [\App\Http\Controllers\AlumnoController::class, 'descargarPlantilla'])->name('alumnos.plantilla');
-    Route::resource('alumnos', \App\Http\Controllers\AlumnoController::class)->except(['destroy']);
+    // show con withTrashed: el enlace «Ver» del archivo daba 404 para alumnos dados de baja.
+    Route::resource('alumnos', \App\Http\Controllers\AlumnoController::class)->except(['destroy'])->withTrashed(['show']);
     Route::delete('alumnos/{alumno}', [\App\Http\Controllers\AlumnoController::class, 'destroy'])->name('alumnos.destroy');
+    Route::post('alumnos/{id}/restaurar', [\App\Http\Controllers\AlumnoController::class, 'restaurar'])->whereNumber('id')->name('alumnos.restaurar');
     Route::post('alumnos/{alumno}/resetear-password', [\App\Http\Controllers\AlumnoController::class, 'resetearPassword'])->name('alumnos.resetear-password');
     
     // =========================================================================
@@ -202,6 +205,8 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get("asignaciones/{asignacion}/seguimientos",                              [\App\Http\Controllers\SeguimientoIesController::class, "index"])->name("asignaciones.seguimientos.index");
     Route::post("asignaciones/{asignacion}/seguimientos/{seguimiento}/confirmar",     [\App\Http\Controllers\SeguimientoIesController::class, "confirmar"])->name("asignaciones.seguimientos.confirmar");
+    Route::post("asignaciones/{asignacion}/seguimientos/{seguimiento}/desconfirmar",  [\App\Http\Controllers\SeguimientoIesController::class, "desconfirmar"])->name("asignaciones.seguimientos.desconfirmar");
+    Route::get("asignaciones/{asignacion}/seguimientos/{seguimiento}/evidencia",      [\App\Http\Controllers\SeguimientoIesController::class, "evidencia"])->name("asignaciones.seguimientos.evidencia");
     Route::post("asignaciones/{asignacion}/ajustes-horas-semana",                    [\App\Http\Controllers\SeguimientoIesController::class, "ajustarHorasSemana"])->name("asignaciones.ajustes-horas-semana.store");
     Route::post("asignaciones/{asignacion}/marcar-no-trabajado",                     [\App\Http\Controllers\SeguimientoIesController::class, "marcarNoTrabajado"])->name("asignaciones.marcar-no-trabajado.store");
 

@@ -2,13 +2,16 @@
 
 namespace App\Livewire;
 
+use App\Models\AsignacionFct;
 use App\Models\Direccion;
 use App\Models\Empresa;
 use App\Services\GeocodingService;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class GestorDirecciones extends Component
 {
+    #[Locked]
     public Empresa $empresa;
     public bool $mostrarFormulario = false;
     public ?int $editandoId = null;
@@ -35,14 +38,25 @@ class GestorDirecciones extends Component
         'codigo_postal.digits' => 'El código postal debe tener 5 dígitos.',
     ];
 
+    /**
+     * Las acciones de Livewire son endpoints invocables directamente: ocultar
+     * los botones en render() no basta, cada acción debe autorizar.
+     */
+    private function autorizar(): void
+    {
+        abort_unless(auth()->user()?->can('update', $this->empresa), 403);
+    }
+
     public function agregar(): void
     {
+        $this->autorizar();
         $this->resetFormulario();
         $this->mostrarFormulario = true;
     }
 
     public function editar(int $id): void
     {
+        $this->autorizar();
         $dir = Direccion::findOrFail($id);
         abort_unless($dir->empresa_id === $this->empresa->id, 403);
 
@@ -57,6 +71,7 @@ class GestorDirecciones extends Component
 
     public function guardar(): void
     {
+        $this->autorizar();
         $this->validate();
 
         $datos = [
@@ -93,8 +108,16 @@ class GestorDirecciones extends Component
 
     public function eliminar(int $id): void
     {
+        $this->autorizar();
         $dir = Direccion::findOrFail($id);
         abort_unless($dir->empresa_id === $this->empresa->id, 403);
+
+        // Borrarla dejaría sin sede (NULL) las asignaciones que la usan, sin avisar.
+        $enUso = AsignacionFct::where('sede_id', $dir->id)->count();
+        if ($enUso > 0) {
+            session()->flash('sede_warning', "No se puede eliminar la sede: la usan {$enUso} asignación(es) FFE. Cámbiales la sede antes de borrarla.");
+            return;
+        }
 
         $eraPrincipal = $dir->principal;
         $dir->delete();
@@ -106,6 +129,7 @@ class GestorDirecciones extends Component
 
     public function marcarPrincipal(int $id): void
     {
+        $this->autorizar();
         $dir = Direccion::findOrFail($id);
         abort_unless($dir->empresa_id === $this->empresa->id, 403);
 

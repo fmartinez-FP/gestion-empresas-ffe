@@ -326,23 +326,57 @@ class Empresa extends Model
     /**
      * Búsqueda por texto
      */
-    public function scopeBuscar($query, string $termino)
-{
-    $termino = "%{$termino}%";
-    
-    return $query->where(function ($q) use ($termino) {
-        $q->where('nombre', 'like', $termino)
-          ->orWhere('cif', 'like', $termino)
-          ->orWhereHas('personasContacto', function ($qp) use ($termino) {
-              $qp->where('nombre', 'like', $termino)
-                 ->orWhere('email', 'like', $termino);
-          })
-          ->orWhereHas('creador', function ($q2) use ($termino) {
-              $q2->where('nombre', 'like', $termino);
-          });
-    });
-}
+    /**
+     * Búsqueda por nombre/CIF/responsable y por persona de contacto.
+     *
+     * Con $usuario, la búsqueda por datos de contacto se limita a las empresas
+     * cuyos contactos ese usuario puede ver (mismo criterio que
+     * EmpresaPolicy::verPersonasContacto); si no, serviría de oráculo para
+     * averiguar qué empresa tiene a una persona o email concretos.
+     */
+    public function scopeBuscar($query, string $termino, ?User $usuario = null)
+    {
+        $termino = "%{$termino}%";
 
+        return $query->where(function ($q) use ($termino, $usuario) {
+            $q->where('nombre', 'like', $termino)
+              ->orWhere('cif', 'like', $termino)
+              ->orWhere(function ($qp) use ($termino, $usuario) {
+                  $qp->whereHas('personasContacto', function ($qc) use ($termino) {
+                      $qc->where(function ($qx) use ($termino) {
+                          $qx->where('nombre', 'like', $termino)
+                             ->orWhere('email', 'like', $termino);
+                      });
+                  });
+                  if ($usuario) {
+                      $qp->gestionadasPor($usuario);
+                  }
+              })
+              ->orWhereHas('creador', function ($q2) use ($termino) {
+                  $q2->where('nombre', 'like', $termino);
+              });
+        });
+    }
+
+    /**
+     * Empresas que $usuario gestiona (equivale a EmpresaPolicy::update para
+     * profesor y responsable_ciclo; admin/responsable_ffe: todas).
+     */
+    public function scopeGestionadasPor($query, User $usuario)
+    {
+        if ($usuario->esAdmin() || $usuario->esResponsableFFE()) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($usuario) {
+            $q->where('empresas.creador_id', $usuario->id);
+
+            if ($usuario->esResponsableCiclo()) {
+                $ciclosIds = $usuario->ciclos()->pluck('ciclos_formativos.id');
+                $q->orWhereHas('ciclos', fn ($qc) => $qc->whereIn('ciclos_formativos.id', $ciclosIds));
+            }
+        });
+    }
 
     /**
      * Ordenar por estado de convenio (urgentes primero)

@@ -29,7 +29,7 @@ class ExportController extends Controller
             'estado' => $request->get('estado'),
         ];
 
-        $path = $this->excelService->exportarEmpresas($filtros);
+        $path = $this->excelService->exportarEmpresas($filtros, $request->user());
 
         return response()->download($path)->deleteFileAfterSend(true);
     }

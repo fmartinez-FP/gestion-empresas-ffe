@@ -19,6 +19,8 @@ class BuscadorEmpresas extends Component
     public string $estado = '';
     
     // Ordenación
+    public const COLUMNAS_ORDENABLES = ['nombre', 'cif', 'fecha_firma', 'created_at', 'estado'];
+
     public string $ordenarPor = 'nombre';
     public string $ordenDir = 'asc';
 
@@ -56,6 +58,10 @@ class BuscadorEmpresas extends Component
     // Ordenar por columna
     public function ordenar(string $columna)
     {
+        if (! in_array($columna, self::COLUMNAS_ORDENABLES, true)) {
+            return;
+        }
+
         if ($this->ordenarPor === $columna) {
             $this->ordenDir = $this->ordenDir === 'asc' ? 'desc' : 'asc';
         } else {
@@ -77,7 +83,7 @@ class BuscadorEmpresas extends Component
 
         // Búsqueda por texto
         if ($this->buscar) {
-            $query->buscar($this->buscar);
+            $query->buscar($this->buscar, auth()->user());
         }
 
         // Filtro por ciclo
@@ -95,7 +101,14 @@ class BuscadorEmpresas extends Component
             $query->estadoConvenio($this->estado);
         }
 
-        // Ordenación
+        // Ordenación (los valores llegan del cliente: solo columnas y sentidos conocidos)
+        if (! in_array($this->ordenarPor, self::COLUMNAS_ORDENABLES, true)) {
+            $this->ordenarPor = 'nombre';
+        }
+        if (! in_array($this->ordenDir, ['asc', 'desc'], true)) {
+            $this->ordenDir = 'asc';
+        }
+
         if ($this->ordenarPor === 'estado') {
             $query->ordenarPorUrgencia();
         } else {
@@ -108,7 +121,7 @@ class BuscadorEmpresas extends Component
         // Contadores respetan buscar y ciclo pero no el filtro de estado
         $baseContadores = Empresa::query();
         if ($this->buscar) {
-            $baseContadores->buscar($this->buscar);
+            $baseContadores->buscar($this->buscar, auth()->user());
         }
         if ($this->ciclo) {
             $baseContadores->ciclo($this->ciclo);

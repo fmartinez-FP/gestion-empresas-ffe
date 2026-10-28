@@ -27,18 +27,21 @@ class ColocacionController extends Controller
 
         // Filtro por curso académico (por defecto el activo)
         $cursoSeleccionado = $request->get('curso', $cursoActivo);
+        if ($cursoSeleccionado !== 'todos' && ! preg_match('/^\d{4}-\d{4}$/', (string) $cursoSeleccionado)) {
+            $cursoSeleccionado = $cursoActivo; // valor manipulado en la URL
+        }
         if ($cursoSeleccionado !== 'todos') {
             $query->cursoAcademico($cursoSeleccionado);
         }
 
         // Filtro por ciclo
         if ($request->filled('ciclo')) {
-            $query->ciclo($request->ciclo);
+            $query->ciclo($request->integer('ciclo'));
         }
 
         // Filtro por empresa
         if ($request->filled('empresa')) {
-            $query->where('empresa_id', $request->empresa);
+            $query->where('empresa_id', $request->integer('empresa'));
         }
 
         $colocaciones = $query->orderBy('curso_academico', 'desc')
@@ -134,9 +137,9 @@ class ColocacionController extends Controller
     {
         $empresa = $colocacion->empresa;
         
-        // Verificar permisos: admin o quien la registró
+        // Verificar permisos: admin, responsable FFE (como en empresas) o quien la registró
         $user = auth()->user();
-        if (!$user->esAdmin() && $colocacion->registrado_por_id !== $user->id) {
+        if (!$user->esAdmin() && !$user->esResponsableFFE() && $colocacion->registrado_por_id !== $user->id) {
             return redirect()
                 ->route('empresas.show', $empresa)
                 ->with('error', 'No tienes permisos para editar esta colocación.');
@@ -155,9 +158,9 @@ class ColocacionController extends Controller
     {
         $empresa = $colocacion->empresa;
         
-        // Verificar permisos: admin o quien la registró
+        // Verificar permisos: admin, responsable FFE (como en empresas) o quien la registró
         $user = auth()->user();
-        if (!$user->esAdmin() && $colocacion->registrado_por_id !== $user->id) {
+        if (!$user->esAdmin() && !$user->esResponsableFFE() && $colocacion->registrado_por_id !== $user->id) {
             return redirect()
                 ->route('empresas.show', $empresa)
                 ->with('error', 'No tienes permisos para editar esta colocación.');
@@ -187,7 +190,7 @@ class ColocacionController extends Controller
 
         // Solo admin o el que registró pueden eliminar
         $user = auth()->user();
-        $puedeEliminar = $user->esAdmin() || $colocacion->registrado_por_id === $user->id;
+        $puedeEliminar = $user->esAdmin() || $user->esResponsableFFE() || $colocacion->registrado_por_id === $user->id;
 
         if (!$puedeEliminar) {
             return redirect()

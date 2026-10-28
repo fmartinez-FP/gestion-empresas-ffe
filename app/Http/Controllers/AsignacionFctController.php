@@ -13,7 +13,9 @@ use App\Models\Empresa;
 use App\Models\ResultadoAprendizaje;
 use App\Models\User;
 use App\Services\OnboardingAlumnoService;
+use App\Services\HistorialAsignacionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AsignacionFctController extends Controller
 {
@@ -62,37 +64,48 @@ class AsignacionFctController extends Controller
     ) {
         $data = $request->validated();
 
-        $asignacion = AsignacionFct::create([
-            'alumno_id'        => $alumno->id,
-            'empresa_id'       => $data['empresa_id'],
-            'sede_id'          => $data['sede_id'] ?? null,
-            'tutor_empresa_id' => $data['tutor_empresa_id'] ?? null,
-            'tutor_ies_id'     => $data['tutor_ies_id'],
-            'ciclo_id'         => $alumno->ciclo_id,
-            'curso_academico'  => Configuracion::cursoActivo(),
-            'numero_curso'     => $alumno->numero_curso,
-            'fecha_inicio'     => $data['fecha_inicio'],
-            'fecha_fin'        => $data['fecha_fin'],
-            'estado'           => 'activa',
-        ]);
+        // Todo o nada: si falla el horario o los RA no debe quedar una asignación a medias
+        // (un reintento la duplicaría).
+        $asignacion = DB::transaction(function () use ($data, $alumno, $horarioService) {
+            $asignacion = AsignacionFct::create([
+                'alumno_id'        => $alumno->id,
+                'empresa_id'       => $data['empresa_id'],
+                'sede_id'          => $data['sede_id'] ?? null,
+                'tutor_empresa_id' => $data['tutor_empresa_id'] ?? null,
+                'tutor_ies_id'     => $data['tutor_ies_id'],
+                'ciclo_id'         => $alumno->ciclo_id,
+                'curso_academico'  => Configuracion::cursoActivo(),
+                'numero_curso'     => $alumno->numero_curso,
+                'fecha_inicio'     => $data['fecha_inicio'],
+                'fecha_fin'        => $data['fecha_fin'],
+                'estado'           => 'activa',
+            ]);
 
-        $horarioService->guardar($asignacion, $data['horarios']);
+            $horarioService->guardar($asignacion, $data['horarios']);
 
-        if (!empty($data['ra_ids'])) {
-            $asignacion->resultadosAprendizaje()->sync($data['ra_ids']);
-        }
-        if (!empty($data['ce_ids'])) {
-            $asignacion->criteriosEvaluacion()->sync($data['ce_ids']);
-        }
+            if (!empty($data['ra_ids'])) {
+                $asignacion->resultadosAprendizaje()->sync($data['ra_ids']);
+            }
+            if (!empty($data['ce_ids'])) {
+                $asignacion->criteriosEvaluacion()->sync($data['ce_ids']);
+            }
 
-        // Onboarding: crear cuenta alumno si es su primera asignación
+            return $asignacion;
+        });
+
+        // Onboarding (fuera de la transacción): crear cuenta alumno si es su primera
+        // asignación. Un alumno sin email, un email ya usado o un fallo de SMTP no
+        // deben tumbar la asignación ya guardada: se avisa y se puede reintentar.
+        $aviso = null;
         if ($alumno->asignaciones()->count() === 1) {
             $onboarding->crearCuentaAlumno($alumno);
+            $aviso = $onboarding->aviso;
         }
 
         return redirect()
             ->route('asignaciones.show', $asignacion)
-            ->with('success', 'Asignación FFE creada correctamente.');
+            ->with('success', 'Asignación FFE creada correctamente.')
+            ->with('warning', $aviso);
     }
 
     // =========================================================================
@@ -186,7 +199,8 @@ class AsignacionFctController extends Controller
     public function update(
         UpdateAsignacionRequest $request,
         AsignacionFct $asignacion,
-        \App\Services\HorarioAsignacionService $horarioService
+        \App\Services\HorarioAsignacionService $horarioService,
+        HistorialAsignacionService $historial
     ) {
         $data = $request->validated();
 
@@ -203,12 +217,18 @@ class AsignacionFctController extends Controller
             $campos['estado'] = $data['estado'];
         }
 
-        $asignacion->update($campos);
+        DB::transaction(function () use ($asignacion, $campos, $data, $horarioService, $historial) {
+            $asignacion->update($campos);
 
-        $horarioService->guardar($asignacion, $data['horarios']);
+            $horarioService->guardar($asignacion, $data['horarios']);
 
-        $asignacion->resultadosAprendizaje()->sync($data['ra_ids'] ?? []);
-        $asignacion->criteriosEvaluacion()->sync($data['ce_ids'] ?? []);
+            $asignacion->resultadosAprendizaje()->sync($data['ra_ids'] ?? []);
+            $asignacion->criteriosEvaluacion()->sync($data['ce_ids'] ?? []);
+
+            // Al finalizar desde el formulario también se registra el histórico de
+            // colocaciones (antes solo lo hacía el comando ffe:reset-curso). Idempotente.
+            $historial->registrar($asignacion);
+        });
 
         return redirect()
             ->route('asignaciones.show', $asignacion)
@@ -235,9 +255,11 @@ class AsignacionFctController extends Controller
     // ENDPOINTS JSON AUXILIARES (para Alpine.js en formularios)
     // =========================================================================
 
+    // Solo se exponen etiquetas (sede / nombre y cargo) para poder rellenar el formulario de
+    // asignación; la ficha de la empresa sigue restringida a su responsable (verSedes/verPersonasContacto).
     public function sedes(Empresa $empresa)
     {
-        abort_unless(auth()->user()->can('verSedes', $empresa), 403);
+        abort_unless(auth()->user()->can('elegirDatosEmpresaAsignacion'), 403);
 
         $sedes = $empresa->direcciones()
             ->orderBy('principal', 'desc')
@@ -252,7 +274,7 @@ class AsignacionFctController extends Controller
 
     public function contactos(Empresa $empresa)
     {
-        abort_unless(auth()->user()->can('verPersonasContacto', $empresa), 403);
+        abort_unless(auth()->user()->can('elegirDatosEmpresaAsignacion'), 403);
 
         $contactos = $empresa->personasContacto()
             ->orderBy('principal', 'desc')

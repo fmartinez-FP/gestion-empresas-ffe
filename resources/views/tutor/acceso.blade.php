@@ -51,7 +51,8 @@
                     <p class="text-xs text-blue-700 mb-3">💬 {{ $s->comentario_tutor }}</p>
                 @endif
 
-                {{-- Formulario comentar --}}
+                {{-- Formulario comentar (cerrado una vez validada la entrada) --}}
+                @if(! $s->confirmado_tutor)
                 <div class="pt-3 border-t border-gray-100">
                     <form method="POST"
                           action="{{ route('tutor.comentar', ['token' => $registro->token, 'seguimiento' => $s]) }}">
@@ -70,6 +71,7 @@
                         </div>
                     </form>
                 </div>
+                @endif
             </div>
             @endforeach
         </div>

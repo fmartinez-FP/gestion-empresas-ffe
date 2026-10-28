@@ -91,6 +91,10 @@ class DatosEjemploSeeder extends Seeder
 
         foreach ($cursos as $curso) {
             foreach ($empresas as $empresa) {
+                if ($empresa->ciclos->isEmpty()) {
+                    continue;
+                }
+
                 // No todas las empresas tienen colocaciones cada curso
                 if (rand(0, 100) < 70) {
                     foreach ($empresa->ciclos->random(rand(1, min(2, $empresa->ciclos->count()))) as $ciclo) {

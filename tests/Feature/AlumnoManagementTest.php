@@ -147,6 +147,9 @@ class AlumnoManagementTest extends TestCase
     {
         $profesorSinPermisoGrupo = User::factory()->create(['rol' => 'profesor', 'activo' => true]);
         $alumno = $this->alumno();
+        // Tutor del grupo del alumno: puede editar el contacto, pero no el grupo.
+        \App\Models\Configuracion::setCursoActivo('2025-2026');
+        $profesorSinPermisoGrupo->sincronizarGruposTutor([$alumno->grupo_id]);
         $grupoOriginal = $alumno->grupo_id;
         $otroGrupo = Grupo::factory()->create([
             'ciclo_id'     => $alumno->grupo->ciclo_id,

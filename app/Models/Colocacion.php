@@ -149,7 +149,7 @@ class Colocacion extends Model
     public static function estadisticasPorCiclo(string $cursoAcademico = null): array
     {
         $query = self::query()
-            ->selectRaw('ciclo_id, curso_academico, numero_curso, SUM(num_alumnos) as total_alumnos, SUM(num_horas) as total_horas, COUNT(*) as num_envios')
+            ->selectRaw('ciclo_id, curso_academico, numero_curso, SUM(num_alumnos) as total_alumnos, SUM(num_alumnos * num_horas) as total_horas, COUNT(*) as num_envios')
             ->groupBy('ciclo_id', 'curso_academico', 'numero_curso')
             ->with('ciclo');
 

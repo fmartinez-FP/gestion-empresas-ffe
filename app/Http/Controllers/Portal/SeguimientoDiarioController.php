@@ -75,6 +75,11 @@ class SeguimientoDiarioController extends Controller
 
         abort_unless(auth('web_externo')->user()->can('crearSeguimiento', $asignacion), 403);
 
+        if (! $this->calendarioService->esDiaRegistrable($asignacion, Carbon::today())) {
+            return redirect()->route('portal.cuaderno.index')
+                ->with('info', 'Hoy no es un día de prácticas (fin de semana, festivo o día no lectivo): no se puede registrar una entrada.');
+        }
+
         $hoy = Carbon::today()->toDateString();
         $yaRegistrado = SeguimientoDiario::where('asignacion_id', $asignacion->id)
             ->where('fecha', $hoy)
@@ -97,6 +102,11 @@ class SeguimientoDiarioController extends Controller
             ->firstOrFail();
 
         abort_unless(auth('web_externo')->user()->can('crearSeguimiento', $asignacion), 403);
+
+        if (! $this->calendarioService->esDiaRegistrable($asignacion, Carbon::today())) {
+            return redirect()->route('portal.cuaderno.index')
+                ->with('info', 'Hoy no es un día de prácticas (fin de semana, festivo o día no lectivo): no se puede registrar una entrada.');
+        }
 
         $hoy = Carbon::today()->toDateString();
         $yaRegistrado = SeguimientoDiario::where('asignacion_id', $asignacion->id)

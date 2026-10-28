@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Models\Empresa;
 use App\Models\CicloFormativo;
 use App\Models\Colocacion;
+use App\Models\User;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -13,7 +16,23 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class ExportExcelService
 {
-    public function exportarEmpresas(array $filtros = []): string
+    /**
+     * Escribe un texto procedente de datos de usuario como cadena literal.
+     * setCellValue() interpreta como fórmula todo valor que empiece por "=",
+     * lo que permitiría inyectar fórmulas (=HYPERLINK(...)) en el Excel.
+     */
+    private function texto(Worksheet $sheet, string $celda, mixed $valor): void
+    {
+        $sheet->setCellValueExplicit($celda, (string) ($valor ?? ''), DataType::TYPE_STRING);
+    }
+
+    /**
+     * @param User|null $usuario Quien exporta: los datos de contacto y las
+     *                           sedes solo se incluyen de las empresas cuya
+     *                           ficha puede ver (verPersonasContacto/verSedes);
+     *                           null = sin restricción (uso interno/CLI).
+     */
+    public function exportarEmpresas(array $filtros = [], ?User $usuario = null): string
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -35,8 +54,8 @@ class ExportExcelService
         $sheet->getStyle('A1:L1')->applyFromArray($headerStyle);
         $sheet->getRowDimension(1)->setRowHeight(25);
 
-        $query = Empresa::with(['creador', 'ciclos', 'personasContacto']);
-        if (!empty($filtros['buscar'])) $query->buscar($filtros['buscar']);
+        $query = Empresa::with(['creador', 'ciclos', 'personasContacto', 'direcciones']);
+        if (!empty($filtros['buscar'])) $query->buscar($filtros['buscar'], $usuario);
         if (!empty($filtros['ciclo'])) $query->ciclo($filtros['ciclo']);
         if (!empty($filtros['estado'])) $query->estadoConvenio($filtros['estado']);
 
@@ -52,18 +71,21 @@ class ExportExcelService
                 default => 'Sin convenio',
             };
 
-            $sheet->setCellValue('A' . $row, $empresa->nombre);
-            $sheet->setCellValue('B' . $row, $empresa->cif);
-            $sheet->setCellValue('C' . $row, $empresa->telefono ?? '');
-            $sheet->setCellValue('D' . $row, $empresa->email ?? '');
-            $sheet->setCellValue('E' . $row, $empresa->persona_contacto ?? '');
-            $sheet->setCellValue('F' . $row, $empresa->direccion ?? '');
-            $sheet->setCellValue('G' . $row, $empresa->num_convenio ?? '');
+            $verContactos = $usuario === null || $usuario->can('verPersonasContacto', $empresa);
+            $verSedes     = $usuario === null || $usuario->can('verSedes', $empresa);
+
+            $this->texto($sheet, 'A' . $row, $empresa->nombre);
+            $this->texto($sheet, 'B' . $row, $empresa->cif);
+            $this->texto($sheet, 'C' . $row, $verContactos ? $empresa->telefono : '');
+            $this->texto($sheet, 'D' . $row, $verContactos ? $empresa->email : '');
+            $this->texto($sheet, 'E' . $row, $verContactos ? $empresa->persona_contacto : '');
+            $this->texto($sheet, 'F' . $row, $verSedes ? $empresa->direccion : '');
+            $this->texto($sheet, 'G' . $row, $empresa->num_convenio);
             $sheet->setCellValue('H' . $row, $empresa->fecha_firma ? $empresa->fecha_firma->format('d/m/Y') : '');
             $sheet->setCellValue('I' . $row, $empresa->fecha_vencimiento ? $empresa->fecha_vencimiento->format('d/m/Y') : '');
             $sheet->setCellValue('J' . $row, $estadoTexto);
             $sheet->setCellValue('K' . $row, $ciclosTexto);
-            $sheet->setCellValue('L' . $row, $empresa->creador->nombre ?? '');
+            $this->texto($sheet, 'L' . $row, $empresa->creador->nombre ?? '');
 
             $estadoColor = match($empresa->estado_convenio) {
                 'activo' => 'D1FAE5',
@@ -149,7 +171,7 @@ class ExportExcelService
                 default    => $ciclo->nivel,
             };
 
-            $sheet->setCellValue('A' . $row, $ciclo->codigo . ' - ' . $ciclo->nombre);
+            $this->texto($sheet, 'A' . $row, $ciclo->codigo . ' - ' . $ciclo->nombre);
             $sheet->setCellValue('B' . $row, $nivelTexto);
             $sheet->setCellValue('C' . $row, $stats1->alumnos);
             $sheet->setCellValue('D' . $row, $stats1->horas);
@@ -207,13 +229,13 @@ class ExportExcelService
 
         $row = 2;
         foreach ($colocaciones as $col) {
-            $detailSheet->setCellValue('A' . $row, $col->empresa->nombre);
-            $detailSheet->setCellValue('B' . $row, $col->empresa->cif);
+            $this->texto($detailSheet, 'A' . $row, $col->empresa->nombre);
+            $this->texto($detailSheet, 'B' . $row, $col->empresa->cif);
             $detailSheet->setCellValue('C' . $row, $col->ciclo->codigo);
             $detailSheet->setCellValue('D' . $row, $col->numero_curso . 'º');
             $detailSheet->setCellValue('E' . $row, $col->num_alumnos);
             $detailSheet->setCellValue('F' . $row, $col->num_horas);
-            $detailSheet->setCellValue('G' . $row, $col->registradoPor->nombre ?? '');
+            $this->texto($detailSheet, 'G' . $row, $col->registradoPor->nombre ?? '');
             $detailSheet->setCellValue('H' . $row, $col->created_at->format('d/m/Y'));
             $row++;
         }

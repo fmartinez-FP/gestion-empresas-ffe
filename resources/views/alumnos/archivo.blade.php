@@ -93,6 +93,13 @@
                     </td>
                     <td class="px-4 py-3 text-right">
                         <a href="{{ route('alumnos.show', $alumno->id) }}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Ver →</a>
+                        @can('verArchivo')
+                        <form method="POST" action="{{ route('alumnos.restaurar', $alumno->id) }}" class="inline ml-3"
+                              onsubmit="return confirm('¿Restaurar a este alumno y reactivar su cuenta de portal?')">
+                            @csrf
+                            <button type="submit" class="text-green-700 hover:underline text-xs font-medium">Restaurar</button>
+                        </form>
+                        @endcan
                     </td>
                 </tr>
                 @endforeach

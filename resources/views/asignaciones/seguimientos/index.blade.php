@@ -114,9 +114,15 @@
                                     @if($dia['seguimiento']?->descripcion_tareas)
                                         <p class="text-xs text-gray-500 line-clamp-1">{{ $dia['seguimiento']->descripcion_tareas }}</p>
                                     @endif
+                                    @if($dia['seguimiento']?->comentario_ies)
+                                        <p class="text-xs text-blue-700">💬 Tutor IES: {{ $dia['seguimiento']->comentario_ies }}</p>
+                                    @endif
                                 @elseif($dia['estado'] === 'pendiente' && $dia['seguimiento'])
                                     <p class="text-sm text-gray-700">Pendiente de confirmar</p>
                                     <p class="text-xs text-gray-500 line-clamp-1">{{ $dia['seguimiento']->descripcion_tareas }}</p>
+                                    @if($dia['seguimiento']->comentario_tutor)
+                                        <p class="text-xs text-blue-700">💬 Tutor empresa: {{ $dia['seguimiento']->comentario_tutor }}</p>
+                                    @endif
                                 @elseif($dia['estado'] === 'pendiente')
                                     <p class="text-sm text-gray-400">Sin registrar todavía</p>
                                 @elseif($dia['estado'] === 'no_trabajado')
@@ -134,9 +140,30 @@
                             <form method="POST"
                                   action="{{ route('asignaciones.seguimientos.confirmar', [$asignacion, $dia['seguimiento']]) }}">
                                 @csrf
+                                <input type="text" name="comentario_ies" maxlength="500" placeholder="Comentario (opcional)"
+                                    class="w-40 border border-gray-300 rounded-lg px-2 py-1 text-xs mr-1">
                                 <button type="submit"
                                     class="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition whitespace-nowrap">
                                     Confirmar
+                                </button>
+                            </form>
+                            @endif
+
+                            @if($dia['seguimiento']?->evidencia_path)
+                            <a href="{{ route('asignaciones.seguimientos.evidencia', [$asignacion, $dia['seguimiento']]) }}" target="_blank"
+                               class="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition whitespace-nowrap">
+                                📎 Evidencia
+                            </a>
+                            @endif
+
+                            @if($dia['estado'] === 'confirmado' && $dia['seguimiento'] && auth()->user()->can('desconfirmarSeguimiento', $dia['seguimiento']))
+                            <form method="POST"
+                                  action="{{ route('asignaciones.seguimientos.desconfirmar', [$asignacion, $dia['seguimiento']]) }}"
+                                  onsubmit="return confirm('¿Retirar la confirmación de esta entrada?')">
+                                @csrf
+                                <button type="submit"
+                                    class="px-3 py-1 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition whitespace-nowrap">
+                                    Retirar confirmación
                                 </button>
                             </form>
                             @endif

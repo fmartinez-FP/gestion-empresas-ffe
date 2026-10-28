@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidaCiclosSeleccionados;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEmpresaRequest extends FormRequest
 {
+    use ValidaCiclosSeleccionados;
+
     public function authorize(): bool
     {
         return true; // Autorización gestionada en EmpresaController
@@ -24,7 +27,7 @@ class StoreEmpresaRequest extends FormRequest
             'fecha_firma'      => 'nullable|date',
             'notas'            => 'nullable|string',
             'ciclos'           => 'nullable|array',
-            'ciclos.*.id'      => 'exists:ciclos_formativos,id',
+            'duplicar_de'      => 'nullable|integer|exists:empresas,id',
             'ciclos.*.acepta_primero' => 'boolean',
             'ciclos.*.acepta_segundo' => 'boolean',
         ];

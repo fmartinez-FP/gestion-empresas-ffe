@@ -10,6 +10,7 @@ use App\Services\CuadernoCalendarioService;
 use App\Services\HorarioAsignacionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SeguimientoIesController extends Controller
 {
@@ -70,16 +71,44 @@ class SeguimientoIesController extends Controller
         abort_unless(auth()->user()->can('confirmarSeguimiento', $seguimiento), 403);
 
         $validated = $request->validate([
-            'comentario_tutor' => ['nullable', 'string', 'max:500'],
+            'comentario_ies' => ['nullable', 'string', 'max:500'],
         ]);
 
+        // El comentario del tutor IES va en su propia columna: antes se escribía en
+        // comentario_tutor y borraba el que hubiera dejado el tutor de empresa.
         $seguimiento->update([
             'confirmado_tutor' => true,
             'confirmado_at'    => now(),
-            'comentario_tutor' => $validated['comentario_tutor'] ?? null,
+            'comentario_ies'   => $validated['comentario_ies'] ?? null,
         ]);
 
         return back()->with('success', 'Entrada confirmada.');
+    }
+
+    public function desconfirmar(AsignacionFct $asignacion, SeguimientoDiario $seguimiento)
+    {
+        abort_unless($seguimiento->asignacion_id === $asignacion->id, 404);
+        abort_unless(auth()->user()->can('desconfirmarSeguimiento', $seguimiento), 403);
+
+        $seguimiento->update([
+            'confirmado_tutor' => false,
+            'confirmado_at'    => null,
+        ]);
+
+        return back()->with('success', 'Confirmación retirada: la entrada vuelve a estar pendiente.');
+    }
+
+    /**
+     * La evidencia (imagen) que sube el alumno vive en el disco privado; sin esta
+     * ruta nadie del centro podía verla al confirmar la entrada.
+     */
+    public function evidencia(AsignacionFct $asignacion, SeguimientoDiario $seguimiento)
+    {
+        abort_unless($seguimiento->asignacion_id === $asignacion->id, 404);
+        abort_unless(auth()->user()->can('verAsignacion', $asignacion), 403);
+        abort_unless($seguimiento->evidencia_path && Storage::disk('private')->exists($seguimiento->evidencia_path), 404);
+
+        return Storage::disk('private')->response($seguimiento->evidencia_path);
     }
 
     public function ajustarHorasSemana(Request $request, AsignacionFct $asignacion)

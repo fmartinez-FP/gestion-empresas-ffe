@@ -33,7 +33,7 @@
         <env name="DB_HOST" value="ffe-mysql"/>
         <env name="DB_PORT" value="3306"/>
         <env name="DB_USERNAME" value="gestion_user"/>
-        <env name="DB_PASSWORD" value="TuContraseñaSegura123!"/>
+        <!-- DB_PASSWORD no se fija aquí: se toma del entorno (variable DB_PASSWORD o .env montado). -->
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

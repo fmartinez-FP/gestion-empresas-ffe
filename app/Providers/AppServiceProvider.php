@@ -34,10 +34,14 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('verArchivo',     [AlumnoPolicy::class, 'verArchivo']);
         Gate::define('importarAlumnos',[AlumnoPolicy::class, 'importarAlumnos']);
 
+        // Gate para Empresas sin modelo (delegado a EmpresaPolicy)
+        Gate::define('importarEmpresas', [\App\Policies\EmpresaPolicy::class, 'importarEmpresas']);
+
         // Gates para Asignaciones FFE
         Gate::define('crearAsignacion',   [AsignacionPolicy::class, 'crearAsignacion']);
         Gate::define('verAsignacion',     [AsignacionPolicy::class, 'verAsignacion']);
         Gate::define('editarAsignacion',  [AsignacionPolicy::class, 'editarAsignacion']);
+        Gate::define('elegirDatosEmpresaAsignacion',[AsignacionPolicy::class, 'elegirDatosEmpresaAsignacion']);
         Gate::define('cancelarAsignacion',[AsignacionPolicy::class, 'cancelarAsignacion']);
         Gate::define('ajustarHorasSemana',[AsignacionPolicy::class, 'ajustarHorasSemana']);
         Gate::define('marcarDiaNoTrabajado',[AsignacionPolicy::class, 'marcarDiaNoTrabajado']);
@@ -55,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('crearSeguimiento',    [SeguimientoDiarioPolicy::class, 'crear']);
         Gate::define('editarSeguimiento',   [SeguimientoDiarioPolicy::class, 'editar']);
         Gate::define('confirmarSeguimiento',[SeguimientoDiarioPolicy::class, 'confirmar']);
+        Gate::define('desconfirmarSeguimiento',[SeguimientoDiarioPolicy::class, 'desconfirmar']);
 
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

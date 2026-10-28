@@ -69,4 +69,20 @@ class SeguimientoDiarioPolicy
 
         return $seguimiento->asignacion->tutor_ies_id === $user->id;
     }
+
+    /**
+     * Retirar una confirmación (p. ej. confirmada por error): mismos actores que confirmar().
+     */
+    public function desconfirmar(User $user, SeguimientoDiario $seguimiento): bool
+    {
+        if (! $seguimiento->confirmado_tutor) {
+            return false;
+        }
+
+        if (in_array($user->rol, ['admin', 'responsable_ffe'])) {
+            return true;
+        }
+
+        return $seguimiento->asignacion->tutor_ies_id === $user->id;
+    }
 }

@@ -46,6 +46,11 @@ class TutorEmpresaController extends Controller
             'comentario_tutor' => ['required', 'string', 'max:500'],
         ]);
 
+        // Una vez confirmada por el tutor IES la entrada queda cerrada.
+        if ($seguimiento->confirmado_tutor) {
+            return back()->with('error', 'Esta entrada ya está validada por el tutor del centro y no admite cambios.');
+        }
+
         // El tutor empresa puede añadir comentario pero no confirma (eso es del tutor IES)
         $seguimiento->update([
             'comentario_tutor' => $validated['comentario_tutor'],

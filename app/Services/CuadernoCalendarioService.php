@@ -152,6 +152,22 @@ class CuadernoCalendarioService
     }
 
     /**
+     * ¿Se puede registrar una entrada del cuaderno en esa fecha? Solo en días
+     * laborables (L-V) que no estén marcados como festivo/ausencia en el
+     * calendario de la asignación ni como no lectivos del centro.
+     */
+    public function esDiaRegistrable(AsignacionFct $asignacion, Carbon $fecha): bool
+    {
+        if ($fecha->isWeekend()) {
+            return false;
+        }
+
+        $estado = $this->resolverEstados($asignacion, collect([$fecha]))->get($fecha->toDateString());
+
+        return ! in_array($estado['estado'], ['festivo', 'ausencia'], true);
+    }
+
+    /**
      * Mes por defecto a mostrar: el explicito por query, o el mes de hoy si cae dentro
      * del periodo de la asignacion, o el primer mes del periodo en caso contrario.
      */

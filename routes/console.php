@@ -8,14 +8,16 @@ Schedule::command('convenios:notificar')->weeklyOn(1, '08:00');
 // Resumen semanal de asignaciones (lunes 8:30)
 Schedule::command('asignaciones:notificar')->weeklyOn(1, '08:30');
 
-// Resumen mensual (último viernes del mes a las 9:00, feb-mayo)
-Schedule::command('resumen:mensual')->monthlyOn(1, '09:00')
+// Resumen mensual (último viernes del mes a las 9:00)
+// Antes: monthlyOn(1) + when(último viernes) => nunca coincidían (día 1 vs último viernes).
+Schedule::command('resumen:mensual')->fridays()->at('09:00')
     ->when(function () {
         // Ejecutar solo el último viernes del mes
-        $hoy = now();
-        $ultimoViernes = $hoy->copy()->endOfMonth()->previous('Friday');
-        return $hoy->isSameDay($ultimoViernes);
+        return now()->copy()->addWeek()->month !== now()->month;
     });
+
+// Avisos a tutores IES con seguimientos sin confirmar (respeta intervalo_email_tutor)
+Schedule::command('ffe:notificar-tutores')->dailyAt('08:15');
 
 // Backup de base de datos (cada día a las 3:00)
 Schedule::command('backup:database')->dailyAt('03:00');

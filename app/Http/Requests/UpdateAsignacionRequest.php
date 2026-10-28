@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidaCoherenciaAsignacion;
 use App\Services\HorarioAsignacionService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAsignacionRequest extends FormRequest
 {
+    use ValidaCoherenciaAsignacion;
+
     public function authorize(): bool
     {
         return auth()->user()->can('editarAsignacion', $this->route('asignacion'));
@@ -72,13 +75,20 @@ class UpdateAsignacionRequest extends FormRequest
         $validator->after(function ($validator) {
             $horarios = $this->input('horarios');
 
-            if (!is_array($horarios) || empty($horarios)) {
-                return;
+            if (is_array($horarios) && !empty($horarios)) {
+                foreach (app(HorarioAsignacionService::class)->validarHorarios($horarios) as $error) {
+                    $validator->errors()->add('horarios', $error);
+                }
             }
 
-            foreach (app(HorarioAsignacionService::class)->validarHorarios($horarios) as $error) {
-                $validator->errors()->add('horarios', $error);
-            }
+            $asignacion = $this->route('asignacion');
+            // Solo las asignaciones que quedan activas compiten por las fechas.
+            $this->validarCoherenciaAsignacion(
+                $validator,
+                $asignacion->alumno_id,
+                $this->input('estado', $asignacion->estado),
+                $asignacion->id,
+            );
         });
     }
 }

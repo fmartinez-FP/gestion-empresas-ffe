@@ -98,7 +98,10 @@
                             </div>
                             <p class="text-sm text-gray-600 line-clamp-2">{{ $s->descripcion_tareas }}</p>
                             @if($s->comentario_tutor)
-                                <p class="text-xs text-blue-700 mt-1">💬 {{ $s->comentario_tutor }}</p>
+                                <p class="text-xs text-blue-700 mt-1">💬 Tutor de empresa: {{ $s->comentario_tutor }}</p>
+                            @endif
+                            @if($s->comentario_ies)
+                                <p class="text-xs text-blue-700 mt-1">💬 Tutor del centro: {{ $s->comentario_ies }}</p>
                             @endif
                         </div>
                         @if(! $s->confirmado_tutor && $s->fecha->isToday())

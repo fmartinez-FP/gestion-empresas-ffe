@@ -35,6 +35,13 @@
         @if(isset($empresa))
             @method('PUT')
         @endif
+        @if(isset($origen))
+            <input type="hidden" name="duplicar_de" value="{{ $origen->id }}">
+            <div class="rounded-xl border border-blue-200 bg-blue-50 text-blue-800 px-4 py-3 text-sm">
+                Duplicando <strong>{{ $origen->nombre }}</strong>: se copian los ciclos y, si tienes permiso, las sedes y los contactos.
+                Introduce el CIF de la nueva empresa; no se creará nada hasta que guardes.
+            </div>
+        @endif
 
         <!-- Datos básicos -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -55,7 +62,7 @@
                         type="text" 
                         id="nombre" 
                         name="nombre" 
-                        value="{{ old('nombre', $empresa->nombre ?? '') }}"
+                        value="{{ old('nombre', $empresa->nombre ?? (isset($origen) ? $origen->nombre . ' (copia)' : '')) }}"
                         required
                         placeholder="Razón social completa"
                         class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('nombre') border-red-300 @enderror"
@@ -140,7 +147,7 @@
                         rows="3"
                         placeholder="Información adicional sobre la empresa o el convenio..."
                         class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                    >{{ old('notas', $empresa->notas ?? '') }}</textarea>
+                    >{{ old('notas', $empresa->notas ?? ($origen->notas ?? '')) }}</textarea>
                 </div>
             </div>
         </div>
@@ -201,7 +208,9 @@
 
             <div class="space-y-4">
                 @php
-                    $empresaCiclos = isset($empresa) ? $empresa->ciclos->keyBy('id') : collect();
+                    $empresaCiclos = isset($empresa)
+                        ? $empresa->ciclos->keyBy('id')
+                        : (isset($origen) ? $origen->ciclos->keyBy('id') : collect());
                 @endphp
                 
                 @foreach($ciclos->groupBy('nivel') as $nivel => $ciclosNivel)

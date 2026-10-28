@@ -30,6 +30,16 @@ class AsignacionPolicy
         return app(AlumnoPolicy::class)->verAlumno($user, $alumno);
     }
 
+    /**
+     * Listar sedes y contactos de una empresa SOLO para rellenar el formulario de
+     * asignación: cualquier personal del IES que pueda asignar alumnos. No amplía
+     * lo que se ve en la ficha de la empresa.
+     */
+    public function elegirDatosEmpresaAsignacion(User $user): bool
+    {
+        return $this->esPersonalIes($user);
+    }
+
     /** Admin y responsable_ffe pueden cancelar; otros no */
     public function cancelarAsignacion(User $user, AsignacionFct $asignacion): bool
     {

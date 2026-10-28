@@ -37,7 +37,8 @@ class ImportExcelService
             $encabezados = array_shift($filas);
             $mapaColumnas = $this->mapearColumnas($encabezados);
 
-            if (empty($mapaColumnas['nombre']) || empty($mapaColumnas['cif'])) {
+            // isset y no empty: la columna "Nombre" suele ser el índice 0 (empty(0) === true).
+            if (! isset($mapaColumnas['nombre'], $mapaColumnas['cif'])) {
                 return [
                     'success' => false,
                     'mensaje' => 'El archivo debe contener las columnas "Nombre" y "CIF".',
@@ -137,9 +138,16 @@ class ImportExcelService
             'nombre' => $nombre,
             'cif' => $cif,
             // telefono y email gestionados via tabla personas_contacto
-            'num_convenio' => trim($fila[$mapa['num_convenio'] ?? -1] ?? ''),
-            'notas' => trim($fila[$mapa['notas'] ?? -1] ?? ''),
         ];
+
+        // Solo se tocan las columnas presentes en el Excel: si no vienen, una
+        // actualización no debe vaciar num_convenio ni notas de la empresa.
+        if (isset($mapa['num_convenio'])) {
+            $datos['num_convenio'] = trim($fila[$mapa['num_convenio']] ?? '') ?: null;
+        }
+        if (isset($mapa['notas'])) {
+            $datos['notas'] = trim($fila[$mapa['notas']] ?? '') ?: null;
+        }
 
         if (isset($mapa['fecha_firma']) && !empty($fila[$mapa['fecha_firma']])) {
             $datos['fecha_firma'] = $this->parsearFecha($fila[$mapa['fecha_firma']]);

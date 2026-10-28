@@ -1,0 +1,38 @@
+# Secretos y configuración local: se montan en tiempo de ejecución (docker-compose.yml)
+.env
+.env.*
+
+# Control de versiones y editores
+.git
+.gitignore
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Dependencias: se instalan en la imagen con composer install
+vendor
+node_modules
+
+# Datos y estado en ejecución: ./storage se monta como volumen
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing
+storage/app/public/*
+storage/app/temp
+bootstrap/cache/*.php
+
+# Cachés de pruebas y logs
+.phpunit.cache
+.phpunit.result.cache
+*.log
+*.bak
+
+# Orquestación y documentación que no hacen falta dentro de la imagen
+docker-compose*.yml
+README.md
+docs

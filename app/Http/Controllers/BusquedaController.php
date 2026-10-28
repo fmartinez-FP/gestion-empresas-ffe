@@ -14,7 +14,7 @@ class BusquedaController extends Controller
         if (strlen($q) < 2) return response()->json([]);
 
         return response()->json(
-            Empresa::buscar($q)
+            Empresa::buscar($q, $request->user())
                 ->with('ciclos:id,codigo')
                 ->select('id', 'nombre', 'cif')
                 ->take(10)

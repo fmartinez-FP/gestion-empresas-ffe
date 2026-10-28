@@ -13,7 +13,7 @@
             <p class="text-slate-500 dark:text-slate-400 mt-1">Catálogo de empresas con convenio</p>
         </div>
         <div class="flex items-center gap-3">
-            @admin
+            @can('importarEmpresas')
             <a href="{{ route('empresas.import') }}" 
                class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors shadow-lg shadow-green-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,7 +21,7 @@
                 </svg>
                 Importar
             </a>
-            @endadmin
+            @endcan
             <a href="{{ route('empresas.create') }}" 
                class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

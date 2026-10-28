@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidaCoherenciaAsignacion;
 use App\Services\HorarioAsignacionService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAsignacionRequest extends FormRequest
 {
+    use ValidaCoherenciaAsignacion;
+
     public function authorize(): bool
     {
         return auth()->user()->can('crearAsignacion', $this->route('alumno'));
@@ -65,13 +68,14 @@ class StoreAsignacionRequest extends FormRequest
         $validator->after(function ($validator) {
             $horarios = $this->input('horarios');
 
-            if (!is_array($horarios) || empty($horarios)) {
-                return; // ya cubierto por la regla 'horarios' => required
+            // Si falta el horario ya lo cubre la regla 'horarios' => required.
+            if (is_array($horarios) && !empty($horarios)) {
+                foreach (app(HorarioAsignacionService::class)->validarHorarios($horarios) as $error) {
+                    $validator->errors()->add('horarios', $error);
+                }
             }
 
-            foreach (app(HorarioAsignacionService::class)->validarHorarios($horarios) as $error) {
-                $validator->errors()->add('horarios', $error);
-            }
+            $this->validarCoherenciaAsignacion($validator, $this->route('alumno')->id);
         });
     }
 }

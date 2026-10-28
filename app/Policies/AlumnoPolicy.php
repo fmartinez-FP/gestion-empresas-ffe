@@ -32,9 +32,18 @@ class AlumnoPolicy
         return $this->esResponsableSuperior($user);
     }
 
+    /**
+     * Sin modelo (p. ej. @can('editarAlumno') en vistas) solo comprueba el rol;
+     * con modelo aplica el mismo scope que verAlumno(): un profesor no puede
+     * editar alumnos que no puede ver (otros grupos o cursos cerrados).
+     */
     public function editarAlumno(User $user, ?Alumno $alumno = null): bool
     {
-        return $this->esGestorAlumnos($user);
+        if (! $this->esGestorAlumnos($user)) {
+            return false;
+        }
+
+        return $alumno === null || $this->verAlumno($user, $alumno);
     }
 
     /**
@@ -48,6 +57,11 @@ class AlumnoPolicy
      */
     public function verAlumno(User $user, Alumno $alumno): bool
     {
+        // Alumnos dados de baja (archivo): solo quienes pueden ver el archivo.
+        if ($alumno->trashed() && ! $this->esResponsableSuperior($user)) {
+            return false;
+        }
+
         if (! $user->esProfesor()) {
             return true;
         }

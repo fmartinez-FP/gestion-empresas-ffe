@@ -26,7 +26,7 @@ class Authenticate
         if (!Auth::user()->activo) {
             Auth::logout();
             return redirect()->route('login')->withErrors([
-                'email' => 'Tu cuenta ha sido desactivada. Contacta con el administrador.',
+                'username' => 'Tu cuenta ha sido desactivada. Contacta con el administrador.',
             ]);
         }
 

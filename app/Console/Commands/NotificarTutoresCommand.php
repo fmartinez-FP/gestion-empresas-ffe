@@ -41,6 +41,14 @@ class NotificarTutoresCommand extends Command
                 continue;
             }
 
+            // Respetar el intervalo entre avisos (intervalo_email_tutor, 14 días por defecto):
+            // antes se reenviaba en cada ejecución mientras hubiera pendientes.
+            $intervaloAviso = $asignacion->intervalo_email_tutor ?: 14;
+            if ($asignacion->ultimo_email_tutor_at !== null
+                && $asignacion->ultimo_email_tutor_at->gt(now()->subDays($intervaloAviso))) {
+                continue;
+            }
+
             $tutorIes = $asignacion->tutorIes;
 
             if ($tutorIes === null || empty($tutorIes->email)) {

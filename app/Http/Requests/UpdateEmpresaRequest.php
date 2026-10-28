@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidaCiclosSeleccionados;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEmpresaRequest extends FormRequest
 {
+    use ValidaCiclosSeleccionados;
+
     public function authorize(): bool
     {
         return true; // Autorización gestionada en EmpresaController

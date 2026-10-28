@@ -53,7 +53,8 @@ class ResetearPasswordAlumnoTest extends TestCase
     public function fallo_controlado_si_alumno_no_tiene_cuenta_de_portal(): void
     {
         $admin = User::factory()->create(['rol' => 'admin']);
-        $alumno = Alumno::factory()->create(['user_id' => null]);
+        // Sin cuenta y sin email no hay forma de crearla: error controlado (con email la crea).
+        $alumno = Alumno::factory()->create(['user_id' => null, 'email' => null]);
 
         $response = $this->actingAs($admin)
             ->post(route('alumnos.resetear-password', $alumno));

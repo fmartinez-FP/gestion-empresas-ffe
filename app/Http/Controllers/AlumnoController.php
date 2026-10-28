@@ -8,6 +8,7 @@ use App\Models\Alumno;
 use App\Models\CicloFormativo;
 use App\Models\Configuracion;
 use App\Models\Grupo;
+use App\Services\OnboardingAlumnoService;
 use Illuminate\Http\Request;
 
 class AlumnoController extends Controller
@@ -116,6 +117,18 @@ class AlumnoController extends Controller
     {
         $alumno->update($request->validated());
 
+        // El login del portal autentica contra users.email, no alumnos.email
+        // (ver Portal\LoginController::login). Sin este sync, cambiar el email
+        // de contacto del alumno deja la cuenta de portal con un email de
+        // acceso obsoleto.
+        if ($alumno->wasChanged('email') && ! app(OnboardingAlumnoService::class)->sincronizarEmailCuenta($alumno)) {
+            return redirect()
+                ->route('alumnos.show', $alumno)
+                ->with('success', 'Alumno actualizado correctamente.')
+                ->with('warning', "El email {$alumno->email} ya lo usa otro usuario: se ha guardado en la ficha, "
+                    . 'pero el acceso al portal del alumno conserva su email anterior.');
+        }
+
         return redirect()
             ->route('alumnos.show', $alumno)
             ->with('success', 'Alumno actualizado correctamente.');
@@ -143,6 +156,25 @@ class AlumnoController extends Controller
     }
 
     // =========================================================================
+    // RESTAURAR (sacar del archivo)
+    // =========================================================================
+
+    public function restaurar(int $id)
+    {
+        abort_unless(auth()->user()->can('verArchivo'), 403);
+
+        $alumno = Alumno::onlyTrashed()->findOrFail($id);
+        $alumno->restore();
+
+        // destroy() desactivó su cuenta de portal: se vuelve a activar.
+        app(OnboardingAlumnoService::class)->reactivarCuenta($alumno);
+
+        return redirect()
+            ->route('alumnos.show', $alumno)
+            ->with('success', 'Alumno restaurado: vuelve a estar en el listado y su cuenta de portal está activa.');
+    }
+
+    // =========================================================================
     // RESETEO DE CONTRASEÑA
     // =========================================================================
 
@@ -150,13 +182,31 @@ class AlumnoController extends Controller
     {
         abort_unless(auth()->user()->can('resetearPasswordAlumno', $alumno), 403);
 
+        $onboarding = app(OnboardingAlumnoService::class);
+
+        // Sin cuenta de portal: es la vía para crearla (p. ej. si al asignarlo no tenía email).
         if (! $alumno->user) {
+            $user = $onboarding->crearCuentaAlumno($alumno);
+
+            if (! $user) {
+                return redirect()
+                    ->route('alumnos.show', $alumno)
+                    ->with('error', $onboarding->aviso ?? 'No se pudo crear la cuenta del portal.');
+            }
+
             return redirect()
                 ->route('alumnos.show', $alumno)
-                ->with('error', 'Este alumno no tiene cuenta de portal creada.');
+                ->with('success', 'Cuenta del portal creada y email de bienvenida enviado a ' . $alumno->email . '.')
+                ->with('warning', $onboarding->aviso);
         }
 
-        (new \App\Services\OnboardingAlumnoService())->resetearPassword($alumno);
+        try {
+            $onboarding->resetearPassword($alumno);
+        } catch (\RuntimeException $e) {
+            return redirect()
+                ->route('alumnos.show', $alumno)
+                ->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('alumnos.show', $alumno)

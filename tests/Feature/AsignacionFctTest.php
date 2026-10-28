@@ -539,23 +539,27 @@ class AsignacionFctTest extends TestCase
     }
 
     #[Test]
-    public function profesor_ajeno_a_la_empresa_no_puede_ver_sedes(): void
+    public function profesor_ajeno_a_la_empresa_puede_listar_sedes_para_asignar_pero_no_un_alumno(): void
     {
-        // $this->empresa tiene creador_id distinto (factory por defecto); $this->profesor
-        // no tiene relacion alguna con ella.
+        // Decisión (Bloque B): quien puede crear asignaciones necesita elegir sede de la
+        // empresa aunque no la gestione; el endpoint solo expone etiquetas.
         \App\Models\Direccion::factory()->create(['empresa_id' => $this->empresa->id]);
 
-        $resp = $this->actingAs($this->profesor)->getJson(route('interna.empresa.sedes', $this->empresa));
-        $resp->assertForbidden();
+        $this->actingAs($this->profesor)->getJson(route('interna.empresa.sedes', $this->empresa))->assertOk();
+
+        $alumno = User::factory()->create(['rol' => 'alumno']);
+        $this->actingAs($alumno)->getJson(route('interna.empresa.sedes', $this->empresa))->assertForbidden();
     }
 
     #[Test]
-    public function profesor_ajeno_a_la_empresa_no_puede_ver_contactos(): void
+    public function profesor_ajeno_a_la_empresa_puede_listar_contactos_para_asignar_pero_no_un_alumno(): void
     {
         \App\Models\PersonaContacto::factory()->create(['empresa_id' => $this->empresa->id]);
 
-        $resp = $this->actingAs($this->profesor)->getJson(route('interna.empresa.contactos', $this->empresa));
-        $resp->assertForbidden();
+        $this->actingAs($this->profesor)->getJson(route('interna.empresa.contactos', $this->empresa))->assertOk();
+
+        $alumno = User::factory()->create(['rol' => 'alumno']);
+        $this->actingAs($alumno)->getJson(route('interna.empresa.contactos', $this->empresa))->assertForbidden();
     }
 
     #[Test]

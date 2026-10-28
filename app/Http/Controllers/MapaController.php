@@ -21,11 +21,13 @@ class MapaController extends Controller
             ->when($request->ciclo, fn($q) => $q->whereHas('ciclos',
                 fn($q2) => $q2->where($col, $request->ciclo)
             ))
+            // wherePivot() solo existe en la relación en sí, no dentro de whereHas (daba
+            // 500 "Unknown column 'pivot'"): se filtra directamente por la columna del pivote.
             ->when($request->curso === 'primero', fn($q) => $q->whereHas('ciclos',
-                fn($q2) => $q2->wherePivot('acepta_primero', true)
+                fn($q2) => $q2->where('empresa_ciclo.acepta_primero', true)
             ))
             ->when($request->curso === 'segundo', fn($q) => $q->whereHas('ciclos',
-                fn($q2) => $q2->wherePivot('acepta_segundo', true)
+                fn($q2) => $q2->where('empresa_ciclo.acepta_segundo', true)
             ))
             ->get();
 

@@ -22,6 +22,7 @@ class SeguimientoDiario extends Model
         'confirmado_tutor',
         'confirmado_at',
         'comentario_tutor',
+        'comentario_ies',
     ];
 
     protected $casts = [

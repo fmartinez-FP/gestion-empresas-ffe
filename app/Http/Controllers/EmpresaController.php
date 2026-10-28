@@ -7,6 +7,7 @@ use App\Models\CicloFormativo;
 use App\Models\User;
 use App\Models\Auditoria;
 use App\Services\NotificacionService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -24,12 +25,20 @@ class EmpresaController extends Controller
     }
 
     /**
-     * Formulario de creación
+     * Formulario de creación. Con ?duplicar_de={id} se precarga con los datos
+     * de otra empresa (nombre, notas y ciclos); no se crea nada hasta que el
+     * usuario escribe un CIF nuevo y guarda (ver store()).
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $ciclos = CicloFormativo::activos()->orderBy('nivel')->orderBy('nombre')->get();
-        return view('empresas.create', compact('ciclos'));
+
+        $origen = null;
+        if ($request->filled('duplicar_de')) {
+            $origen = Empresa::with('ciclos')->findOrFail($request->integer('duplicar_de'));
+        }
+
+        return view('empresas.create', compact('ciclos', 'origen'));
     }
 
     /**
@@ -38,39 +47,73 @@ class EmpresaController extends Controller
     public function store(StoreEmpresaRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $user = auth()->user();
 
-        $empresa = Empresa::create([
-            ...$validated,
-            'creador_id' => auth()->id(),
-        ]);
+        $origen = ! empty($validated['duplicar_de'])
+            ? Empresa::find($validated['duplicar_de'])
+            : null;
 
-        // Crear persona de contacto inicial si se proporcionó
-        if (!empty($validated['contacto_nombre'])) {
-            $empresa->personasContacto()->create([
-                'nombre'    => $validated['contacto_nombre'],
-                'cargo'     => $validated['contacto_cargo'] ?? null,
-                'telefono'  => $validated['contacto_telefono'] ?? null,
-                'email'     => $validated['contacto_email'] ?? null,
-                'principal' => true,
+        // Todo o nada: una empresa a medias (p. ej. sin ciclos) no debe quedar guardada.
+        $empresa = DB::transaction(function () use ($request, $validated, $origen, $user) {
+            $empresa = Empresa::create([
+                ...$validated,
+                'creador_id' => $user->id,
             ]);
-        }
 
-        // Sincronizar ciclos
-        if ($request->has('ciclos')) {
-            $ciclosData = [];
-            foreach ($request->ciclos as $cicloId => $datos) {
-                if (isset($datos['seleccionado']) && $datos['seleccionado']) {
-                    $ciclosData[$cicloId] = [
-                        'acepta_primero' => isset($datos['acepta_primero']) ? true : false,
-			'acepta_segundo' => isset($datos['acepta_segundo']) ? true : false,
-                    ];
+            $copiarContactos = $origen && $user->can('verPersonasContacto', $origen);
+
+            // Persona de contacto inicial si se proporcionó. Si se copian los
+            // contactos de la empresa origen, ya hay una principal.
+            if (!empty($validated['contacto_nombre'])) {
+                $empresa->personasContacto()->create([
+                    'nombre'    => $validated['contacto_nombre'],
+                    'cargo'     => $validated['contacto_cargo'] ?? null,
+                    'telefono'  => $validated['contacto_telefono'] ?? null,
+                    'email'     => $validated['contacto_email'] ?? null,
+                    'principal' => ! $copiarContactos,
+                ]);
+            }
+
+            // Sincronizar ciclos
+            if ($request->has('ciclos')) {
+                $ciclosData = [];
+                foreach ($request->ciclos as $cicloId => $datos) {
+                    if (isset($datos['seleccionado']) && $datos['seleccionado']) {
+                        $ciclosData[$cicloId] = [
+                            'acepta_primero' => isset($datos['acepta_primero']),
+                            'acepta_segundo' => isset($datos['acepta_segundo']),
+                        ];
+                    }
+                }
+                $empresa->sincronizarCiclos($ciclosData);
+            }
+
+            // Duplicado: sedes y contactos solo si el usuario puede verlos en el origen.
+            if ($origen) {
+                if ($user->can('verSedes', $origen)) {
+                    foreach ($origen->direcciones as $dir) {
+                        $empresa->direcciones()->create($dir->only([
+                            'tipo_via', 'nombre_via', 'numero', 'codigo_postal', 'municipio',
+                            'latitud', 'longitud', 'principal',
+                        ]));
+                    }
+                }
+                if ($copiarContactos) {
+                    foreach ($origen->personasContacto as $persona) {
+                        $empresa->personasContacto()->create($persona->only([
+                            'nombre', 'cargo', 'telefono', 'email', 'notas', 'principal',
+                        ]));
+                    }
                 }
             }
-            $empresa->sincronizarCiclos($ciclosData);
-        }
 
-        // Registrar auditoría
-        Auditoria::registrarCreacion($empresa, "Empresa creada: {$empresa->nombre}");
+            $descripcion = $origen
+                ? "Empresa creada duplicando: {$origen->nombre}"
+                : "Empresa creada: {$empresa->nombre}";
+            Auditoria::registrarCreacion($empresa, $descripcion);
+
+            return $empresa;
+        });
 
         // Notificar a responsables_ciclo y responsable_ffe
         NotificacionService::notificarResponsablesCiclo($empresa, 'empresa_creada', "Nueva empresa: {$empresa->nombre}", route('empresas.show', $empresa));
@@ -249,52 +292,5 @@ class EmpresaController extends Controller
         return redirect()
             ->route('empresas.show', $empresa)
             ->with('success', 'Convenio renovado correctamente. Nueva vigencia hasta ' . $empresa->fecha_vencimiento->format('d/m/Y') . '.');
-    }
-
-    /**
-     * Duplicar empresa (crear copia sin colocaciones)
-     */
-    public function duplicar(Empresa $empresa): RedirectResponse
-    {
-        $empresa->load('ciclos');
-
-        // Crear copia
-        $nuevaEmpresa = Empresa::create([
-            'nombre' => $empresa->nombre . ' (copia)',
-            'cif' => '', // El usuario deberá introducir uno nuevo
-            'direccion' => $empresa->direccion,
-            'num_convenio' => null,
-            'fecha_firma' => null,
-            'notas' => $empresa->notas,
-            'creador_id' => auth()->id(),
-        ]);
-
-        // Copiar ciclos
-        $ciclosData = [];
-        foreach ($empresa->ciclos as $ciclo) {
-            $ciclosData[$ciclo->id] = [
-                'acepta_primero' => $ciclo->pivot->acepta_primero,
-                'acepta_segundo' => $ciclo->pivot->acepta_segundo,
-            ];
-        }
-        $nuevaEmpresa->sincronizarCiclos($ciclosData);
-
-        // Copiar personas de contacto
-        foreach ($empresa->personasContacto as $persona) {
-            $nuevaEmpresa->personasContacto()->create([
-                'nombre'    => $persona->nombre,
-                'cargo'     => $persona->cargo,
-                'telefono'  => $persona->telefono,
-                'email'     => $persona->email,
-                'notas'     => $persona->notas,
-                'principal' => $persona->principal,
-            ]);
-        }
-
-        Auditoria::registrarCreacion($nuevaEmpresa, "Empresa duplicada desde: {$empresa->nombre}");
-
-        return redirect()
-            ->route('empresas.edit', $nuevaEmpresa)
-            ->with('info', 'Empresa duplicada. Por favor, actualiza el nombre y el CIF antes de guardar.');
     }
 }

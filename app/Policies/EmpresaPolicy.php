@@ -27,6 +27,17 @@ class EmpresaPolicy
         return false;
     }
 
+    /**
+     * Importación masiva de empresas desde Excel: puede crear y, en modo
+     * "actualizar existentes", sobrescribir cualquier empresa y reasignar su
+     * responsable, por lo que se reserva a admin y responsable_ffe (mismo
+     * nivel que importar alumnos).
+     */
+    public function importarEmpresas(User $user): bool
+    {
+        return $user->esAdmin() || $user->esResponsableFFE();
+    }
+
     public function delete(User $user, Empresa $empresa): bool
     {
         return $user->esAdmin();

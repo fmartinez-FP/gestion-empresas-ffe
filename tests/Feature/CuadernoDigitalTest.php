@@ -354,13 +354,13 @@ class CuadernoDigitalTest extends TestCase
 
         $response = $this->actingAs($tutor)->post(
             route('asignaciones.seguimientos.confirmar', [$asignacion, $seguimiento]),
-            ['comentario_tutor' => 'Todo correcto.']
+            ['comentario_ies' => 'Todo correcto.']
         );
 
         $response->assertRedirect();
         $seguimiento->refresh();
         $this->assertTrue($seguimiento->confirmado_tutor);
-        $this->assertEquals('Todo correcto.', $seguimiento->comentario_tutor);
+        $this->assertEquals('Todo correcto.', $seguimiento->comentario_ies);
         $this->assertNotNull($seguimiento->confirmado_at);
     }
 

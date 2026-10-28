@@ -32,7 +32,14 @@ class LoginController extends Controller
             'password' => $request->input('password'),
         ];
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        try {
+            $autenticado = Auth::attempt($credentials, $request->boolean('remember'));
+        } catch (\LdapRecord\LdapRecordException $e) {
+            report($e);
+            return $this->errorDirectorio($request);
+        }
+
+        if ($autenticado) {
             $request->session()->regenerate();
 
             $user = Auth::user();
@@ -53,10 +60,36 @@ class LoginController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
+        // Auth::attempt devuelve false tanto con credenciales erróneas como con el
+        // servidor LDAP caído: si el directorio no responde no es culpa del usuario.
+        if (! $this->directorioDisponible()) {
+            return $this->errorDirectorio($request);
+        }
+
         return back()
             ->withInput($request->only('username', 'remember'))
             ->withErrors([
                 'username' => 'Las credenciales no coinciden o el usuario está desactivado.',
+            ]);
+    }
+
+    protected function directorioDisponible(): bool
+    {
+        try {
+            \LdapRecord\Container::getDefaultConnection()->connect();
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    private function errorDirectorio(Request $request): RedirectResponse
+    {
+        return back()
+            ->withInput($request->only('username', 'remember'))
+            ->withErrors([
+                'username' => 'No se puede contactar con el servidor de usuarios del centro (LDAP). '
+                    . 'Inténtalo de nuevo en unos minutos; si persiste, avisa al administrador.',
             ]);
     }
 
