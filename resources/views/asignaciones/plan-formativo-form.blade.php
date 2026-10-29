@@ -6,18 +6,18 @@
     @include('partials.nav-alumnos')
 
     {{-- Breadcrumb --}}
-    <div class="mb-1 text-sm text-gray-500">
-        <a href="{{ route('alumnos.index') }}" class="hover:text-gray-700">Alumnos</a>
+    <div class="mb-1 text-sm text-gray-500 dark:text-slate-400">
+        <a href="{{ route('alumnos.index') }}" class="hover:text-gray-700 dark:text-slate-300">Alumnos</a>
         <span class="mx-1">›</span>
-        <a href="{{ route('alumnos.show', $asignacion->alumno) }}" class="hover:text-gray-700">{{ $asignacion->alumno->nombre_completo }}</a>
+        <a href="{{ route('alumnos.show', $asignacion->alumno) }}" class="hover:text-gray-700 dark:text-slate-300">{{ $asignacion->alumno->nombre_completo }}</a>
         <span class="mx-1">›</span>
-        <a href="{{ route('asignaciones.show', $asignacion) }}" class="hover:text-gray-700">Asignación FFE</a>
+        <a href="{{ route('asignaciones.show', $asignacion) }}" class="hover:text-gray-700 dark:text-slate-300">Asignación FFE</a>
         <span class="mx-1">›</span>
         <span>Plan de Formación</span>
     </div>
 
     <div class="flex items-center justify-between mt-2 mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Configurar Plan de Formación</h1>
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Configurar Plan de Formación</h1>
     </div>
 
     @if($datos)
@@ -40,11 +40,11 @@
         @csrf
 
         {{-- MEDIDAS DISCAPACIDAD --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Adaptaciones y autorizaciones</h2>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-4">Adaptaciones y autorizaciones</h2>
 
             <div class="mb-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">¿Requiere medidas/adaptaciones extraordinarias por discapacidad?</p>
+                <p class="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">¿Requiere medidas/adaptaciones extraordinarias por discapacidad?</p>
                 <div class="flex gap-6">
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
                         <input type="radio" name="medidas_discapacidad" value="1"
@@ -65,14 +65,14 @@
 
             <div x-data="{ medidas: {{ old('medidas_discapacidad', $datos?->medidas_discapacidad ? '1' : '0') === '1' ? 'true' : 'false' }} }"
                  x-show="medidas" class="mb-5">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Especificar medidas/adaptaciones:</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Especificar medidas/adaptaciones:</label>
                 <textarea name="medidas_discapacidad_detalle" rows="3"
-                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500"
                           placeholder="Describe las medidas o adaptaciones necesarias...">{{ old('medidas_discapacidad_detalle', $datos?->medidas_discapacidad_detalle) }}</textarea>
             </div>
 
             <div class="mb-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">¿Requiere autorización extraordinaria?</p>
+                <p class="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">¿Requiere autorización extraordinaria?</p>
                 <div class="flex gap-6">
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
                         <input type="radio" name="autorizacion_extraordinaria" value="1"
@@ -93,19 +93,19 @@
 
             <div x-data="{ autorizacion: {{ old('autorizacion_extraordinaria', $datos?->autorizacion_extraordinaria ? '1' : '0') === '1' ? 'true' : 'false' }} }"
                  x-show="autorizacion">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Indicar causa/s:</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Indicar causa/s:</label>
                 <textarea name="autorizacion_extraordinaria_detalle" rows="3"
-                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500"
                           placeholder="Describe la causa de la autorización extraordinaria...">{{ old('autorizacion_extraordinaria_detalle', $datos?->autorizacion_extraordinaria_detalle) }}</textarea>
             </div>
         </div>
 
         {{-- INTERVALO --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Planificación</h2>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-4">Planificación</h2>
 
             <div class="mb-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">Intervalo de formación:</p>
+                <p class="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Intervalo de formación:</p>
                 <div class="flex flex-wrap gap-4">
                     @foreach(App\Models\PlanFormativoDatos::intervalos() as $valor => $etiqueta)
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
@@ -120,25 +120,25 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Periodos de formación (calendario y horario):</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Periodos de formación (calendario y horario):</label>
                 <textarea name="periodos" rows="4"
-                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500"
                           placeholder="Ej: Periodo 1 — Del 01/02/2026 al 30/04/2026, de lunes a viernes de 9:00 a 14:00&#10;Periodo 2 — ...">{{ old('periodos', $datos?->periodos) }}</textarea>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones:</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Observaciones:</label>
                 <textarea name="observaciones" rows="3"
-                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500"
                           placeholder="Observaciones adicionales sobre la planificación...">{{ old('observaciones', $datos?->observaciones) }}</textarea>
             </div>
         </div>
 
         {{-- IMPARTICION POR MÓDULO --}}
         @if($asignacion->resultadosAprendizaje->isNotEmpty())
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Impartición por módulo/RA</h2>
-            <p class="text-xs text-gray-400 mb-4">Indica si cada resultado de aprendizaje se imparte íntegramente en la empresa o de forma compartida con el centro.</p>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-5">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1">Impartición por módulo/RA</h2>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mb-4">Indica si cada resultado de aprendizaje se imparte íntegramente en la empresa o de forma compartida con el centro.</p>
 
             @php
                 $raAgrupados = $asignacion->resultadosAprendizaje->groupBy(fn($ra) => optional($ra->modulo)->nombre ?? 'Sin módulo');
@@ -149,21 +149,21 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="bg-gray-50 border-b border-gray-200">
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">Módulo / RA</th>
-                            <th class="px-3 py-2 text-center font-medium text-gray-500 w-36">Íntegramente en empresa</th>
-                            <th class="px-3 py-2 text-center font-medium text-gray-500 w-36">Compartida con centro</th>
+                        <tr class="bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-700">
+                            <th class="px-3 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Módulo / RA</th>
+                            <th class="px-3 py-2 text-center font-medium text-gray-500 dark:text-slate-400 w-36">Íntegramente en empresa</th>
+                            <th class="px-3 py-2 text-center font-medium text-gray-500 dark:text-slate-400 w-36">Compartida con centro</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         @foreach($raAgrupados as $moduloNombre => $ras)
-                        <tr class="bg-gray-50">
-                            <td colspan="3" class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase">{{ $moduloNombre }}</td>
+                        <tr class="bg-gray-50 dark:bg-slate-700">
+                            <td colspan="3" class="px-3 py-1.5 text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase">{{ $moduloNombre }}</td>
                         </tr>
                         @foreach($ras as $ra)
                         @php $valorGuardado = $imparticionMap->get($ra->id)['tipo'] ?? 'compartida'; @endphp
                         <tr>
-                            <td class="px-3 py-2 text-gray-700">{{ $ra->codigo }} — {{ $ra->nombre }}</td>
+                            <td class="px-3 py-2 text-gray-700 dark:text-slate-300">{{ $ra->codigo }} — {{ $ra->nombre }}</td>
                             <td class="px-3 py-2 text-center">
                                 <input type="radio"
                                        name="imparticion_modulos[{{ $ra->id }}]"
@@ -188,18 +188,18 @@
         @endif
 
         {{-- FORMACIONES ESPECÍFICAS --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Formaciones específicas</h2>
-            <p class="text-xs text-gray-400 mb-3">Formaciones no vinculadas al currículo del Ciclo Formativo / Curso de Especialización / Programa de especialización.</p>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 mb-6">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1">Formaciones específicas</h2>
+            <p class="text-xs text-gray-400 dark:text-slate-500 mb-3">Formaciones no vinculadas al currículo del Ciclo Formativo / Curso de Especialización / Programa de especialización.</p>
             <textarea name="formaciones_especificas" rows="4"
-                      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500"
+                      class="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500"
                       placeholder="Describe aquí cualquier formación específica adicional no vinculada al currículo...">{{ old('formaciones_especificas', $datos?->formaciones_especificas) }}</textarea>
         </div>
 
         {{-- ACCIONES --}}
         <div class="flex items-center justify-between">
             <a href="{{ route('asignaciones.show', $asignacion) }}"
-               class="px-4 py-2 bg-white border border-gray-300 text-sm text-gray-600 rounded-lg hover:bg-gray-50">
+               class="px-4 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm text-gray-600 dark:text-slate-400 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
                 Cancelar
             </a>
             <button type="submit"

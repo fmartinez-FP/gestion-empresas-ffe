@@ -2,12 +2,12 @@
      Sección de Documentos FCT — partial para asignaciones.show
      ============================================================ --}}
 <div class="mt-8">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Documentos</h3>
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Documentos</h3>
 
     {{-- GENERAR DOCUMENTOS --}}
     @can('gestionarDocumento', $asignacion)
-    <div class="bg-white rounded-lg shadow p-4 mb-4">
-        <p class="text-sm font-medium text-gray-600 mb-3">Generar documento:</p>
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 mb-4">
+        <p class="text-sm font-medium text-gray-600 dark:text-slate-400 mb-3">Generar documento:</p>
         <div class="flex flex-wrap gap-2">
             @foreach([
                 'plan_formativo'    => 'Plan de Formación (Anexo 6)',
@@ -44,33 +44,33 @@
     @endphp
 
     @if($documentos->isNotEmpty())
-    <div class="bg-white rounded-lg shadow overflow-hidden mb-4">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden mb-4">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+            <thead class="bg-gray-50 dark:bg-slate-700">
                 <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nombre de archivo</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Purgar</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Tipo</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Nombre de archivo</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Fecha</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Purgar</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                 @foreach($documentos as $doc)
                 <tr class="{{ $doc->esFirmado() ? 'bg-green-50' : '' }}">
                     <td class="px-4 py-2 whitespace-nowrap">
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                            {{ $doc->esFirmado() ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
+                            {{ $doc->esFirmado() ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-blue-100 text-blue-800' }}">
                             {{ $doc->etiqueta() }}
                         </span>
                     </td>
-                    <td class="px-4 py-2 text-gray-700 font-mono text-xs">{{ $doc->nombre_archivo }}</td>
-                    <td class="px-4 py-2 text-gray-500 whitespace-nowrap">
+                    <td class="px-4 py-2 text-gray-700 dark:text-slate-300 font-mono text-xs">{{ $doc->nombre_archivo }}</td>
+                    <td class="px-4 py-2 text-gray-500 dark:text-slate-400 whitespace-nowrap">
                         {{ $doc->esFirmado()
                             ? optional($doc->subido_at)->format('d/m/Y H:i')
                             : optional($doc->generado_at)->format('d/m/Y H:i') }}
                     </td>
-                    <td class="px-4 py-2 text-gray-500 whitespace-nowrap text-xs">
+                    <td class="px-4 py-2 text-gray-500 dark:text-slate-400 whitespace-nowrap text-xs">
                         {{ $doc->purgar_after ? $doc->purgar_after->format('d/m/Y') : '—' }}
                     </td>
                     <td class="px-4 py-2 whitespace-nowrap flex gap-2">
@@ -103,13 +103,13 @@
         </table>
     </div>
     @else
-    <p class="text-sm text-gray-400 italic mb-4">No hay documentos generados para esta asignación.</p>
+    <p class="text-sm text-gray-400 dark:text-slate-500 italic mb-4">No hay documentos generados para esta asignación.</p>
     @endif
 
     {{-- SUBIR PDF FIRMADO --}}
     @can('gestionarDocumento', $asignacion)
-    <div class="bg-white rounded-lg shadow p-4">
-        <p class="text-sm font-medium text-gray-600 mb-3">Subir documento firmado (PDF):</p>
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
+        <p class="text-sm font-medium text-gray-600 dark:text-slate-400 mb-3">Subir documento firmado (PDF):</p>
         @if(Route::has('documentos.subir-firmado'))
         <form method="POST"
               action="{{ route('documentos.subir-firmado', $asignacion) }}"
@@ -120,9 +120,9 @@
                    name="pdf_firmado"
                    accept="application/pdf"
                    required
-                   class="block text-sm text-gray-700 file:mr-3 file:py-1.5 file:px-3
+                   class="block text-sm text-gray-700 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3
                           file:rounded file:border-0 file:text-sm file:font-medium
-                          file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                          file:bg-gray-100 file:text-gray-700 dark:text-slate-300 hover:file:bg-gray-200">
             <button type="submit"
                     class="px-3 py-1.5 text-sm font-medium rounded bg-green-600 text-white hover:bg-green-700 transition">
                 Subir firmado

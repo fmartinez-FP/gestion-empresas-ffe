@@ -21,13 +21,13 @@
                     <h1 class="text-2xl font-bold text-slate-800 dark:text-white">{{ $empresa->nombre }}</h1>
                     @php
                         $colorClass = match($empresa->estado_convenio) {
-                            'activo' => 'status-green bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-                            'por_caducar' => 'status-yellow bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
-                            'caducado' => 'status-red bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-                            default => 'status-gray bg-slate-600 dark:bg-slate-600 text-slate-300',
+                            'activo' => 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+                            'por_caducar' => 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+                            'caducado' => 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+                            default => 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
                         };
                     @endphp
-                    <span class="status-badge {{ $colorClass }}">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $colorClass }}">
                         {{ $empresa->estado_etiqueta }}
                     </span>
                 </div>

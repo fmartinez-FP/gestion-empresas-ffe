@@ -40,8 +40,16 @@
 <div class="page">
 
     {{-- CABECERA --}}
-    <h1>Anexo</h1>
-    <h2>Plan de formación en empresa u organismo equiparado</h2>
+    @if(file_exists(public_path('images/logo-instituto.png')))
+    <div class="logo-area">
+        <img src="{{ public_path('images/logo-instituto.png') }}" alt="{{ config('centro.nombre_corto') }}">
+    </div>
+    @endif
+    <div class="header-text">
+        <h1>Anexo</h1>
+        <h2>Plan de formación en empresa u organismo equiparado</h2>
+    </div>
+    <div style="clear:both;"></div>
 
     <table>
         <tr>

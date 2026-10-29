@@ -6,47 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <title>{{ config('app.name') }}</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                            950: '#172554',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
+    @include('partials.brand-head')
+
     <style>
         .login-bg {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #0f1626 0%, #1d4ed8 55%, #38bdf8 100%);
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
@@ -72,7 +36,7 @@
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full floating"></div>
             <div class="absolute top-1/4 -left-20 w-60 h-60 bg-white/5 rounded-full floating-delayed"></div>
-            <div class="absolute bottom-20 right-1/4 w-40 h-40 bg-white/10 rounded-full floating"></div>
+            <div class="absolute bottom-20 right-1/4 w-40 h-40 bg-accent-500/10 rounded-full floating"></div>
             <div class="absolute -bottom-20 left-1/3 w-72 h-72 bg-white/5 rounded-full floating-delayed"></div>
         </div>
 
@@ -80,23 +44,23 @@
         <div class="hidden lg:flex lg:w-1/2 xl:w-3/5 items-center justify-center p-12 relative">
             <div class="max-w-lg text-white">
                 <div class="mb-8">
-                    @if(file_exists(public_path('images/logo.png')))
-                        <img 
-                            src="{{ asset('images/logo.png') }}" 
-                            alt="{{ config('centro.nombre_corto') }}" 
-                            class="h-20 w-auto"
+                    @if(file_exists(public_path('images/logo-ffe-white.png')))
+                        <img
+                            src="{{ asset('images/logo-ffe-white.png') }}"
+                            alt="Gestión FFE"
+                            class="h-24 xl:h-28 w-auto rounded-2xl shadow-xl"
                         >
                     @else
                         <div class="h-16 w-16 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur">
-                            <span class="text-3xl font-bold">IP</span>
+                            <span class="text-3xl font-bold">{{ strtoupper(substr(config('centro.nombre_corto', 'FFE'), 0, 2)) }}</span>
                         </div>
                     @endif
                 </div>
-                
-                <h1 class="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-                    Gestión <span class="text-primary-200">FFE</span>
+
+                <h1 class="text-3xl xl:text-4xl font-bold mb-6 leading-tight">
+                    Gestión de la Fase de <span class="text-primary-200">Formación en Empresa</span>
                 </h1>
-                
+
                 <p class="text-lg text-primary-100 mb-8 leading-relaxed">
                     Plataforma centralizada para la gestión de empresas colaboradoras 
                     y el seguimiento de prácticas formativas del centro.
@@ -146,15 +110,15 @@
                     
                     <!-- Logo móvil -->
                     <div class="lg:hidden text-center mb-8">
-                        @if(file_exists(public_path('images/logo.png')))
-                            <img 
-                                src="{{ asset('images/logo.png') }}" 
-                                alt="{{ config('centro.nombre_corto') }}" 
-                                class="h-16 w-auto mx-auto"
+                        @if(file_exists(public_path('images/logo-ffe-white.png')))
+                            <img
+                                src="{{ asset('images/logo-ffe-white.png') }}"
+                                alt="Gestión FFE"
+                                class="h-20 w-auto mx-auto rounded-xl shadow-md"
                             >
                         @else
                             <div class="h-14 w-14 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center mx-auto shadow-lg shadow-primary-500/30">
-                                <span class="text-white text-2xl font-bold">IP</span>
+                                <span class="text-white text-2xl font-bold">{{ strtoupper(substr(config('centro.nombre_corto', 'FFE'), 0, 2)) }}</span>
                             </div>
                         @endif
                     </div>
@@ -261,9 +225,16 @@
                 </div>
 
                 <!-- Footer -->
-                <p class="text-center text-sm text-white/60 mt-8">
-                    © {{ date('Y') }} {{ config('centro.nombre_corto') }}
-                </p>
+                <div class="flex items-center justify-center gap-3 mt-8">
+                    @if(file_exists(public_path('images/logo-instituto.png')))
+                    <span class="inline-flex items-center bg-white/90 rounded-md px-1.5 py-1">
+                        <img src="{{ asset('images/logo-instituto.png') }}" alt="{{ config('centro.nombre_corto') }}" class="h-7 w-auto">
+                    </span>
+                    @endif
+                    <p class="text-center text-sm text-white/60">
+                        © {{ date('Y') }} {{ config('centro.nombre_corto') }}
+                    </p>
+                </div>
             </div>
         </div>
     </div>

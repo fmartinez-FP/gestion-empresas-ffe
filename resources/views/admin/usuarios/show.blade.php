@@ -39,7 +39,7 @@
         <!-- Información principal -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Datos del usuario -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 p-6">
                 <h2 class="text-lg font-semibold text-slate-800 mb-4">Información del Usuario</h2>
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Empresas creadas -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-semibold text-slate-800">Empresas Creadas</h2>
                     <span class="text-sm text-slate-500">{{ $usuario->empresasCreadas->count() }} empresas</span>
@@ -119,7 +119,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Estadísticas -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 p-6">
                 <h2 class="text-lg font-semibold text-slate-800 mb-4">Estadísticas</h2>
                 <dl class="space-y-4">
                     <div class="flex justify-between">

@@ -5,51 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Portal FFE') — {{ config('centro.nombre_corto', 'FFE') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Escala completa de 'primary', igual que layouts/app.blade.php (sesion 2026-08-10):
-        // antes 'primary' era un solo valor, que en Tailwind solo genera la clase base
-        // bg-primary/text-primary, no bg-primary-600 ni hover:bg-primary-700 -- de ahi que
-        // varios botones del portal (ej. "Ver cuaderno") quedaran sin fondo, invisibles.
-        // Se mantiene DEFAULT con el mismo valor de antes para que bg-primary (navbar) no cambie.
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            DEFAULT: '#1d4ed8',
-                            50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a',950:'#172554'
-                        },
-                    }
-                }
-            }
-        }
-    </script>
+    @include('partials.brand-head')
     @stack('styles')
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-slate-100 min-h-screen font-sans antialiased">
 
     {{-- Navbar --}}
     @auth('web_externo')
-    <nav class="bg-primary shadow">
+    <nav class="bg-gradient-to-r from-primary-800 to-primary-600 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-3">
-                    <span class="text-white font-bold text-lg">Portal FFE</span>
-                    <span class="text-blue-200 text-sm">{{ config('centro.nombre_corto', '') }}</span>
+                    <span class="inline-flex items-center bg-white rounded-lg px-2 py-1.5 shadow-sm">
+                        <img src="{{ asset('images/logo-ffe.png') }}" alt="Gestión FFE" class="h-8 w-auto">
+                    </span>
+                    <span class="hidden sm:block text-primary-100 text-sm">{{ config('centro.nombre_corto', '') }}</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <a href="{{ route('portal.dashboard') }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-primary bg-white hover:bg-blue-50 transition shadow-sm">
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-primary-700 bg-white hover:bg-primary-50 transition shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h3a1 1 0 001-1v-3a1 1 0 011-1h1a1 1 0 011 1v3a1 1 0 001 1h3a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                         </svg>
                         Inicio
                     </a>
-                    <span class="text-blue-100 text-sm">{{ auth('web_externo')->user()->nombre }}</span>
+                    <span class="hidden sm:block text-primary-100 text-sm">{{ auth('web_externo')->user()->nombre }}</span>
                     <form method="POST" action="{{ route('portal.logout') }}">
                         @csrf
-                        <button type="submit" class="text-blue-200 hover:text-white text-sm underline">
+                        <button type="submit" class="text-primary-200 hover:text-white text-sm underline">
                             Cerrar sesión
                         </button>
                     </form>

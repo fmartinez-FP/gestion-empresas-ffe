@@ -14,13 +14,24 @@
     .area-grande { height: 20mm; vertical-align: top; }
     .checkbox { border: 1px solid #000; display: inline-block; width: 9px; height: 9px; margin: 0 3px; }
     .ra-table th { background: #d0d0d0; text-align: center; font-size: 8pt; }
+    .logo-area { float: left; width: 18mm; }
+    .logo-area img { width: 16mm; }
+    .header-text { margin-left: 20mm; }
 </style>
 </head>
 <body>
 <div class="page">
 
-    <h1>Anexo</h1>
-    <h2>Informe de valoración final del tutor de la empresa u organismo equiparado</h2>
+    @if(file_exists(public_path('images/logo-instituto.png')))
+    <div class="logo-area">
+        <img src="{{ public_path('images/logo-instituto.png') }}" alt="{{ config('centro.nombre_corto') }}">
+    </div>
+    @endif
+    <div class="header-text">
+        <h1>Anexo</h1>
+        <h2>Informe de valoración final del tutor de la empresa u organismo equiparado</h2>
+    </div>
+    <div style="clear:both;"></div>
 
     {{-- CABECERA --}}
     <table style="margin-bottom:10px; width:60%; margin-left:auto; margin-right:auto;">
