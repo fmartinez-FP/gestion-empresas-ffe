@@ -35,8 +35,9 @@ class User extends Authenticatable implements CanResetPassword, LdapAuthenticata
     /**
      * Al crear un usuario desde LDAP por primera vez:
      * - password: placeholder aleatorio (nunca se usa, auth es LDAP)
-     * - rol: profesor por defecto, EXCEPTO el username 'admin' (administrador
-     *   fijo de IES Pacifico), que siempre nace como admin sin promocion manual.
+     * - rol: profesor por defecto. El rol admin no se asigna aqui: lo concede
+     *   SincronizacionLdapService segun el grupo de administradores de LDAP
+     *   (en el login y en la sincronizacion periodica).
      * - activo: true
      */
     protected static function booted(): void
@@ -46,7 +47,7 @@ class User extends Authenticatable implements CanResetPassword, LdapAuthenticata
                 $user->password = bcrypt(\Illuminate\Support\Str::random(32));
             }
             if (empty($user->rol)) {
-                $user->rol = $user->username === 'admin' ? 'admin' : 'profesor';
+                $user->rol = 'profesor';
             }
             if (!isset($user->activo)) {
                 $user->activo = true;

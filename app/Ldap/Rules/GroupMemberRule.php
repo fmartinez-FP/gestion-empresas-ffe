@@ -10,7 +10,7 @@ class GroupMemberRule implements Rule
 {
     public function passes(LdapModel $user, ?EloquentModel $model = null): bool
     {
-        $group  = env('LDAP_APP_GROUP', '');
+        $group  = config('ldap.app_group');
         $baseDn = config('ldap.connections.default.base_dn');
 
         // 1. shadowExpire = '0' significa cuenta desactivada

@@ -287,12 +287,12 @@ class AlumnoManagementTest extends TestCase
     public function alumno_dado_de_baja_no_aparece_en_listado_activos()
     {
         $admin  = $this->admin();
-        $alumno = $this->alumno(['nombre' => 'Laura', 'apellidos' => 'Pérez']);
+        $alumno = $this->alumno(['nombre' => 'Eufrasia', 'apellidos' => 'Pérez']);
         $alumno->delete();
         Auth::loginUsingId($admin->id);
 
         $response = $this->get(route('alumnos.index'));
-        $response->assertDontSee('Laura');
+        $response->assertDontSee('Eufrasia');
     }
 
     // =========================================================================

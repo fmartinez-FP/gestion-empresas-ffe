@@ -23,7 +23,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <p class="text-sm text-blue-800 dark:text-blue-200">
-                Los datos del usuario (nombre, email, contraseña y estado activo) se gestionan desde la <strong>aplicación de administración LDAP</strong>. Aquí solo se asigna el rol dentro del sistema FFE.
+                Los datos del usuario (nombre, email, contraseña y estado activo) se gestionan desde la <strong>aplicación de administración LDAP</strong>. Aquí solo se asigna el rol dentro del sistema FFE; el rol de <strong>Administrador</strong> lo concede el grupo <strong>{{ config('ldap.admin_group') }}</strong> del servidor LDAP.
             </p>
         </div>
     </div>
@@ -46,6 +46,15 @@
         </dl>
     </div>
 
+    @if($usuario->esAdmin())
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700 mb-3">Administrador</span>
+        <p class="text-sm text-slate-600 dark:text-slate-300">
+            Este usuario es administrador porque pertenece al grupo <strong>{{ config('ldap.admin_group') }}</strong> del servidor LDAP.
+            Su rol no se cambia desde aquí: para quitárselo hay que sacarlo de ese grupo en LDAP.
+        </p>
+    </div>
+    @else
     <form method="POST" action="{{ route('admin.usuarios.update', $usuario) }}" class="space-y-6">
         @csrf
         @method('PUT')
@@ -56,43 +65,29 @@
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                     Rol en el sistema FFE <span class="text-red-500">*</span>
                 </label>
-                @if($usuario->id === auth()->id() && $usuario->esAdmin())
-                <div class="mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl text-sm text-amber-700 dark:text-amber-300">
-                    No puedes cambiar tu propio rol de administrador.
-                </div>
-                @endif
-                @php $esYoAdmin = $usuario->id === auth()->id() && $usuario->esAdmin(); @endphp
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/50 dark:hover:bg-primary-900/20 transition-colors {{ $esYoAdmin ? 'opacity-50 pointer-events-none' : '' }}">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/50 dark:hover:bg-primary-900/20 transition-colors">
                         <input type="radio" name="rol" value="profesor" {{ old('rol', $usuario->rol) === 'profesor' ? 'checked' : '' }}
-                               class="mt-0.5 text-primary-600 focus:ring-primary-500" onchange="toggleCicloSelect()" {{ $esYoAdmin ? 'disabled' : '' }}>
+                               class="mt-0.5 text-primary-600 focus:ring-primary-500" onchange="toggleCicloSelect()">
                         <div class="ml-3">
                             <span class="block font-medium text-slate-800 dark:text-white">Profesor</span>
                             <span class="text-sm text-slate-500 dark:text-slate-400">Gestiona sus propias empresas</span>
                         </div>
                     </label>
-                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-amber-300 hover:bg-amber-50/50 dark:hover:bg-amber-900/20 transition-colors {{ $esYoAdmin ? 'opacity-50 pointer-events-none' : '' }}">
+                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-amber-300 hover:bg-amber-50/50 dark:hover:bg-amber-900/20 transition-colors">
                         <input type="radio" name="rol" value="responsable_ciclo" {{ old('rol', $usuario->rol) === 'responsable_ciclo' ? 'checked' : '' }}
-                               class="mt-0.5 text-amber-600 focus:ring-amber-500" onchange="toggleCicloSelect()" {{ $esYoAdmin ? 'disabled' : '' }}>
+                               class="mt-0.5 text-amber-600 focus:ring-amber-500" onchange="toggleCicloSelect()">
                         <div class="ml-3">
                             <span class="block font-medium text-slate-800 dark:text-white">Responsable de Ciclo</span>
                             <span class="text-sm text-slate-500 dark:text-slate-400">Gestiona empresas de sus ciclos</span>
                         </div>
                     </label>
-                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-teal-300 hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors {{ $esYoAdmin ? 'opacity-50 pointer-events-none' : '' }}">
+                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-teal-300 hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors">
                         <input type="radio" name="rol" value="responsable_ffe" {{ old('rol', $usuario->rol) === 'responsable_ffe' ? 'checked' : '' }}
-                               class="mt-0.5 text-teal-600 focus:ring-teal-500" onchange="toggleCicloSelect()" {{ $esYoAdmin ? 'disabled' : '' }}>
+                               class="mt-0.5 text-teal-600 focus:ring-teal-500" onchange="toggleCicloSelect()">
                         <div class="ml-3">
                             <span class="block font-medium text-slate-800 dark:text-white">Responsable FFE</span>
                             <span class="text-sm text-slate-500 dark:text-slate-400">Accede a todas las empresas</span>
-                        </div>
-                    </label>
-                    <label class="flex items-start p-4 border border-slate-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-red-300 hover:bg-red-50/50 dark:hover:bg-red-900/20 transition-colors">
-                        <input type="radio" name="rol" value="admin" {{ old('rol', $usuario->rol) === 'admin' ? 'checked' : '' }}
-                               class="mt-0.5 text-red-600 focus:ring-red-500" onchange="toggleCicloSelect()">
-                        <div class="ml-3">
-                            <span class="block font-medium text-slate-800 dark:text-white">Administrador</span>
-                            <span class="text-sm text-slate-500 dark:text-slate-400">Acceso total al sistema</span>
                         </div>
                     </label>
                 </div>
@@ -202,8 +197,10 @@
             </button>
         </div>
     </form>
+    @endif
 </div>
 
+@unless($usuario->esAdmin())
 @push('scripts')
 <script>
 function toggleCicloSelect() {
@@ -320,4 +317,5 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+@endunless
 @endsection

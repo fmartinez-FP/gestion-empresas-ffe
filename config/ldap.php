@@ -17,6 +17,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Grupos LDAP de la aplicación
+    |--------------------------------------------------------------------------
+    |
+    | app_group:   quien no pertenezca a él no puede entrar en la aplicación.
+    | admin_group: sus miembros son administradores; el rol 'admin' solo se
+    |              concede (y se retira) desde este grupo del servidor LDAP.
+    |
+    */
+
+    'app_group' => env('LDAP_APP_GROUP', 'ffe'),
+    'admin_group' => env('LDAP_ADMIN_GROUP', 'admins'),
+
+    /*
+    |--------------------------------------------------------------------------
     | LDAP Connections
     |--------------------------------------------------------------------------
     |

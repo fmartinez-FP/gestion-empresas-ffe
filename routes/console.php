@@ -19,6 +19,9 @@ Schedule::command('resumen:mensual')->fridays()->at('09:00')
 // Avisos a tutores IES con seguimientos sin confirmar (respeta intervalo_email_tutor)
 Schedule::command('ffe:notificar-tutores')->dailyAt('08:15');
 
+// Usuarios al día con LDAP: bajas, borrados y rol de administrador (cada día a las 2:30)
+Schedule::command('ffe:sincronizar-ldap')->dailyAt('02:30');
+
 // Backup de base de datos (cada día a las 3:00)
 Schedule::command('backup:database')->dailyAt('03:00');
 

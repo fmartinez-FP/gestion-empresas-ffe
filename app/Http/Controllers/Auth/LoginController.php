@@ -43,6 +43,14 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+
+            // El rol de administrador sale del grupo LDAP: se refresca en cada acceso.
+            try {
+                app(\App\Services\Ldap\SincronizacionLdapService::class)->refrescarRol($user);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
             try {
                 \App\Models\Auditoria::create([
                     'user_id'          => $user->id,

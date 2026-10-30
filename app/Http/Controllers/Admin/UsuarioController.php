@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Ldap\SincronizacionLdapService;
 use App\Models\CicloFormativo;
 use App\Models\Grupo;
 use Illuminate\Http\Request;
@@ -48,14 +49,43 @@ class UsuarioController extends Controller
         return view('admin.usuarios.edit', compact('usuario', 'ciclos', 'grupos'));
     }
 
+    public function sincronizarLdap(SincronizacionLdapService $sincronizacion): RedirectResponse
+    {
+        try {
+            $r = $sincronizacion->sincronizar();
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with('error', 'No se pudo sincronizar con LDAP: ' . $e->getMessage());
+        }
+
+        $partes = [];
+        foreach (['desactivados' => 'desactivados', 'reactivados' => 'reactivados', 'eliminados' => 'eliminados',
+                  'ascendidos' => 'nuevos administradores', 'degradados' => 'dejan de ser administrador'] as $clave => $texto) {
+            if ($r[$clave] !== []) {
+                $partes[] = count($r[$clave]) . " {$texto} (" . implode(', ', $r[$clave]) . ')';
+            }
+        }
+
+        $redireccion = back()->with('success', $partes === []
+            ? 'Los usuarios ya estaban al día con LDAP.'
+            : 'Sincronizado con LDAP: ' . implode('; ', $partes) . '.');
+
+        $avisos = array_merge(
+            array_map(fn ($c) => "No se ha borrado {$c}; queda inactivo.", $r['conservados']),
+            $r['avisos']
+        );
+
+        return $avisos === [] ? $redireccion : $redireccion->with('warning', implode(' ', $avisos));
+    }
+
     public function update(Request $request, User $usuario): RedirectResponse
     {
-        if ($usuario->id === auth()->id() && $usuario->esAdmin()) {
-            return back()->with('error', 'No puedes cambiar tu propio rol de administrador.');
+        if ($usuario->esAdmin()) {
+            return back()->with('error', 'El rol de administrador se gestiona desde el grupo de administradores del servidor LDAP.');
         }
 
         $validated = $request->validate([
-            'rol'      => 'required|in:admin,responsable_ffe,responsable_ciclo,profesor',
+            'rol'      => 'required|in:responsable_ffe,responsable_ciclo,profesor',
             'ciclos'   => 'nullable|array',
             'ciclos.*' => 'exists:ciclos_formativos,id',
             'grupos'   => 'nullable|array|max:1',

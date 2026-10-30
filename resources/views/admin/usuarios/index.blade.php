@@ -13,6 +13,13 @@
             <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Gestión de Usuarios</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-1">{{ $usuarios->total() }} usuarios registrados</p>
         </div>
+        <form method="POST" action="{{ route('admin.usuarios.sincronizar-ldap') }}"
+              onsubmit="return confirm('Se desactivarán los usuarios dados de baja en LDAP y se borrarán los que ya no existan allí. ¿Sincronizar ahora?')">
+            @csrf
+            <button type="submit" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-medium hover:bg-slate-200 dark:hover:bg-slate-600">
+                Sincronizar con LDAP
+            </button>
+        </form>
     </div>
 
     <!-- Filtros -->

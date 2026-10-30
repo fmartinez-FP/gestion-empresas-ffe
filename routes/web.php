@@ -104,6 +104,7 @@ Route::middleware('auth')->group(function () {
     
     // Administración (solo admin)
     Route::prefix('admin')->name('admin.')->middleware('can:admin')->group(function () {
+        Route::post('usuarios/sincronizar-ldap', [UsuarioController::class, 'sincronizarLdap'])->name('usuarios.sincronizar-ldap');
         Route::resource('usuarios', UsuarioController::class)->only(['index', 'show', 'edit', 'update']);
         Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
         Route::get('auditoria/export/excel', [AuditoriaController::class, 'exportExcel'])->name('auditoria.export.excel');
